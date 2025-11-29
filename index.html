@@ -17,7 +17,7 @@
             background: linear-gradient(-45deg, #0f172a, #1a0b2e, #090979, #020024);
             background-size: 400% 400%;
             animation: auroraGradient 15s ease infinite;
-            transition: background-color 0.5s ease;
+            transition: background-color 0.5s ease, filter 1s ease; /* Filter geçişi eklendi (Karartma için) */
             overflow: hidden; 
             margin: 0;
         }
@@ -76,53 +76,24 @@
             display: inline-block;
         }
 
-        /* --- DEKORASYON AYARLARI (Görsele Göre Güncellendi) --- */
-        
-        /* 1. DEVASA AĞAÇ (Sol) */
+        /* DEKORASYONLAR */
         .tree-container {
-            position: fixed;
-            bottom: -50px;
-            left: -40px;
-            font-size: 350px; /* Çok büyük */
-            z-index: 20;
-            filter: drop-shadow(0 0 40px rgba(0, 255, 0, 0.3));
-            pointer-events: none;
-            line-height: 1;
+            position: fixed; bottom: -50px; left: -40px; font-size: 350px; z-index: 20;
+            filter: drop-shadow(0 0 40px rgba(0, 255, 0, 0.3)); pointer-events: none; line-height: 1;
         }
-
-        /* 2. HEDİYE PİRAMİDİ (Sağ) */
         .gift-stack-container {
-            position: fixed;
-            bottom: 0;
-            right: 10px;
-            display: flex;
-            align-items: flex-end; /* Tabana hizala */
-            gap: -10px; /* Kutular birbirine biraz girsin */
-            z-index: 30;
+            position: fixed; bottom: 0; right: 10px; display: flex; align-items: flex-end; gap: -10px; z-index: 30;
         }
-
-        .gift-column {
-            display: flex;
-            flex-direction: column-reverse; /* Aşağıdan yukarı diz */
-            margin-left: -15px; /* Sütunlar iç içe geçsin */
-        }
-
+        .gift-column { display: flex; flex-direction: column-reverse; margin-left: -15px; }
         .gift-item {
-            font-size: 80px; /* Büyük kutular */
-            line-height: 0.75; /* Üst üste binsinler */
-            cursor: pointer;
-            transition: transform 0.2s;
-            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+            font-size: 80px; line-height: 0.75; cursor: pointer; transition: transform 0.2s; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
         }
         .gift-item:hover { transform: scale(1.1) translateY(-5px); z-index: 40; }
-
-        /* HEDİYE RENKLENDİRME (Hue Rotate ile Renk Değiştirme) */
-        .col-1 .gift-item { filter: hue-rotate(200deg); } /* Mavi tonlar */
-        .col-2 .gift-item { filter: hue-rotate(90deg); }  /* Yeşil tonlar */
-        .col-3 .gift-item { filter: hue-rotate(280deg); } /* Mor tonlar */
-        .col-4 .gift-item { filter: none; }               /* Kırmızı (Orijinal) */
-
-        /* Hediye Patlama Animasyonu */
+        .col-1 .gift-item { filter: hue-rotate(200deg); } 
+        .col-2 .gift-item { filter: hue-rotate(90deg); }  
+        .col-3 .gift-item { filter: hue-rotate(280deg); } 
+        .col-4 .gift-item { filter: none; }               
+        
         @keyframes giftPopIn {
             0% { transform: scale(0); opacity: 0; }
             80% { transform: scale(1.2); opacity: 1; }
@@ -130,12 +101,10 @@
         }
         .gift-respawn { animation: giftPopIn 0.6s ease-out forwards; }
 
-        /* MOBİL UYUMLULUK */
         @media (max-width: 768px) {
             .tree-container { font-size: 180px; left: -30px; bottom: -20px; }
             .gift-item { font-size: 50px; }
             .gift-stack-container { right: 0; }
-            /* Mobilde çok yer kaplamasın diye bazı sütunları gizle */
             .col-1, .col-2 { display: none; }
         }
     </style>
@@ -145,24 +114,10 @@
     <div class="tree-container">🎄</div>
     
     <div class="gift-stack-container">
-        <div class="gift-column col-1">
-            <span class="gift-item">🎁</span>
-        </div>
-        <div class="gift-column col-2">
-            <span class="gift-item">🎁</span>
-            <span class="gift-item">🎁</span>
-        </div>
-        <div class="gift-column col-3">
-            <span class="gift-item">🎁</span>
-            <span class="gift-item">🎁</span>
-            <span class="gift-item">🎁</span>
-        </div>
-        <div class="gift-column col-4">
-            <span class="gift-item">🎁</span>
-            <span class="gift-item">🎁</span>
-            <span class="gift-item">🎁</span>
-            <span class="gift-item">🎁</span>
-        </div>
+        <div class="gift-column col-1"><span class="gift-item">🎁</span></div>
+        <div class="gift-column col-2"><span class="gift-item">🎁</span><span class="gift-item">🎁</span></div>
+        <div class="gift-column col-3"><span class="gift-item">🎁</span><span class="gift-item">🎁</span><span class="gift-item">🎁</span></div>
+        <div class="gift-column col-4"><span class="gift-item">🎁</span><span class="gift-item">🎁</span><span class="gift-item">🎁</span><span class="gift-item">🎁</span></div>
     </div>
 
     <div id="canvas-container"></div>
@@ -179,9 +134,7 @@
     <main class="ui-layer z-10 text-center px-4 w-full flex flex-col items-center justify-center h-full">
         <div id="headline-area" class="relative mb-5 md:mb-10 transition-all duration-1000 ease-in">
             <h1 id="headline" class="text-2xl md:text-5xl tracking-widest uppercase transition-colors duration-300 flex items-center justify-center">
-                <span class="icy-headline font-black">
-                    Yeni Yıla Kalan Zaman
-                </span>
+                <span class="icy-headline font-black">Yeni Yıla Kalan Zaman</span>
             </h1>
         </div>
 
@@ -216,7 +169,9 @@
     <script>
         // --- SAYAÇ AYARLARI ---
         const targetDate = new Date("Jan 1, 2026 00:00:00").getTime();
-        
+        // TEST İÇİN: 45 saniye sonrasına ayarla
+        // const targetDate = new Date().getTime() + 45000; 
+
         const elDays = document.getElementById('days'); const elHours = document.getElementById('hours');
         const elMinutes = document.getElementById('minutes'); const elSeconds = document.getElementById('seconds');
         const boxDays = document.getElementById('box-days'); const boxHours = document.getElementById('box-hours');
@@ -229,13 +184,49 @@
 
         let audioEnabled = false;
         let musicStarted = false; 
+        
+        // Ses oluşturma bağlamı (Tik-Tak için)
+        let audioCtx;
 
         function enableAudio() {
             audio.play().then(() => {
                 audio.pause(); audio.currentTime = 0; audioEnabled = true;
+                // AudioContext'i başlat
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
                 audioBtn.innerHTML = "✅ Ses Hazır";
                 setTimeout(() => audioBtn.style.display = 'none', 2000);
             }).catch(e => audioBtn.innerText = "⚠️ İzin Verilmedi");
+        }
+
+        // Tik Sesi Üretme Fonksiyonu (Dosyasız)
+        function playTickSound() {
+            if (!audioEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(1000, audioCtx.currentTime); // Tiz bir ses
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
+
+        // Sesli Geri Sayım Fonksiyonu (Türkçe)
+        function speakNumber(num) {
+            if (!window.speechSynthesis) return;
+            // Önceki konuşmayı durdur (üst üste binmesin)
+            window.speechSynthesis.cancel(); 
+            
+            let utterance = new SpeechSynthesisUtterance(num.toString());
+            utterance.lang = 'tr-TR'; 
+            utterance.rate = 1.2; // Biraz hızlı konuşsun
+            utterance.volume = 1; 
+            window.speechSynthesis.speak(utterance);
         }
 
         function playFallback() { 
@@ -254,6 +245,8 @@
         }
         setInterval(createSnowflake, 100);
 
+        let lastPlayedSecond = -1; // Saniyenin değiştiğini takip etmek için
+
         const timer = setInterval(() => {
             const now = new Date().getTime();
             const distance = targetDate - now;
@@ -262,6 +255,7 @@
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            const totalSecondsLeft = Math.floor(distance / 1000);
 
             elDays.innerText = days < 10 ? '0' + days : days;
             elHours.innerText = hours < 10 ? '0' + hours : hours;
@@ -272,8 +266,36 @@
             boxHours.style.display = (days <= 0 && hours <= 0) ? 'none' : 'flex';
             boxMinutes.style.display = (days <= 0 && hours <= 0 && minutes <= 0) ? 'none' : 'flex';
 
-            const totalSecondsLeft = Math.floor(distance / 1000);
+            // --- YENİ EKLENEN ANİMASYON MANTIKLARI ---
             
+            // 1. TİK-TAK SESİ (Son 30 Saniye)
+            // Saniye değiştiyse ve 30'dan az kaldıysa
+            if (totalSecondsLeft <= 30 && totalSecondsLeft > 0 && totalSecondsLeft !== lastPlayedSecond) {
+                playTickSound();
+            }
+
+            // 2. IŞIKLARIN SÖNMESİ ve SESLİ SAYIM (Son 10 Saniye)
+            if (totalSecondsLeft <= 10 && totalSecondsLeft > 0) {
+                // Işıkları Kıs (Dim Lights)
+                if (ambientLight) ambientLight.intensity = 0.2; // Çok loş
+                if (dirLight) dirLight.intensity = 0.5;
+                document.body.style.filter = "brightness(0.4)"; // Arka planı karart
+                
+                // Sesli Sayım (Her saniye başında)
+                if (totalSecondsLeft !== lastPlayedSecond) {
+                    speakNumber(totalSecondsLeft);
+                }
+            } else {
+                // Işıkları Normal Tut (10 saniyeden fazlaysa)
+                if (ambientLight) ambientLight.intensity = 2.0; 
+                if (dirLight) dirLight.intensity = 2.5;
+                document.body.style.filter = "brightness(1)"; 
+            }
+
+            // Son saniyeyi kaydet
+            lastPlayedSecond = totalSecondsLeft;
+
+            // Görsel Efektler (Mevcut Kod)
             elContainer.style.transform = "scale(1)";
             elSeconds.classList.remove('text-yellow-400', 'text-orange-500', 'critical-pulse');
             document.body.classList.remove('bg-red-900');
@@ -304,7 +326,7 @@
                 } else if (totalSecondsLeft <= 10) {
                     elContainer.style.transform = "scale(2.0)"; 
                     elSeconds.classList.add('critical-pulse');
-                    document.body.style.background = (totalSecondsLeft % 2 === 0) ? "#450a0a" : "#000000"; 
+                    // Kırmızı alarmı kaldırdık, yerine karartma (dimming) geldiği için burayı sade bıraktım
                     elHeadlineArea.style.transform = "scale(2.0) translateY(-100px)";
                     elHeadlineArea.style.opacity = "0";
                 }
@@ -315,11 +337,15 @@
         }, 100); 
 
         function startCelebration() {
+            // Işıkları geri aç (Party Modu)
+            if (ambientLight) ambientLight.intensity = 2.0; 
+            if (dirLight) dirLight.intensity = 2.5;
+            document.body.style.filter = "brightness(1)"; 
             document.body.style.background = "#1a0b2e"; 
+            
             elContainer.style.display = 'none'; 
             elHeadlineArea.style.display = 'none'; 
             elCelebration.classList.remove('hidden'); 
-            // Dekorları gizle
             document.querySelector('.tree-container').style.display = 'none';
             document.querySelector('.gift-stack-container').style.display = 'none';
             
@@ -337,8 +363,11 @@
             initThreeJS();
         }
 
-        // --- 3D DÜNYASI ---
+        // --- 3D DÜNYASI (Işık Değişkenleri Global Yapıldı) ---
         let scene, camera, renderer, sleighGroup;
+        // Global ışık değişkenleri (Karartma efekti için)
+        let ambientLight, dirLight;
+        
         let clock = new THREE.Clock();
         let pathCurve; 
         let pathDuration = 20; 
@@ -359,9 +388,11 @@
             renderer.toneMapping = THREE.ReinhardToneMapping;
             container.appendChild(renderer.domElement);
 
-            const ambientLight = new THREE.AmbientLight(0xffffff, 2.0); 
+            // Işıkları global değişkenlere atadık
+            ambientLight = new THREE.AmbientLight(0xffffff, 2.0); 
             scene.add(ambientLight);
-            const dirLight = new THREE.DirectionalLight(0xffd700, 2.5); 
+            
+            dirLight = new THREE.DirectionalLight(0xffd700, 2.5); 
             dirLight.position.set(20, 50, 20);
             scene.add(dirLight);
 
@@ -472,7 +503,6 @@
             setTimeout(() => { dust.remove(); }, 1000);
         });
 
-        // --- HEDİYE PATLATMA ETKİLEŞİMİ ---
         document.querySelectorAll('.gift-item').forEach(gift => {
             gift.addEventListener('click', function(e) {
                 const rect = gift.getBoundingClientRect();
