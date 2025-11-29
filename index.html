@@ -33,9 +33,7 @@
             z-index: 1; opacity: 0; transition: opacity 2s ease-in; pointer-events: none;
         }
 
-        /* Sayaç Container */
         .counter-container { 
-            /* Scale JS ile yönetilecek, burada transition kalsın */
             transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); 
             position: relative; z-index: 10; 
         }
@@ -190,7 +188,7 @@
 
     <script>
         // --- SAYAÇ AYARLARI ---
-        const targetDate = new Date("Nov 29, 2025 22:54:00").getTime();
+        const targetDate = new Date("Jan 1, 2026 00:00:00").getTime();
         // const targetDate = new Date().getTime() + 45000; 
 
         const elDays = document.getElementById('days'); const elHours = document.getElementById('hours');
@@ -216,18 +214,23 @@
             }).catch(e => audioBtn.innerText = "⚠️ İzin Verilmedi");
         }
 
+        // TİK SESİ (Hafifletilmiş)
         function playTickSound() {
             if (!audioEnabled || !audioCtx) return;
             const osc = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
             osc.connect(gainNode);
             gainNode.connect(audioCtx.destination);
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(1000, audioCtx.currentTime); 
-            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+            
+            osc.type = 'sine'; // Yumuşak dalga
+            osc.frequency.setValueAtTime(600, audioCtx.currentTime); 
+            
+            // SES SEVİYESİ DÜŞÜRÜLDÜ: 0.05 (Çok hafif arka plan sesi)
+            gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+            
             osc.start();
-            osc.stop(audioCtx.currentTime + 0.1);
+            osc.stop(audioCtx.currentTime + 0.05);
         }
 
         function playFallback() { 
@@ -269,7 +272,8 @@
 
             // --- ETKİLEŞİM MANTIĞI ---
             
-            if (totalSecondsLeft <= 30 && totalSecondsLeft > 0 && totalSecondsLeft !== lastPlayedSecond) {
+            // SÜREKLİ TİK SESİ (Geri sayım devam ederken her saniye)
+            if (distance > 0 && totalSecondsLeft !== lastPlayedSecond) {
                 playTickSound();
             }
 
@@ -285,8 +289,7 @@
 
             lastPlayedSecond = totalSecondsLeft;
 
-            // --- SCALE (BÜYÜME) EFEKTİ (Düzeltildi) ---
-            // Artık body class'ına bakmadan doğrudan style'ı eziyoruz
+            // SCALE (BÜYÜME) EFEKTİ
             if (totalSecondsLeft <= 30 && totalSecondsLeft > 20) {
                 elContainer.style.transform = "scale(1.2)";
             } else if (totalSecondsLeft <= 20 && totalSecondsLeft > 10) {
@@ -346,7 +349,7 @@
             initThreeJS();
         }
 
-        // --- 3D DÜNYASI (State Machine Animasyon) ---
+        // --- 3D DÜNYASI (Tek Seferlik Animasyon) ---
         let scene, camera, renderer, sleighGroup;
         let ambientLight, dirLight;
         let clock = new THREE.Clock();
@@ -354,7 +357,7 @@
         let entryPath, exitPath;
         let pathDuration = 20; 
         let animationStartTime = 0;
-        let animationState = 0; // 0: Entry, 1: Waiting, 2: Exit, 3: Done
+        let animationState = 0; 
         let waitStartTime = 0;
 
         function initThreeJS() {
@@ -420,19 +423,17 @@
                 sleighGroup.add(deer2);
             });
 
-            // GİRİŞ YOLU (Entry Path)
             const entryPoints = [
-                new THREE.Vector3(200, 20, -700), // Uzak
-                new THREE.Vector3(5, 5, 20),      // Yakın
-                new THREE.Vector3(-50, 15, 60)    // Durma Noktası
+                new THREE.Vector3(200, 20, -700), 
+                new THREE.Vector3(5, 5, 20),      
+                new THREE.Vector3(-50, 15, 60)    
             ];
             entryPath = new THREE.CatmullRomCurve3(entryPoints);
 
-            // ÇIKIŞ YOLU (Exit Path) - Durma noktasından devam eder
             const exitPoints = [
-                new THREE.Vector3(-50, 15, 60),   // Başlangıç (Durma noktasıyla aynı)
-                new THREE.Vector3(-100, 20, 100), // Kavis
-                new THREE.Vector3(300, 50, 500)   // Uzaklaşma
+                new THREE.Vector3(-50, 15, 60),   
+                new THREE.Vector3(-100, 20, 100), 
+                new THREE.Vector3(300, 50, 500)   
             ];
             exitPath = new THREE.CatmullRomCurve3(exitPoints);
 
@@ -445,53 +446,45 @@
 
         function animate3D() {
             requestAnimationFrame(animate3D);
-            
-            // Eğer animasyon bittiyse (State 3), hiçbir şey yapma
             if (animationState === 3) return;
 
             const currentTime = performance.now();
             
             if (animationState === 0) {
-                // STATE 0: GİRİŞ
                 const elapsed = (currentTime - animationStartTime) / 1000;
-                let t = elapsed / 20; // 20 saniye sürsün
+                let t = elapsed / 20; 
                 
                 if (t >= 1) {
                     t = 1;
-                    animationState = 1; // Beklemeye geç
+                    animationState = 1; 
                     waitStartTime = currentTime;
                 }
                 
-                // Easing
                 t = t * t * (3 - 2 * t);
                 
                 const pos = entryPath.getPoint(t);
                 sleighGroup.position.copy(pos);
-                // Son noktada lookAt bozulmasın diye kontrol
                 if (t < 0.99) {
                     const tangent = entryPath.getTangent(t).normalize();
                     sleighGroup.lookAt(sleighGroup.position.clone().add(tangent));
                 }
 
             } else if (animationState === 1) {
-                // STATE 1: BEKLEME (5 Saniye)
                 if (currentTime - waitStartTime > 5000) {
-                    animationState = 2; // Çıkışa geç
-                    animationStartTime = currentTime; // Çıkış için zamanı sıfırla
+                    animationState = 2; 
+                    animationStartTime = currentTime; 
                 }
 
             } else if (animationState === 2) {
-                // STATE 2: ÇIKIŞ
                 const elapsed = (currentTime - animationStartTime) / 1000;
-                let t = elapsed / 8; // 8 saniye sürsün (Hızlı çıkış)
+                let t = elapsed / 8; 
 
                 if (t >= 1) {
                     t = 1;
-                    animationState = 3; // BİTTİ
-                    sleighGroup.visible = false; // Görünmez yap
+                    animationState = 3; 
+                    sleighGroup.visible = false; 
                 }
 
-                // Easing (Hızlanan)
                 t = t * t;
 
                 const pos = exitPath.getPoint(t);
