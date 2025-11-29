@@ -14,7 +14,6 @@
 
         body {
             font-family: 'Orbitron', sans-serif;
-            /* YENİ: Aurora Arka Plan Animasyonu */
             background: linear-gradient(-45deg, #0f172a, #1a0b2e, #090979, #020024);
             background-size: 400% 400%;
             animation: auroraGradient 15s ease infinite;
@@ -31,19 +30,13 @@
 
         #canvas-container {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1; 
-            opacity: 0; 
-            transition: opacity 2s ease-in;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1; opacity: 0; transition: opacity 2s ease-in;
             pointer-events: none;
         }
 
         .counter-container { transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; z-index: 10; }
         
-        /* YENİ: Neon Kutu Stilleri */
         .neon-box {
             box-shadow: 0 0 15px rgba(59, 130, 246, 0.2), inset 0 0 15px rgba(59, 130, 246, 0.1);
             border-color: rgba(59, 130, 246, 0.3) !important;
@@ -69,23 +62,56 @@
         }
         @keyframes snowfall { to { transform: translateY(110vh); } }
 
-        /* YENİ: Sihirli Mouse İzi Efekti */
         .magic-dust {
-            position: fixed;
-            width: 6px; height: 6px;
-            background: transparent;
-            box-shadow: 0 0 10px 3px #60a5fa, 0 0 20px 5px #a855f7; /* Mavi/Mor parlama */
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 100;
+            position: fixed; width: 6px; height: 6px; background: transparent;
+            box-shadow: 0 0 10px 3px #60a5fa, 0 0 20px 5px #a855f7;
+            border-radius: 50%; pointer-events: none; z-index: 100;
             animation: fadeOutDust 1s forwards;
         }
-        @keyframes fadeOutDust {
-            to { transform: scale(0); opacity: 0; }
+        @keyframes fadeOutDust { to { transform: scale(0); opacity: 0; } }
+
+        /* --- YENİ EKLENEN STİLLER (Süslemeler) --- */
+        
+        /* 1. Buzlu Siber Başlık Efekti */
+        .icy-headline {
+            background: linear-gradient(to right, #ffffff, #cffafe, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.8));
+            display: inline-block;
         }
+        
+        /* 2. Noel Baba Şapkası */
+        .santa-hat {
+            display: inline-block;
+            filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.7));
+            animation: gentle-tilt 3s ease-in-out infinite alternate;
+        }
+        @keyframes gentle-tilt {
+            from { transform: rotate(-5deg); } to { transform: rotate(5deg); }
+        }
+
+        /* 3. Köşe Dekorları (Stickerlar) */
+        .corner-deco {
+            position: fixed; bottom: 20px; z-index: 5;
+            font-size: 80px; opacity: 0.9; pointer-events: none;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
+        }
+        .left-deco { left: 20px; transform: rotate(-5deg); }
+        .right-deco { right: 20px; text-align: right; line-height: 0.8; transform: rotate(5deg); }
+
+        /* Mobilde dekorları biraz küçültelim ki sayacı kapatmasın */
+        @media (max-width: 768px) {
+            .corner-deco { font-size: 50px; bottom: 10px; }
+            .left-deco { left: 10px; } .right-deco { right: 10px; }
+        }
+
     </style>
 </head>
 <body class="h-screen w-full flex flex-col items-center justify-center text-white relative">
+
+    <div class="corner-deco left-deco">🎄</div>
+    <div class="corner-deco right-deco">🎁<br><span style="font-size: 0.7em;">🎁🎁</span></div>
 
     <div id="canvas-container"></div>
     
@@ -100,8 +126,9 @@
 
     <main class="ui-layer z-10 text-center px-4 w-full flex flex-col items-center justify-center h-full">
         <div id="headline-area" class="relative mb-5 md:mb-10 transition-all duration-1000 ease-in">
-            <h1 id="headline" class="text-2xl md:text-4xl tracking-widest text-blue-200 opacity-80 uppercase transition-colors duration-300 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">
-                Yeni Yıla Kalan Zaman
+            <h1 id="headline" class="text-2xl md:text-5xl tracking-widest uppercase transition-colors duration-300 flex items-center justify-center gap-2 md:gap-4">
+                <span class="santa-hat text-3xl md:text-5xl">🎅</span>
+                <span class="icy-headline font-black">Yeni Yıla Kalan Zaman</span>
             </h1>
         </div>
 
@@ -136,8 +163,7 @@
     <script>
         // --- SAYAÇ AYARLARI ---
         const targetDate = new Date("Jan 1, 2026 00:00:00").getTime();
-        // const targetDate = new Date().getTime() + 45000; // Test için bunu açabilirsin
-
+        
         const elDays = document.getElementById('days'); const elHours = document.getElementById('hours');
         const elMinutes = document.getElementById('minutes'); const elSeconds = document.getElementById('seconds');
         const boxDays = document.getElementById('box-days'); const boxHours = document.getElementById('box-hours');
@@ -198,7 +224,6 @@
             elContainer.style.transform = "scale(1)";
             elSeconds.classList.remove('text-yellow-400', 'text-orange-500', 'critical-pulse');
             document.body.classList.remove('bg-red-900');
-            // Kritik moddan çıkınca aurora arka planını geri getir
             document.body.style.background = "linear-gradient(-45deg, #0f172a, #1a0b2e, #090979, #020024)";
             document.body.style.backgroundSize = "400% 400%";
             
@@ -226,7 +251,6 @@
                 } else if (totalSecondsLeft <= 10) {
                     elContainer.style.transform = "scale(2.0)"; 
                     elSeconds.classList.add('critical-pulse');
-                    // Kritik modda aurora gradientini ezmek için background stili
                     document.body.style.background = (totalSecondsLeft % 2 === 0) ? "#450a0a" : "#000000"; 
                     elHeadlineArea.style.transform = "scale(2.0) translateY(-100px)";
                     elHeadlineArea.style.opacity = "0";
@@ -242,6 +266,8 @@
             elContainer.style.display = 'none'; 
             elHeadlineArea.style.display = 'none'; 
             elCelebration.classList.remove('hidden'); 
+            // Köşe dekorlarını kutlamada gizle
+            document.querySelectorAll('.corner-deco').forEach(el => el.style.display = 'none');
             
             var duration = 15 * 1000;
             var animationEnd = Date.now() + duration;
@@ -270,7 +296,6 @@
             container.style.opacity = 1;
 
             scene = new THREE.Scene();
-            // Sis rengini yeni arka plana uyduralım
             scene.fog = new THREE.FogExp2(0x1a0b2e, 0.002); 
 
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -384,7 +409,6 @@
             renderer.render(scene, camera);
         }
 
-        // --- MOBİL UYUMLULUK VE RESIZE AYARLARI ---
         function updateCameraByScreenSize() {
             if (!camera || !renderer) return;
 
@@ -404,21 +428,14 @@
 
         window.addEventListener('resize', updateCameraByScreenSize);
 
-        // YENİ: Sihirli Mouse İzi Efekti
         document.addEventListener('mousemove', function(e) {
-            // Performans için her harekette değil, bazen oluştur (Mobilde çok kasmasın diye)
             if(Math.random() > 0.6) return; 
-
             const dust = document.createElement('div');
             dust.className = 'magic-dust';
             dust.style.left = e.clientX + 'px';
             dust.style.top = e.clientY + 'px';
             document.body.appendChild(dust);
-            
-            // Animasyon bitince (1sn sonra) elementi sil
-            setTimeout(() => {
-                dust.remove();
-            }, 1000);
+            setTimeout(() => { dust.remove(); }, 1000);
         });
 
     </script>
