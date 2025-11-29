@@ -188,10 +188,8 @@
 
     <script>
         // --- SAYAÇ AYARLARI ---
-        const targetDate = new Date("Nov 29, 2025 23:12:00").getTime();
-        // TEST İÇİN (45 sn sonra yılbaşı):
-        // const targetDate = new Date().getTime() + 45000; 
-
+        const targetDate = new Date("Nov 29, 2025 23:17:00").getTime();
+        
         const elDays = document.getElementById('days'); const elHours = document.getElementById('hours');
         const elMinutes = document.getElementById('minutes'); const elSeconds = document.getElementById('seconds');
         const boxDays = document.getElementById('box-days'); const boxHours = document.getElementById('box-hours');
@@ -226,7 +224,7 @@
             osc.type = 'sine'; 
             osc.frequency.setValueAtTime(600, audioCtx.currentTime); 
             
-            // --- SES SEVİYESİ 0.04 OLARAK AYARLANDI ---
+            // SES SEVİYESİ 0.04
             gainNode.gain.setValueAtTime(0.04, audioCtx.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
             
@@ -278,6 +276,7 @@
                 playTickSound();
             }
 
+            // KRİTİK MOD (SON 10 SANİYE)
             if (totalSecondsLeft <= 10 && totalSecondsLeft > 0) {
                 document.body.classList.add('mode-critical');
                 if (ambientLight) ambientLight.intensity = 0.2; 
@@ -290,7 +289,7 @@
 
             lastPlayedSecond = totalSecondsLeft;
 
-            // SCALE EFEKTİ
+            // SCALE (BÜYÜME) EFEKTİ
             if (totalSecondsLeft <= 30 && totalSecondsLeft > 20) {
                 elContainer.style.transform = "scale(1.2)";
             } else if (totalSecondsLeft <= 20 && totalSecondsLeft > 10) {
@@ -325,7 +324,6 @@
             document.body.classList.remove('mode-critical');
             if (ambientLight) ambientLight.intensity = 2.0; 
             if (dirLight) dirLight.intensity = 2.5;
-            
             document.body.style.background = "#1a0b2e"; 
             
             elContainer.style.display = 'none'; 
@@ -346,7 +344,7 @@
 
             if(audioEnabled && !musicStarted) { audio.play(); }
 
-            // --- KUTLAMA MODUNU BAŞLAT (Zafer Turu & Havai Fişekler) ---
+            // --- KUTLAMA MODUNU BAŞLAT (Pankart ve Havai Fişek) ---
             initCelebrationMode();
         }
 
@@ -361,7 +359,7 @@
         let animationState = 0; 
         let waitStartTime = 0;
         let isCelebration = false;
-        let fireworks = []; // Havai fişekler için dizi
+        let fireworks = []; 
 
         function initThreeJS() {
             const container = document.getElementById('canvas-container');
@@ -426,20 +424,21 @@
                 sleighGroup.add(deer2);
             });
 
-            // GİRİŞ VE ÇIKIŞ YOLLARI
+            // GİRİŞ YOLU (Düzeltilmiş: Z=0 da bitiyor, kamera önünde)
             const entryPoints = [
-                new THREE.Vector3(200, 20, -700), new THREE.Vector3(5, 5, 20), new THREE.Vector3(-50, 15, 60)    
+                new THREE.Vector3(200, 20, -700), new THREE.Vector3(5, 5, 20), new THREE.Vector3(-30, 5, 0)    
             ];
             entryPath = new THREE.CatmullRomCurve3(entryPoints);
 
+            // ÇIKIŞ YOLU (Düzeltilmiş: Ufka doğru, -Z yönünde)
             const exitPoints = [
-                new THREE.Vector3(-50, 15, 60), new THREE.Vector3(-100, 20, 100), new THREE.Vector3(300, 50, 500)   
+                new THREE.Vector3(-30, 5, 0), new THREE.Vector3(-100, 20, -200), new THREE.Vector3(0, 50, -800)   
             ];
             exitPath = new THREE.CatmullRomCurve3(exitPoints);
 
-            // ZAFER YOLU (Celebration Path)
+            // ZAFER YOLU (KUTLAMA)
             const victoryPoints = [
-                new THREE.Vector3(-400, 40, -100), new THREE.Vector3(0, 30, 20), new THREE.Vector3(400, 60, -100)
+                new THREE.Vector3(-400, 40, -100), new THREE.Vector3(0, 20, 10), new THREE.Vector3(400, 60, -100)
             ];
             victoryPath = new THREE.CatmullRomCurve3(victoryPoints);
 
@@ -450,85 +449,60 @@
             animate3D();
         }
 
-        // PANKART OLUŞTURMA (Canvas Texture)
+        // PANKART
         function createBanner() {
             const canvas = document.createElement('canvas');
             canvas.width = 1024; canvas.height = 256;
             const ctx = canvas.getContext('2d');
-            
-            // Arka Plan (Beyaz Kumaş)
             ctx.fillStyle = '#f0f0f0'; ctx.fillRect(0, 0, 1024, 256);
-            
-            // Kırmızı Kenar
             ctx.lineWidth = 10; ctx.strokeStyle = '#d32f2f'; ctx.strokeRect(0,0,1024,256);
-
-            // Yazı
             ctx.fillStyle = '#d32f2f';
             ctx.font = 'bold 120px "Arial"';
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             ctx.fillText("MUTLU YILLAR", 512, 128);
-
             const texture = new THREE.CanvasTexture(canvas);
             const material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-            const geometry = new THREE.PlaneGeometry(30, 7.5); // Boyut
+            const geometry = new THREE.PlaneGeometry(30, 7.5); 
             const banner = new THREE.Mesh(geometry, material);
-            
-            // Kızağın arkasına yerleştir
             banner.position.set(0, 5, 25); 
-            banner.rotation.y = Math.PI; // Yazı arkaya baksın (Geyiklerin arkasından okunacak)
+            banner.rotation.y = Math.PI; 
             return banner;
         }
 
-        // HAVAİ FİŞEK PARÇACIĞI OLUŞTUR
         function createFirework() {
             const geometry = new THREE.BufferGeometry();
-            const count = 200; // Parçacık sayısı
+            const count = 200; 
             const positions = new Float32Array(count * 3);
             const colors = new Float32Array(count * 3);
             const color = new THREE.Color();
-            color.setHSL(Math.random(), 1.0, 0.5); // Rastgele renk
-
-            // Patlama Merkezi
+            color.setHSL(Math.random(), 1.0, 0.5); 
             const startX = (Math.random() - 0.5) * 200;
             const startY = Math.random() * 50 + 20;
             const startZ = (Math.random() - 0.5) * 100 - 50;
-
             for(let i=0; i<count; i++) {
-                positions[i*3] = startX;
-                positions[i*3+1] = startY;
-                positions[i*3+2] = startZ;
+                positions[i*3] = startX; positions[i*3+1] = startY; positions[i*3+2] = startZ;
                 colors[i*3] = color.r; colors[i*3+1] = color.g; colors[i*3+2] = color.b;
             }
-
             geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
             geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
             const material = new THREE.PointsMaterial({ size: 1.5, vertexColors: true, transparent: true, opacity: 1 });
             const points = new THREE.Points(geometry, material);
-            
-            // Hız vektörleri (Patlama yönü)
             points.userData = { velocities: [] };
             for(let i=0; i<count; i++) {
                 points.userData.velocities.push({
-                    x: (Math.random() - 0.5) * 2,
-                    y: (Math.random() - 0.5) * 2,
-                    z: (Math.random() - 0.5) * 2
+                    x: (Math.random() - 0.5) * 2, y: (Math.random() - 0.5) * 2, z: (Math.random() - 0.5) * 2
                 });
             }
-            points.userData.life = 1.0; // Yaşam süresi
-
+            points.userData.life = 1.0; 
             scene.add(points);
             fireworks.push(points);
         }
 
-        // KUTLAMA MODU BAŞLATICI
         function initCelebrationMode() {
             isCelebration = true;
-            animationState = 4; // Zafer Turu Modu
+            animationState = 4; // Zafer Turu
             animationStartTime = performance.now();
             sleighGroup.visible = true;
-            
-            // Pankartı ekle
             const banner = createBanner();
             sleighGroup.add(banner);
         }
@@ -536,33 +510,25 @@
         function animate3D() {
             requestAnimationFrame(animate3D);
             
-            // Havai Fişek Güncellemesi (Sadece kutlamada)
             if (isCelebration) {
-                // Rastgele yeni fişek at
                 if (Math.random() > 0.95) createFirework();
-
                 for (let i = fireworks.length - 1; i >= 0; i--) {
                     const fw = fireworks[i];
                     const positions = fw.geometry.attributes.position.array;
                     fw.userData.life -= 0.01;
                     fw.material.opacity = fw.userData.life;
-
                     for(let j=0; j < 200; j++) {
                         positions[j*3] += fw.userData.velocities[j].x;
                         positions[j*3+1] += fw.userData.velocities[j].y;
                         positions[j*3+2] += fw.userData.velocities[j].z;
-                        fw.userData.velocities[j].y -= 0.02; // Yerçekimi
+                        fw.userData.velocities[j].y -= 0.02; 
                     }
                     fw.geometry.attributes.position.needsUpdate = true;
-
-                    if(fw.userData.life <= 0) {
-                        scene.remove(fw);
-                        fireworks.splice(i, 1);
-                    }
+                    if(fw.userData.life <= 0) { scene.remove(fw); fireworks.splice(i, 1); }
                 }
             }
 
-            if (animationState === 3 && !isCelebration) return; // Çıkış bitti, kutlama yoksa dur
+            if (animationState === 3 && !isCelebration) return; 
 
             const currentTime = performance.now();
             
@@ -595,10 +561,9 @@
                     sleighGroup.lookAt(sleighGroup.position.clone().add(tangent));
                 }
             
-            } else if (animationState === 4) { // ZAFER TURU (KUTLAMA)
+            } else if (animationState === 4) { // KUTLAMA
                 const elapsed = (currentTime - animationStartTime) / 1000;
-                let t = (elapsed / 15) % 1; // Sürekli dön (Loop)
-                
+                let t = (elapsed / 15) % 1; 
                 const pos = victoryPath.getPoint(t);
                 sleighGroup.position.copy(pos);
                 const tangent = victoryPath.getTangent(t).normalize();
