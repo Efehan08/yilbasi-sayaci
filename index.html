@@ -50,14 +50,11 @@
 </head>
 <body class="h-screen w-full flex flex-col items-center justify-center text-white relative">
 
-    <!-- 3D SAHNE --><div id="canvas-container"></div>
+    <div id="canvas-container"></div>
     
-    <!-- BUTONLAR --><button id="enableAudioBtn" onclick="enableAudio()" class="ui-layer absolute top-5 right-5 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-4 py-2 rounded-full text-xs transition">
+    <button id="enableAudioBtn" onclick="enableAudio()" class="ui-layer absolute top-5 right-5 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-4 py-2 rounded-full text-xs transition">
         🎵 Sesi Aktif Et
     </button>
-    <div class="ui-layer absolute top-5 left-5 text-gray-500 text-xs cursor-pointer hover:text-white transition" onclick="testFinalScene()">
-        (Test: Final Sahnesini Başlat)
-    </div>
 
     <audio id="newYearSong" onerror="playFallback()">
         <source src="mariah_its_time.mp3" type="audio/mpeg">
@@ -65,44 +62,43 @@
     </audio>
 
     <main class="ui-layer z-10 text-center px-4 w-full flex flex-col items-center justify-center h-full">
-        <div id="headline-area" class="relative mb-10 transition-all duration-1000 ease-in">
+        <div id="headline-area" class="relative mb-5 md:mb-10 transition-all duration-1000 ease-in">
             <h1 id="headline" class="text-2xl md:text-4xl tracking-widest text-blue-200 opacity-80 uppercase transition-colors duration-300">
                 Yeni Yıla Kalan Zaman
             </h1>
         </div>
 
-        <div id="countdown" class="counter-container flex flex-wrap justify-center gap-4 md:gap-8 origin-center mt-10">
-            <div id="box-days" class="flex flex-col items-center p-4 bg-white/5 rounded-2xl backdrop-blur-md border border-white/10 w-24 md:w-32 lg:w-40 transition-all duration-500">
-                <span id="days" class="digit text-4xl md:text-6xl font-black">00</span>
-                <span class="text-xs md:text-sm text-gray-400 mt-2">GÜN</span>
+        <div id="countdown" class="counter-container flex flex-wrap justify-center gap-2 md:gap-8 origin-center mt-5 md:mt-10">
+            <div id="box-days" class="flex flex-col items-center p-2 md:p-4 bg-white/5 rounded-xl md:rounded-2xl backdrop-blur-md border border-white/10 w-20 md:w-40 transition-all duration-500">
+                <span id="days" class="digit text-2xl md:text-6xl font-black">00</span>
+                <span class="text-[10px] md:text-sm text-gray-400 mt-1 md:mt-2">GÜN</span>
             </div>
-            <div id="box-hours" class="flex flex-col items-center p-4 bg-white/5 rounded-2xl backdrop-blur-md border border-white/10 w-24 md:w-32 lg:w-40 transition-all duration-500">
-                <span id="hours" class="digit text-4xl md:text-6xl font-black">00</span>
-                <span class="text-xs md:text-sm text-gray-400 mt-2">SAAT</span>
+            <div id="box-hours" class="flex flex-col items-center p-2 md:p-4 bg-white/5 rounded-xl md:rounded-2xl backdrop-blur-md border border-white/10 w-20 md:w-40 transition-all duration-500">
+                <span id="hours" class="digit text-2xl md:text-6xl font-black">00</span>
+                <span class="text-[10px] md:text-sm text-gray-400 mt-1 md:mt-2">SAAT</span>
             </div>
-            <div id="box-minutes" class="flex flex-col items-center p-4 bg-white/5 rounded-2xl backdrop-blur-md border border-white/10 w-24 md:w-32 lg:w-40 transition-all duration-500">
-                <span id="minutes" class="digit text-4xl md:text-6xl font-black">00</span>
-                <span class="text-xs md:text-sm text-gray-400 mt-2">DAKİKA</span>
+            <div id="box-minutes" class="flex flex-col items-center p-2 md:p-4 bg-white/5 rounded-xl md:rounded-2xl backdrop-blur-md border border-white/10 w-20 md:w-40 transition-all duration-500">
+                <span id="minutes" class="digit text-2xl md:text-6xl font-black">00</span>
+                <span class="text-[10px] md:text-sm text-gray-400 mt-1 md:mt-2">DAKİKA</span>
             </div>
-            <div id="box-seconds" class="flex flex-col items-center p-4 bg-white/5 rounded-2xl backdrop-blur-md border border-white/10 w-24 md:w-32 lg:w-40 relative overflow-hidden transition-all duration-500">
+            <div id="box-seconds" class="flex flex-col items-center p-2 md:p-4 bg-white/5 rounded-xl md:rounded-2xl backdrop-blur-md border border-white/10 w-20 md:w-40 relative overflow-hidden transition-all duration-500">
                 <div class="absolute inset-0 bg-red-500/0 transition-colors duration-300" id="seconds-bg"></div>
-                <span id="seconds" class="digit text-4xl md:text-6xl font-black relative z-10 text-blue-400">00</span>
-                <span class="text-xs md:text-sm text-gray-400 mt-2 relative z-10">SANİYE</span>
+                <span id="seconds" class="digit text-2xl md:text-6xl font-black relative z-10 text-blue-400">00</span>
+                <span class="text-[10px] md:text-sm text-gray-400 mt-1 md:mt-2 relative z-10">SANİYE</span>
             </div>
         </div>
 
         <div id="celebration" class="hidden absolute inset-0 flex flex-col items-center justify-center z-50 pointer-events-none">
-            <h2 class="text-6xl md:text-8xl lg:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 animate-bounce text-center px-4 drop-shadow-2xl">
+            <h2 class="text-4xl md:text-8xl lg:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 animate-bounce text-center px-4 drop-shadow-2xl">
                 MUTLU YILLAR!
             </h2>
-            <p class="text-2xl md:text-4xl mt-8 text-white/90 animate-pulse font-bold drop-shadow-lg">Hoşgeldin 2026</p>
+            <p class="text-xl md:text-4xl mt-4 md:mt-8 text-white/90 animate-pulse font-bold drop-shadow-lg">Hoşgeldin 2026</p>
         </div>
     </main>
 
     <script>
         // --- SAYAÇ AYARLARI ---
         const targetDate = new Date("Jan 1, 2026 00:00:00").getTime();
-        // const targetDate = new Date().getTime() + 45000; 
         
         const elDays = document.getElementById('days'); const elHours = document.getElementById('hours');
         const elMinutes = document.getElementById('minutes'); const elSeconds = document.getElementById('seconds');
@@ -177,20 +173,20 @@
                 }
 
                 if (totalSecondsLeft <= 30 && totalSecondsLeft > 20) {
-                    elContainer.style.transform = "scale(1.5)"; 
+                    elContainer.style.transform = "scale(1.2)"; 
                     elSeconds.classList.add('text-yellow-300');
-                    elHeadlineArea.style.transform = "scale(1.5) translateY(-50px)";
+                    elHeadlineArea.style.transform = "scale(1.2) translateY(-20px)";
                     elHeadlineArea.style.opacity = "0.8";
                 } else if (totalSecondsLeft <= 20 && totalSecondsLeft > 10) {
-                    elContainer.style.transform = "scale(3.0)"; 
+                    elContainer.style.transform = "scale(1.5)"; 
                     elSeconds.classList.add('text-orange-500');
-                    elHeadlineArea.style.transform = "scale(3.0) translateY(-150px)";
+                    elHeadlineArea.style.transform = "scale(1.5) translateY(-50px)";
                     elHeadlineArea.style.opacity = "0.3";
                 } else if (totalSecondsLeft <= 10) {
-                    elContainer.style.transform = "scale(6.0)"; 
+                    elContainer.style.transform = "scale(2.0)"; 
                     elSeconds.classList.add('critical-pulse');
                     document.body.style.backgroundColor = (totalSecondsLeft % 2 === 0) ? "#450a0a" : "#000000"; 
-                    elHeadlineArea.style.transform = "scale(5.0) translateY(-300px)";
+                    elHeadlineArea.style.transform = "scale(2.0) translateY(-100px)";
                     elHeadlineArea.style.opacity = "0";
                 } else {
                     document.body.style.backgroundColor = "#0f172a";
@@ -221,18 +217,12 @@
             initThreeJS();
         }
 
-        function testFinalScene() {
-            clearInterval(timer);
-            startCelebration();
-        }
-
         // --- 3D DÜNYASI ---
         let scene, camera, renderer, sleighGroup;
         let clock = new THREE.Clock();
         
-        // Viraj animasyonu için gerekli değişkenler
         let pathCurve; 
-        let pathDuration = 20; // Yolculuk süresi (20 saniye) - ÇOK YAVAŞ
+        let pathDuration = 20; 
         let animationStartTime = 0; 
         
         function initThreeJS() {
@@ -243,8 +233,7 @@
             scene.fog = new THREE.FogExp2(0x1a0b2e, 0.002); 
 
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 5, 50);
-
+            
             renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.shadowMap.enabled = true;
@@ -271,20 +260,15 @@
 
             loader.load('sled.glb', function (gltf) {
                 const model = gltf.scene;
-                // Kızağın Kendi Dönüş Ayarı (Modelin doğal yönü)
                 model.rotation.y = 0; 
                 model.scale.set(modelScale, modelScale, modelScale); 
                 sleighGroup.add(model);
             });
 
-            // --- KURABİYE ADAM DÜZENLEMESİ ---
             loader.load('gingerbread-man.glb', function (gltf) {
                 const model = gltf.scene;
-                // Kurabiye adamın kendi yönü sıfırlandı.
                 model.rotation.y = 0; 
-                // Boyut
                 model.scale.set(modelScale * 3.0, modelScale * 3.0, modelScale * 3.0); 
-                // Konum (Kızağın Üstü ve Biraz Daha Önü)
                 model.position.set(0, 6, 2.0); 
                 sleighGroup.add(model);
             });
@@ -303,15 +287,10 @@
                 sleighGroup.add(deer2);
             });
 
-            // --- BEZIER EĞRİSİ TANIMI (VİRAJ YOLU) ---
             const points = [
-                // 1. Başlangıç (Ekranın sağ dışından, ÇOK daha uzakta)
                 new THREE.Vector3(200, 20, -700), 
-                // 2. Kontrol Noktası 1 (Virajı başlat, ekrana ÇOK yaklaştır)
                 new THREE.Vector3(5, 5, 20),
-                // 3. Kontrol Noktası 2 (Merkeze yaklaşırken kavis tamamlanıyor, Virajın en yavaş noktası)
                 new THREE.Vector3(-100, 15, 50), 
-                // 4. Hedef Noktası (Durma noktası, tam ekran ortası)
                 new THREE.Vector3(-50, 15, 60) 
             ];
 
@@ -319,6 +298,9 @@
             animationStartTime = performance.now();
             sleighGroup.position.copy(pathCurve.getPoint(0)); 
             
+            // Ekran boyutuna göre kamerayı ayarla
+            updateCameraByScreenSize();
+
             animate3D();
         }
 
@@ -331,57 +313,60 @@
             
             const totalDuration = pathDuration; 
             let t = elapsed / totalDuration; 
-
-            // Yumuşak hızlanma/yavaşlama (Viraj hissini artırır)
-            t = t * t * (3 - 2 * t); // Smoothstep easing - Virajı yumuşatır
+            t = t * t * (3 - 2 * t); 
 
             if (!isWaiting) {
                 if (t > 1) {
-                    // 1. AŞAMA: Viraj tamamlandı, 5 saniye bekleme başlıyor
                     isWaiting = true;
-                    // Kızağı durma noktasında sabitle (Son noktada dursun)
                     sleighGroup.position.copy(pathCurve.getPoint(1)); 
-                    sleighGroup.rotation.y = Math.PI / 2; // Profilden bize bakması için döndür
+                    sleighGroup.rotation.y = Math.PI / 2; 
                     
                     setTimeout(() => {
-                        // 2. AŞAMA: Bekleme bitti, çıkış başlasın
                         isWaiting = false;
                         animationStartTime = performance.now(); 
-                        
-                        // Çıkış rotası için yeni bir eğri tanımla (Gözden kaybolacak şekilde)
                         const exitPoints = [
-                            sleighGroup.position.clone(), // Başlangıç (Beklediği yer)
-                            new THREE.Vector3(50, 20, 100), // Kontrol Noktası (Yatay hızlanma)
-                            // ÇIKIŞ YÜKSEKLİĞİ DÜZELTİLDİ: ÇIKIŞ YÜKSEKLİĞİ SIFIRLANDI (EKRANIN TAM ORTASI)
-                            new THREE.Vector3(300, 0, 400)  // Bitiş (Ekrandan Çıkış, tam merkez)
+                            sleighGroup.position.clone(), 
+                            new THREE.Vector3(50, 20, 100), 
+                            new THREE.Vector3(300, 0, 400) 
                         ];
                         pathCurve = new THREE.CatmullRomCurve3(exitPoints);
-                        pathDuration = 5; // Hızlıca çıkış
+                        pathDuration = 5; 
                         t = 0; 
                     }, 5000); 
                 }
 
                 if (!isWaiting) {
-                    // Yolda İlerleme
                     const position = pathCurve.getPoint(t);
                     sleighGroup.position.copy(position);
-                    
-                    // Dönüşü yola uydur (Kavisli viraj alma efekti)
                     const tangent = pathCurve.getTangent(t).normalize();
                     sleighGroup.lookAt(sleighGroup.position.clone().add(tangent));
                 }
             }
-            
             renderer.render(scene, camera);
         }
 
-        window.addEventListener('resize', () => {
-            if(camera && renderer) {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
+        // --- MOBİL UYUMLULUK VE RESIZE AYARLARI ---
+        function updateCameraByScreenSize() {
+            if (!camera || !renderer) return;
+
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+
+            if (width < 768) {
+                // MOBİL İSE: Kamerayı uzaklaştır (90 birim)
+                camera.position.set(0, 5, 90); 
+            } else {
+                // BİLGİSAYAR İSE: Standart mesafe (50 birim)
+                camera.position.set(0, 5, 50);
             }
-        });
+        }
+
+        window.addEventListener('resize', updateCameraByScreenSize);
+
     </script>
 </body>
 </html>
