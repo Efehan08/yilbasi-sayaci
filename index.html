@@ -226,7 +226,7 @@
             osc.frequency.setValueAtTime(600, audioCtx.currentTime); 
             
             // SES SEVİYESİ DÜŞÜRÜLDÜ: 0.05 (Çok hafif arka plan sesi)
-            gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
             
             osc.start();
@@ -540,3 +540,4 @@
     </script>
 </body>
 </html>
+
