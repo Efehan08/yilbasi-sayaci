@@ -188,7 +188,7 @@
 
     <script>
         // --- SAYAÇ AYARLARI ---
-        const targetDate = new Date("Nov 29, 2025 23:17:00").getTime();
+        const targetDate = new Date("Nov 29, 2025 23:21:30").getTime();
         
         const elDays = document.getElementById('days'); const elHours = document.getElementById('hours');
         const elMinutes = document.getElementById('minutes'); const elSeconds = document.getElementById('seconds');
@@ -353,7 +353,7 @@
         let ambientLight, dirLight;
         let clock = new THREE.Clock();
         
-        let entryPath, exitPath, victoryPath;
+        let entryPath, exitPath;
         let pathDuration = 20; 
         let animationStartTime = 0;
         let animationState = 0; 
@@ -436,12 +436,6 @@
             ];
             exitPath = new THREE.CatmullRomCurve3(exitPoints);
 
-            // ZAFER YOLU (KUTLAMA)
-            const victoryPoints = [
-                new THREE.Vector3(-400, 40, -100), new THREE.Vector3(0, 20, 10), new THREE.Vector3(400, 60, -100)
-            ];
-            victoryPath = new THREE.CatmullRomCurve3(victoryPoints);
-
             animationStartTime = performance.now();
             sleighGroup.position.copy(entryPath.getPoint(0)); 
             
@@ -500,9 +494,7 @@
 
         function initCelebrationMode() {
             isCelebration = true;
-            animationState = 4; // Zafer Turu
-            animationStartTime = performance.now();
-            sleighGroup.visible = true;
+            // Pankartı ekle
             const banner = createBanner();
             sleighGroup.add(banner);
         }
@@ -528,7 +520,7 @@
                 }
             }
 
-            if (animationState === 3 && !isCelebration) return; 
+            if (animationState === 3) return; // Çıkış bitti, dur.
 
             const currentTime = performance.now();
             
@@ -560,15 +552,10 @@
                     const tangent = exitPath.getTangent(t).normalize();
                     sleighGroup.lookAt(sleighGroup.position.clone().add(tangent));
                 }
-            
-            } else if (animationState === 4) { // KUTLAMA
-                const elapsed = (currentTime - animationStartTime) / 1000;
-                let t = (elapsed / 15) % 1; 
-                const pos = victoryPath.getPoint(t);
-                sleighGroup.position.copy(pos);
-                const tangent = victoryPath.getTangent(t).normalize();
-                sleighGroup.lookAt(sleighGroup.position.clone().add(tangent));
             }
+            
+            // KUTLAMA MODUNDA PANKARTLI GEÇİŞ İPTAL EDİLDİ. 
+            // KIZAK SADECE BİR KEZ GİRİP ÇIKIYOR.
 
             renderer.render(scene, camera);
         }
