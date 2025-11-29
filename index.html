@@ -14,10 +14,19 @@
 
         body {
             font-family: 'Orbitron', sans-serif;
-            background-color: #0f172a; 
+            /* YENİ: Aurora Arka Plan Animasyonu */
+            background: linear-gradient(-45deg, #0f172a, #1a0b2e, #090979, #020024);
+            background-size: 400% 400%;
+            animation: auroraGradient 15s ease infinite;
             transition: background-color 0.5s ease;
             overflow: hidden; 
             margin: 0;
+        }
+
+        @keyframes auroraGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         #canvas-container {
@@ -33,6 +42,19 @@
         }
 
         .counter-container { transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; z-index: 10; }
+        
+        /* YENİ: Neon Kutu Stilleri */
+        .neon-box {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2), inset 0 0 15px rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3) !important;
+            transition: all 0.3s ease;
+        }
+        .neon-box:hover {
+             box-shadow: 0 0 30px rgba(96, 165, 250, 0.6), inset 0 0 20px rgba(96, 165, 250, 0.4);
+             border-color: rgba(96, 165, 250, 0.7) !important;
+             transform: translateY(-5px) scale(1.03);
+        }
+
         .critical-pulse { animation: pulse-red 0.5s infinite alternate; }
         @keyframes pulse-red {
             from { color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.8); }
@@ -46,6 +68,21 @@
             animation: snowfall linear forwards; z-index: 2; 
         }
         @keyframes snowfall { to { transform: translateY(110vh); } }
+
+        /* YENİ: Sihirli Mouse İzi Efekti */
+        .magic-dust {
+            position: fixed;
+            width: 6px; height: 6px;
+            background: transparent;
+            box-shadow: 0 0 10px 3px #60a5fa, 0 0 20px 5px #a855f7; /* Mavi/Mor parlama */
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 100;
+            animation: fadeOutDust 1s forwards;
+        }
+        @keyframes fadeOutDust {
+            to { transform: scale(0); opacity: 0; }
+        }
     </style>
 </head>
 <body class="h-screen w-full flex flex-col items-center justify-center text-white relative">
@@ -63,28 +100,28 @@
 
     <main class="ui-layer z-10 text-center px-4 w-full flex flex-col items-center justify-center h-full">
         <div id="headline-area" class="relative mb-5 md:mb-10 transition-all duration-1000 ease-in">
-            <h1 id="headline" class="text-2xl md:text-4xl tracking-widest text-blue-200 opacity-80 uppercase transition-colors duration-300">
+            <h1 id="headline" class="text-2xl md:text-4xl tracking-widest text-blue-200 opacity-80 uppercase transition-colors duration-300 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">
                 Yeni Yıla Kalan Zaman
             </h1>
         </div>
 
-        <div id="countdown" class="counter-container flex flex-wrap justify-center gap-2 md:gap-8 origin-center mt-5 md:mt-10">
-            <div id="box-days" class="flex flex-col items-center p-2 md:p-4 bg-white/5 rounded-xl md:rounded-2xl backdrop-blur-md border border-white/10 w-20 md:w-40 transition-all duration-500">
-                <span id="days" class="digit text-2xl md:text-6xl font-black">00</span>
-                <span class="text-[10px] md:text-sm text-gray-400 mt-1 md:mt-2">GÜN</span>
+        <div id="countdown" class="counter-container flex flex-wrap justify-center gap-4 md:gap-8 origin-center mt-5 md:mt-10">
+            <div id="box-days" class="neon-box flex flex-col items-center p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl backdrop-blur-md border border-white/10 w-20 md:w-40 transition-all duration-500 cursor-default">
+                <span id="days" class="digit text-2xl md:text-6xl font-black drop-shadow-lg">00</span>
+                <span class="text-[10px] md:text-sm text-blue-200/70 mt-1 md:mt-2">GÜN</span>
             </div>
-            <div id="box-hours" class="flex flex-col items-center p-2 md:p-4 bg-white/5 rounded-xl md:rounded-2xl backdrop-blur-md border border-white/10 w-20 md:w-40 transition-all duration-500">
-                <span id="hours" class="digit text-2xl md:text-6xl font-black">00</span>
-                <span class="text-[10px] md:text-sm text-gray-400 mt-1 md:mt-2">SAAT</span>
+            <div id="box-hours" class="neon-box flex flex-col items-center p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl backdrop-blur-md border border-white/10 w-20 md:w-40 transition-all duration-500 cursor-default">
+                <span id="hours" class="digit text-2xl md:text-6xl font-black drop-shadow-lg">00</span>
+                <span class="text-[10px] md:text-sm text-blue-200/70 mt-1 md:mt-2">SAAT</span>
             </div>
-            <div id="box-minutes" class="flex flex-col items-center p-2 md:p-4 bg-white/5 rounded-xl md:rounded-2xl backdrop-blur-md border border-white/10 w-20 md:w-40 transition-all duration-500">
-                <span id="minutes" class="digit text-2xl md:text-6xl font-black">00</span>
-                <span class="text-[10px] md:text-sm text-gray-400 mt-1 md:mt-2">DAKİKA</span>
+            <div id="box-minutes" class="neon-box flex flex-col items-center p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl backdrop-blur-md border border-white/10 w-20 md:w-40 transition-all duration-500 cursor-default">
+                <span id="minutes" class="digit text-2xl md:text-6xl font-black drop-shadow-lg">00</span>
+                <span class="text-[10px] md:text-sm text-blue-200/70 mt-1 md:mt-2">DAKİKA</span>
             </div>
-            <div id="box-seconds" class="flex flex-col items-center p-2 md:p-4 bg-white/5 rounded-xl md:rounded-2xl backdrop-blur-md border border-white/10 w-20 md:w-40 relative overflow-hidden transition-all duration-500">
+            <div id="box-seconds" class="neon-box flex flex-col items-center p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl backdrop-blur-md border border-white/10 w-20 md:w-40 relative overflow-hidden transition-all duration-500 cursor-default">
                 <div class="absolute inset-0 bg-red-500/0 transition-colors duration-300" id="seconds-bg"></div>
-                <span id="seconds" class="digit text-2xl md:text-6xl font-black relative z-10 text-blue-400">00</span>
-                <span class="text-[10px] md:text-sm text-gray-400 mt-1 md:mt-2 relative z-10">SANİYE</span>
+                <span id="seconds" class="digit text-2xl md:text-6xl font-black relative z-10 text-blue-400 drop-shadow-lg">00</span>
+                <span class="text-[10px] md:text-sm text-blue-200/70 mt-1 md:mt-2 relative z-10">SANİYE</span>
             </div>
         </div>
 
@@ -99,7 +136,8 @@
     <script>
         // --- SAYAÇ AYARLARI ---
         const targetDate = new Date("Jan 1, 2026 00:00:00").getTime();
-        
+        // const targetDate = new Date().getTime() + 45000; // Test için bunu açabilirsin
+
         const elDays = document.getElementById('days'); const elHours = document.getElementById('hours');
         const elMinutes = document.getElementById('minutes'); const elSeconds = document.getElementById('seconds');
         const boxDays = document.getElementById('box-days'); const boxHours = document.getElementById('box-hours');
@@ -160,6 +198,9 @@
             elContainer.style.transform = "scale(1)";
             elSeconds.classList.remove('text-yellow-400', 'text-orange-500', 'critical-pulse');
             document.body.classList.remove('bg-red-900');
+            // Kritik moddan çıkınca aurora arka planını geri getir
+            document.body.style.background = "linear-gradient(-45deg, #0f172a, #1a0b2e, #090979, #020024)";
+            document.body.style.backgroundSize = "400% 400%";
             
             if (totalSecondsLeft > 30) {
                 elHeadlineArea.style.transform = "scale(1)";
@@ -185,11 +226,10 @@
                 } else if (totalSecondsLeft <= 10) {
                     elContainer.style.transform = "scale(2.0)"; 
                     elSeconds.classList.add('critical-pulse');
-                    document.body.style.backgroundColor = (totalSecondsLeft % 2 === 0) ? "#450a0a" : "#000000"; 
+                    // Kritik modda aurora gradientini ezmek için background stili
+                    document.body.style.background = (totalSecondsLeft % 2 === 0) ? "#450a0a" : "#000000"; 
                     elHeadlineArea.style.transform = "scale(2.0) translateY(-100px)";
                     elHeadlineArea.style.opacity = "0";
-                } else {
-                    document.body.style.backgroundColor = "#0f172a";
                 }
             } else {
                 clearInterval(timer);
@@ -198,7 +238,7 @@
         }, 100); 
 
         function startCelebration() {
-            document.body.style.backgroundColor = "#1a0b2e"; 
+            document.body.style.background = "#1a0b2e"; 
             elContainer.style.display = 'none'; 
             elHeadlineArea.style.display = 'none'; 
             elCelebration.classList.remove('hidden'); 
@@ -230,6 +270,7 @@
             container.style.opacity = 1;
 
             scene = new THREE.Scene();
+            // Sis rengini yeni arka plana uyduralım
             scene.fog = new THREE.FogExp2(0x1a0b2e, 0.002); 
 
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -298,9 +339,7 @@
             animationStartTime = performance.now();
             sleighGroup.position.copy(pathCurve.getPoint(0)); 
             
-            // Ekran boyutuna göre kamerayı ayarla
             updateCameraByScreenSize();
-
             animate3D();
         }
 
@@ -357,15 +396,30 @@
             renderer.setSize(width, height);
 
             if (width < 768) {
-                // MOBİL İSE: Kamerayı uzaklaştır (90 birim)
                 camera.position.set(0, 5, 90); 
             } else {
-                // BİLGİSAYAR İSE: Standart mesafe (50 birim)
                 camera.position.set(0, 5, 50);
             }
         }
 
         window.addEventListener('resize', updateCameraByScreenSize);
+
+        // YENİ: Sihirli Mouse İzi Efekti
+        document.addEventListener('mousemove', function(e) {
+            // Performans için her harekette değil, bazen oluştur (Mobilde çok kasmasın diye)
+            if(Math.random() > 0.6) return; 
+
+            const dust = document.createElement('div');
+            dust.className = 'magic-dust';
+            dust.style.left = e.clientX + 'px';
+            dust.style.top = e.clientY + 'px';
+            document.body.appendChild(dust);
+            
+            // Animasyon bitince (1sn sonra) elementi sil
+            setTimeout(() => {
+                dust.remove();
+            }, 1000);
+        });
 
     </script>
 </body>
