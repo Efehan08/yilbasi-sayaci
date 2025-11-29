@@ -76,41 +76,53 @@
             display: inline-block;
         }
 
-        /* --- GÜNCELLENMİŞ: Köşe Dekorları --- */
-        .corner-deco {
-            position: fixed; bottom: 20px; 
-            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
-        }
+        /* --- DEKORASYON AYARLARI (Görsele Göre Güncellendi) --- */
         
-        /* SOL KÖŞE: DEVASA AĞAÇ */
-        .left-deco { 
-            left: 20px; 
-            font-size: 250px; /* Çok daha büyük */
-            pointer-events: none; 
-            z-index: 5;
-            filter: drop-shadow(0 0 30px rgba(0, 255, 0, 0.2)); /* Hafif yeşil parlama */
+        /* 1. DEVASA AĞAÇ (Sol) */
+        .tree-container {
+            position: fixed;
+            bottom: -50px;
+            left: -40px;
+            font-size: 350px; /* Çok büyük */
+            z-index: 20;
+            filter: drop-shadow(0 0 40px rgba(0, 255, 0, 0.3));
+            pointer-events: none;
+            line-height: 1;
         }
 
-        /* SAĞ KÖŞE: DÜZENLİ VE BÜYÜK HEDİYELER */
-        .right-deco { 
-            right: 30px; 
-            font-size: 90px; /* Daha büyük temel boyut */
-            display: flex; 
-            flex-direction: column; /* Düzenli sütun */
-            align-items: center; 
-            line-height: 0.65; /* Sıkı istif */
-            z-index: 60; 
+        /* 2. HEDİYE PİRAMİDİ (Sağ) */
+        .gift-stack-container {
+            position: fixed;
+            bottom: 0;
+            right: 10px;
+            display: flex;
+            align-items: flex-end; /* Tabana hizala */
+            gap: -10px; /* Kutular birbirine biraz girsin */
+            z-index: 30;
         }
 
-        /* Tıklanabilir Hediye Stilleri (Sadeleştirildi) */
+        .gift-column {
+            display: flex;
+            flex-direction: column-reverse; /* Aşağıdan yukarı diz */
+            margin-left: -15px; /* Sütunlar iç içe geçsin */
+        }
+
         .gift-item {
-            display: inline-block;
+            font-size: 80px; /* Büyük kutular */
+            line-height: 0.75; /* Üst üste binsinler */
             cursor: pointer;
-            transition: transform 0.2s ease-in-out, opacity 0.3s ease-in-out;
+            transition: transform 0.2s;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
         }
-        /* Hoverda hafif zıplama */
-        .gift-item:hover { transform: scale(1.1) translateY(-10px); filter: brightness(1.2); }
-        
+        .gift-item:hover { transform: scale(1.1) translateY(-5px); z-index: 40; }
+
+        /* HEDİYE RENKLENDİRME (Hue Rotate ile Renk Değiştirme) */
+        .col-1 .gift-item { filter: hue-rotate(200deg); } /* Mavi tonlar */
+        .col-2 .gift-item { filter: hue-rotate(90deg); }  /* Yeşil tonlar */
+        .col-3 .gift-item { filter: hue-rotate(280deg); } /* Mor tonlar */
+        .col-4 .gift-item { filter: none; }               /* Kırmızı (Orijinal) */
+
+        /* Hediye Patlama Animasyonu */
         @keyframes giftPopIn {
             0% { transform: scale(0); opacity: 0; }
             80% { transform: scale(1.2); opacity: 1; }
@@ -118,21 +130,39 @@
         }
         .gift-respawn { animation: giftPopIn 0.6s ease-out forwards; }
 
+        /* MOBİL UYUMLULUK */
         @media (max-width: 768px) {
-            /* Mobilde ağacı biraz daha içeri ve aşağı alalım ki taşmasın */
-            .left-deco { font-size: 150px; left: -20px; bottom: -30px; }
-            .right-deco { font-size: 70px; right: 10px; bottom: 10px; }
+            .tree-container { font-size: 180px; left: -30px; bottom: -20px; }
+            .gift-item { font-size: 50px; }
+            .gift-stack-container { right: 0; }
+            /* Mobilde çok yer kaplamasın diye bazı sütunları gizle */
+            .col-1, .col-2 { display: none; }
         }
     </style>
 </head>
 <body class="h-screen w-full flex flex-col items-center justify-center text-white relative">
 
-    <div class="corner-deco left-deco">🎄</div>
+    <div class="tree-container">🎄</div>
     
-    <div class="corner-deco right-deco">
-        <span class="gift-item">🎁</span>
-        <span class="gift-item">🎁</span>
-        <span class="gift-item">🎁</span>
+    <div class="gift-stack-container">
+        <div class="gift-column col-1">
+            <span class="gift-item">🎁</span>
+        </div>
+        <div class="gift-column col-2">
+            <span class="gift-item">🎁</span>
+            <span class="gift-item">🎁</span>
+        </div>
+        <div class="gift-column col-3">
+            <span class="gift-item">🎁</span>
+            <span class="gift-item">🎁</span>
+            <span class="gift-item">🎁</span>
+        </div>
+        <div class="gift-column col-4">
+            <span class="gift-item">🎁</span>
+            <span class="gift-item">🎁</span>
+            <span class="gift-item">🎁</span>
+            <span class="gift-item">🎁</span>
+        </div>
     </div>
 
     <div id="canvas-container"></div>
@@ -289,7 +319,9 @@
             elContainer.style.display = 'none'; 
             elHeadlineArea.style.display = 'none'; 
             elCelebration.classList.remove('hidden'); 
-            document.querySelectorAll('.corner-deco').forEach(el => el.style.display = 'none');
+            // Dekorları gizle
+            document.querySelector('.tree-container').style.display = 'none';
+            document.querySelector('.gift-stack-container').style.display = 'none';
             
             var duration = 15 * 1000;
             var animationEnd = Date.now() + duration;
@@ -454,7 +486,7 @@
                 gift.style.opacity = "0";
                 gift.style.pointerEvents = "none"; 
                 setTimeout(() => {
-                    gift.style.transform = ""; gift.style.opacity = ""; gift.style.pointerEvents = "";
+                    gift.style.transform = ""; gift.style.opacity = ""; gift.style.pointerEvents = "auto";
                     gift.classList.add('gift-respawn');
                     setTimeout(() => { gift.classList.remove('gift-respawn'); }, 600);
                 }, 1000);
