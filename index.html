@@ -33,7 +33,11 @@
             z-index: 1; opacity: 0; transition: opacity 2s ease-in; pointer-events: none;
         }
 
-        .counter-container { transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; z-index: 10; }
+        /* Sayaç Container: Scale geçişleri yumuşak olsun */
+        .counter-container { 
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); 
+            position: relative; z-index: 10; 
+        }
         
         .neon-box {
             box-shadow: 0 0 15px rgba(59, 130, 246, 0.2), inset 0 0 15px rgba(59, 130, 246, 0.1);
@@ -46,37 +50,26 @@
              transform: translateY(-5px) scale(1.03);
         }
 
-        /* YENİ: SPOT IŞIĞI EFEKTLERİ */
-        
-        /* 1. Karanlık Perde (Ortası Delik) */
+        /* SPOT IŞIĞI EFEKTİ */
         #spotlight-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            /* Ortası şeffaf, kenarları simsiyah bir gradyan */
-            background: radial-gradient(circle at center, transparent 20%, #000000 90%);
-            opacity: 0; /* Başlangıçta görünmez */
-            transition: opacity 1s ease; 
-            pointer-events: none; 
-            z-index: 25; /* 3D sahnenin ve dekorların üstünde */
+            background: radial-gradient(circle at center, transparent 20%, #000000 95%);
+            opacity: 0; transition: opacity 1s ease; 
+            pointer-events: none; z-index: 25; 
         }
 
-        /* KRİTİK MOD (Son 10 Saniye) Sınıfları */
-        body.mode-critical #spotlight-overlay { opacity: 1; } /* Perdeyi indir */
+        body.mode-critical #spotlight-overlay { opacity: 1; }
         
-        /* Sayacı perdenin üzerine çıkar ve parlat */
+        /* Kritik modda sayaç öne çıkar ve parlar (Scale JS ile yönetilecek, buradan sildim) */
         body.mode-critical #countdown {
             z-index: 30; 
-            transform: scale(1.5);
-            /* Kutsal Işık Efekti: Beyaz güçlü gölge */
             filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.9)); 
         }
 
-        /* Diğer her şeyi silikleştir */
         body.mode-critical #headline-area,
         body.mode-critical .tree-container,
         body.mode-critical .gift-stack-container {
-            opacity: 0.1;
-            filter: blur(2px);
-            transition: all 1s ease;
+            opacity: 0.1; filter: blur(2px); transition: all 1s ease;
         }
 
         .digit { font-variant-numeric: tabular-nums; }
@@ -107,12 +100,10 @@
         /* DEKORASYONLAR */
         .tree-container {
             position: fixed; bottom: -50px; left: -40px; font-size: 350px; z-index: 20;
-            filter: drop-shadow(0 0 40px rgba(0, 255, 0, 0.3)); pointer-events: none; line-height: 1;
-            transition: opacity 1s;
+            filter: drop-shadow(0 0 40px rgba(0, 255, 0, 0.3)); pointer-events: none; line-height: 1; transition: opacity 1s;
         }
         .gift-stack-container {
-            position: fixed; bottom: 0; right: 10px; display: flex; align-items: flex-end; gap: -10px; z-index: 30;
-            transition: opacity 1s;
+            position: fixed; bottom: 0; right: 10px; display: flex; align-items: flex-end; gap: -10px; z-index: 30; transition: opacity 1s;
         }
         .gift-column { display: flex; flex-direction: column-reverse; margin-left: -15px; }
         .gift-item {
@@ -142,7 +133,6 @@
 <body class="h-screen w-full flex flex-col items-center justify-center text-white relative">
 
     <div id="spotlight-overlay"></div>
-
     <div class="tree-container">🎄</div>
     
     <div class="gift-stack-container">
@@ -200,7 +190,7 @@
 
     <script>
         // --- SAYAÇ AYARLARI ---
-        const targetDate = new Date("Nov 29, 2025 22:41:00").getTime();
+        const targetDate = new Date("Nov 29, 2025 22:49:00").getTime();
         // TEST İÇİN AÇ (45 saniye sonra Yılbaşı):
         // const targetDate = new Date().getTime() + 45000; 
 
@@ -239,16 +229,6 @@
             gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
             osc.start();
             osc.stop(audioCtx.currentTime + 0.1);
-        }
-
-        function speakNumber(num) {
-            if (!window.speechSynthesis) return;
-            window.speechSynthesis.cancel(); 
-            let utterance = new SpeechSynthesisUtterance(num.toString());
-            utterance.lang = 'tr-TR'; 
-            utterance.rate = 1.2; 
-            utterance.volume = 1; 
-            window.speechSynthesis.speak(utterance);
         }
 
         function playFallback() { 
@@ -297,18 +277,11 @@
 
             // 2. KRİTİK MOD: SPOT IŞIĞI (Son 10 sn)
             if (totalSecondsLeft <= 10 && totalSecondsLeft > 0) {
-                // "mode-critical" sınıfını body'e ekle
                 document.body.classList.add('mode-critical');
-                
-                // 3D Işıkları Kıs (Sadece sahneyi karart, spot ışığını overlay yapıyor)
+                // Işıkları Kıs
                 if (ambientLight) ambientLight.intensity = 0.2; 
                 if (dirLight) dirLight.intensity = 0.5;
-                
-                if (totalSecondsLeft !== lastPlayedSecond) {
-                    speakNumber(totalSecondsLeft);
-                }
             } else {
-                // Kritik Moddan Çık
                 document.body.classList.remove('mode-critical');
                 if (ambientLight) ambientLight.intensity = 2.0; 
                 if (dirLight) dirLight.intensity = 2.5;
@@ -316,9 +289,19 @@
 
             lastPlayedSecond = totalSecondsLeft;
 
-            // Görsel İyileştirmeler (Sadece normal zamanda çalışır, kritik mod CSS ile yönetiliyor)
+            // --- SCALE (BÜYÜME) EFEKTİ ---
+            // CSS'teki çakışma giderildi, artık burası çalışacak
+            if (totalSecondsLeft <= 30 && totalSecondsLeft > 20) {
+                elContainer.style.transform = "scale(1.2)";
+            } else if (totalSecondsLeft <= 20 && totalSecondsLeft > 10) {
+                elContainer.style.transform = "scale(1.5)";
+            } else if (totalSecondsLeft <= 10 && totalSecondsLeft > 0) {
+                elContainer.style.transform = "scale(2.0)";
+            } else {
+                elContainer.style.transform = "scale(1)";
+            }
+
             if (totalSecondsLeft > 10) {
-                 elContainer.style.transform = "scale(1)";
                  elHeadlineArea.style.opacity = "1";
             }
             
@@ -329,7 +312,7 @@
                     musicStarted = true;
                 }
                 
-                // Son 30-10 saniye arası hafif sarı/turuncu uyarılar
+                // Renkli uyarılar
                 if (totalSecondsLeft <= 30 && totalSecondsLeft > 10) {
                     elSeconds.classList.add('text-orange-500');
                 } else {
@@ -342,7 +325,6 @@
         }, 100); 
 
         function startCelebration() {
-            // Işıkları Geri Aç ve Kutlama Moduna Geç
             document.body.classList.remove('mode-critical');
             if (ambientLight) ambientLight.intensity = 2.0; 
             if (dirLight) dirLight.intensity = 2.5;
@@ -377,6 +359,7 @@
         let pathCurve; 
         let pathDuration = 20; 
         let animationStartTime = 0; 
+        let animationFinished = false; // YENİ: Animasyonun bittiğini kontrol eden bayrak
         
         function initThreeJS() {
             const container = document.getElementById('canvas-container');
@@ -441,6 +424,7 @@
                 sleighGroup.add(deer2);
             });
 
+            // GÜNCELLENMİŞ YOL: Biraz daha kavisli ve uzun
             const points = [
                 new THREE.Vector3(200, 20, -700), new THREE.Vector3(5, 5, 20),
                 new THREE.Vector3(-100, 15, 50), new THREE.Vector3(-50, 15, 60) 
@@ -454,8 +438,16 @@
         }
 
         let isWaiting = false; 
+        
         function animate3D() {
             requestAnimationFrame(animate3D);
+            
+            // Eğer animasyon tamamen bittiyse (çıkış yaptıysa) bir daha çalıştırma
+            if (animationFinished) {
+                sleighGroup.visible = false; // Görünmez yap
+                return;
+            }
+
             const currentTime = performance.now();
             const elapsed = (currentTime - animationStartTime) / 1000;
             const totalDuration = pathDuration; 
@@ -464,9 +456,12 @@
 
             if (!isWaiting) {
                 if (t > 1) {
+                    // Yolun sonuna geldik (GİRİŞ BİTTİ)
                     isWaiting = true;
                     sleighGroup.position.copy(pathCurve.getPoint(1)); 
                     sleighGroup.rotation.y = Math.PI / 2; 
+                    
+                    // 5 Saniye Bekle, Sonra Çıkış Yap
                     setTimeout(() => {
                         isWaiting = false;
                         animationStartTime = performance.now(); 
@@ -474,10 +469,19 @@
                             sleighGroup.position.clone(), new THREE.Vector3(50, 20, 100), new THREE.Vector3(300, 0, 400) 
                         ];
                         pathCurve = new THREE.CatmullRomCurve3(exitPoints);
-                        pathDuration = 5; t = 0; 
+                        pathDuration = 5; // Hızlı çıkış
+                        t = 0; 
+
+                        // Çıkış başladıktan 5 saniye sonra animasyonu tamamen bitir
+                        setTimeout(() => {
+                            animationFinished = true;
+                        }, 5000);
+
                     }, 5000); 
                 }
+
                 if (!isWaiting) {
+                    // Normal Hareket
                     const position = pathCurve.getPoint(t);
                     sleighGroup.position.copy(position);
                     const tangent = pathCurve.getTangent(t).normalize();
@@ -529,4 +533,3 @@
     </script>
 </body>
 </html>
-
