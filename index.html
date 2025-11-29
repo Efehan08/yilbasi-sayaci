@@ -22,10 +22,23 @@
             margin: 0;
         }
 
+        /* Normal Mod Arka Planı */
         @keyframes auroraGradient {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
+        }
+
+        /* YENİ: Parti Modu Arka Planı (00:00'da devreye girer) */
+        body.party-mode {
+            animation: partyGradient 3s ease infinite !important;
+            background: linear-gradient(-45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+            background-size: 600% 600%;
+        }
+        @keyframes partyGradient { 
+            0% {background-position: 0% 50%} 
+            50% {background-position: 100% 50%} 
+            100% {background-position: 0% 50%} 
         }
 
         #canvas-container {
@@ -93,6 +106,21 @@
             -webkit-text-fill-color: transparent;
             filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.8));
             display: inline-block;
+        }
+
+        /* YENİ: KUTLAMA YAZISI ANİMASYONU */
+        .celebration-text {
+            animation: zoomInBounce 1s ease-out forwards, heartbeat 1.5s ease-in-out infinite 1s;
+        }
+        @keyframes zoomInBounce {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); text-shadow: 0 0 30px rgba(255,255,255,0.8); }
+            100% { transform: scale(1); }
         }
 
         /* DEKORASYONLAR */
@@ -179,7 +207,7 @@
         </div>
 
         <div id="celebration" class="hidden absolute inset-0 flex flex-col items-center justify-center z-50 pointer-events-none">
-            <h2 class="text-4xl md:text-8xl lg:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 animate-bounce text-center px-4 drop-shadow-2xl">
+            <h2 class="celebration-text text-4xl md:text-8xl lg:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 text-center px-4 drop-shadow-2xl">
                 MUTLU YILLAR!
             </h2>
             <p class="text-xl md:text-4xl mt-4 md:mt-8 text-white/90 animate-pulse font-bold drop-shadow-lg">Hoşgeldin 2026</p>
@@ -188,8 +216,8 @@
 
     <script>
         // --- SAYAÇ AYARLARI ---
-        const targetDate = new Date("Nov 29, 2025 23:26:00").getTime();
-        // const targetDate = new Date().getTime() + 45000; 
+        const targetDate = new Date("Nov 29, 2025 23:29:30").getTime();
+        // const targetDate = new Date().getTime() + 15000; // TEST MODU
 
         const elDays = document.getElementById('days'); const elHours = document.getElementById('hours');
         const elMinutes = document.getElementById('minutes'); const elSeconds = document.getElementById('seconds');
@@ -225,7 +253,6 @@
             osc.type = 'sine'; 
             osc.frequency.setValueAtTime(600, audioCtx.currentTime); 
             
-            // SES SEVİYESİ 0.04
             gainNode.gain.setValueAtTime(0.04, audioCtx.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
             
@@ -321,11 +348,13 @@
             }
         }, 100); 
 
+        // YENİ: GELİŞMİŞ KUTLAMA FONKSİYONU
         function startCelebration() {
             document.body.classList.remove('mode-critical');
+            document.body.classList.add('party-mode'); // Parti arka planını aç
+            
             if (ambientLight) ambientLight.intensity = 2.0; 
             if (dirLight) dirLight.intensity = 2.5;
-            document.body.style.background = "#1a0b2e"; 
             
             elContainer.style.display = 'none'; 
             elHeadlineArea.style.display = 'none'; 
@@ -334,16 +363,31 @@
             document.querySelector('.gift-stack-container').style.display = 'none';
             document.getElementById('spotlight-overlay').style.display = 'none';
             
+            // Müzik
+            if(audioEnabled && !musicStarted) { audio.play(); }
+
+            // KONFETİ HAVAİ FİŞEKLERİ (Fireworks Logic)
             var duration = 15 * 1000;
             var animationEnd = Date.now() + duration;
             var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-            var interval = setInterval(function() {
-                var timeLeft = animationEnd - Date.now();
-                if (timeLeft <= 0) return clearInterval(interval);
-                confetti(Object.assign({}, defaults, { particleCount: 50 * (timeLeft / duration), origin: { x: Math.random(), y: Math.random() - 0.2 } }));
-            }, 250);
 
-            if(audioEnabled && !musicStarted) { audio.play(); }
+            function randomInRange(min, max) {
+              return Math.random() * (max - min) + min;
+            }
+
+            var interval = setInterval(function() {
+              var timeLeft = animationEnd - Date.now();
+
+              if (timeLeft <= 0) {
+                return clearInterval(interval);
+              }
+
+              var particleCount = 50 * (timeLeft / duration);
+              
+              // Rastgele konfeti patlamaları (Havai Fişek Etkisi)
+              confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+              confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
 
             initThreeJS();
         }
@@ -539,4 +583,3 @@
     </script>
 </body>
 </html>
-
