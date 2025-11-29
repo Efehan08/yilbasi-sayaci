@@ -29,10 +29,8 @@
         }
 
         #canvas-container {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1; opacity: 0; transition: opacity 2s ease-in;
-            pointer-events: none;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1; opacity: 0; transition: opacity 2s ease-in; pointer-events: none;
         }
 
         .counter-container { transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; z-index: 10; }
@@ -70,9 +68,6 @@
         }
         @keyframes fadeOutDust { to { transform: scale(0); opacity: 0; } }
 
-        /* --- YENİ EKLENEN STİLLER (Süslemeler) --- */
-        
-        /* 1. Buzlu Siber Başlık Efekti */
         .icy-headline {
             background: linear-gradient(to right, #ffffff, #cffafe, #38bdf8);
             -webkit-background-clip: text;
@@ -80,38 +75,59 @@
             filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.8));
             display: inline-block;
         }
-        
-        /* 2. Noel Baba Şapkası */
-        .santa-hat {
-            display: inline-block;
-            filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.7));
-            animation: gentle-tilt 3s ease-in-out infinite alternate;
-        }
-        @keyframes gentle-tilt {
-            from { transform: rotate(-5deg); } to { transform: rotate(5deg); }
-        }
 
-        /* 3. Köşe Dekorları (Stickerlar) */
+        /* --- YENİ: Köşe Dekorları ve Hediye Etkileşimi --- */
         .corner-deco {
-            position: fixed; bottom: 20px; z-index: 5;
-            font-size: 80px; opacity: 0.9; pointer-events: none;
+            position: fixed; bottom: 20px; z-index: 60; /* Z-index artırıldı ki tıklanabilsin */
+            opacity: 1; 
             filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
         }
-        .left-deco { left: 20px; transform: rotate(-5deg); }
-        .right-deco { right: 20px; text-align: right; line-height: 0.8; transform: rotate(5deg); }
+        /* Ağaç büyütüldü */
+        .left-deco { left: 20px; transform: rotate(-5deg); font-size: 130px; pointer-events: none; }
+        /* Hediye yığını */
+        .right-deco { right: 20px; font-size: 50px; display: flex; flex-direction: column; align-items: flex-end; line-height: 0.8; }
 
-        /* Mobilde dekorları biraz küçültelim ki sayacı kapatmasın */
-        @media (max-width: 768px) {
-            .corner-deco { font-size: 50px; bottom: 10px; }
-            .left-deco { left: 10px; } .right-deco { right: 10px; }
+        /* Tıklanabilir Hediye Kutusu Stilleri */
+        .gift-item {
+            display: inline-block;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><text y="20" font-size="20">✨</text></svg>'), pointer;
+            transition: transform 0.2s ease-in-out, opacity 0.3s ease-in-out;
         }
+        .gift-item:hover { transform: scale(1.15) rotate(5deg); filter: brightness(1.2); }
+        
+        /* Hediye geri gelme animasyonu */
+        @keyframes giftPopIn {
+            0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+            70% { transform: scale(1.2) rotate(5deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        .gift-respawn { animation: giftPopIn 0.6s ease-out forwards; }
 
+        @media (max-width: 768px) {
+            .left-deco { font-size: 80px; left: 10px; bottom: 10px; }
+            .right-deco { font-size: 40px; right: 10px; bottom: 10px; }
+        }
     </style>
 </head>
 <body class="h-screen w-full flex flex-col items-center justify-center text-white relative">
 
     <div class="corner-deco left-deco">🎄</div>
-    <div class="corner-deco right-deco">🎁<br><span style="font-size: 0.7em;">🎁🎁</span></div>
+    
+    <div class="corner-deco right-deco">
+        <div class="flex gap-1">
+            <span class="gift-item">🎁</span>
+            <span class="gift-item" style="transform: rotate(5deg);">🎁</span>
+        </div>
+        <div class="flex gap-1 -mt-2">
+            <span class="gift-item" style="font-size: 1.2em;">🎁</span>
+            <span class="gift-item" style="transform: rotate(-5deg);">🎁</span>
+            <span class="gift-item">🎁</span>
+        </div>
+        <div class="flex gap-1 -mt-2">
+            <span class="gift-item" style="font-size: 0.8em;">🎁</span>
+            <span class="gift-item" style="font-size: 0.9em; transform: rotate(10deg);">🎁</span>
+        </div>
+    </div>
 
     <div id="canvas-container"></div>
     
@@ -126,9 +142,14 @@
 
     <main class="ui-layer z-10 text-center px-4 w-full flex flex-col items-center justify-center h-full">
         <div id="headline-area" class="relative mb-5 md:mb-10 transition-all duration-1000 ease-in">
-            <h1 id="headline" class="text-2xl md:text-5xl tracking-widest uppercase transition-colors duration-300 flex items-center justify-center gap-2 md:gap-4">
-                <span class="santa-hat text-3xl md:text-5xl">🎅</span>
-                <span class="icy-headline font-black">Yeni Yıla Kalan Zaman</span>
+            <h1 id="headline" class="text-2xl md:text-5xl tracking-widest uppercase transition-colors duration-300 flex items-center justify-center">
+                <span class="icy-headline font-black relative">
+                    <span class="relative inline-block mr-2 md:mr-3">
+                        Yeni
+                        <span class="absolute -top-6 -left-3 md:-top-9 md:-left-5 text-3xl md:text-6xl rotate-[-20deg] filter drop-shadow-lg pointer-events-none">🎅</span>
+                    </span>
+                    Yıla Kalan Zaman
+                </span>
             </h1>
         </div>
 
@@ -266,7 +287,6 @@
             elContainer.style.display = 'none'; 
             elHeadlineArea.style.display = 'none'; 
             elCelebration.classList.remove('hidden'); 
-            // Köşe dekorlarını kutlamada gizle
             document.querySelectorAll('.corner-deco').forEach(el => el.style.display = 'none');
             
             var duration = 15 * 1000;
@@ -286,7 +306,6 @@
         // --- 3D DÜNYASI ---
         let scene, camera, renderer, sleighGroup;
         let clock = new THREE.Clock();
-        
         let pathCurve; 
         let pathDuration = 20; 
         let animationStartTime = 0; 
@@ -354,12 +373,9 @@
             });
 
             const points = [
-                new THREE.Vector3(200, 20, -700), 
-                new THREE.Vector3(5, 5, 20),
-                new THREE.Vector3(-100, 15, 50), 
-                new THREE.Vector3(-50, 15, 60) 
+                new THREE.Vector3(200, 20, -700), new THREE.Vector3(5, 5, 20),
+                new THREE.Vector3(-100, 15, 50), new THREE.Vector3(-50, 15, 60) 
             ];
-
             pathCurve = new THREE.CatmullRomCurve3(points);
             animationStartTime = performance.now();
             sleighGroup.position.copy(pathCurve.getPoint(0)); 
@@ -369,12 +385,10 @@
         }
 
         let isWaiting = false; 
-
         function animate3D() {
             requestAnimationFrame(animate3D);
             const currentTime = performance.now();
             const elapsed = (currentTime - animationStartTime) / 1000;
-            
             const totalDuration = pathDuration; 
             let t = elapsed / totalDuration; 
             t = t * t * (3 - 2 * t); 
@@ -384,21 +398,16 @@
                     isWaiting = true;
                     sleighGroup.position.copy(pathCurve.getPoint(1)); 
                     sleighGroup.rotation.y = Math.PI / 2; 
-                    
                     setTimeout(() => {
                         isWaiting = false;
                         animationStartTime = performance.now(); 
                         const exitPoints = [
-                            sleighGroup.position.clone(), 
-                            new THREE.Vector3(50, 20, 100), 
-                            new THREE.Vector3(300, 0, 400) 
+                            sleighGroup.position.clone(), new THREE.Vector3(50, 20, 100), new THREE.Vector3(300, 0, 400) 
                         ];
                         pathCurve = new THREE.CatmullRomCurve3(exitPoints);
-                        pathDuration = 5; 
-                        t = 0; 
+                        pathDuration = 5; t = 0; 
                     }, 5000); 
                 }
-
                 if (!isWaiting) {
                     const position = pathCurve.getPoint(t);
                     sleighGroup.position.copy(position);
@@ -411,33 +420,49 @@
 
         function updateCameraByScreenSize() {
             if (!camera || !renderer) return;
-
             const width = window.innerWidth;
             const height = window.innerHeight;
-
             camera.aspect = width / height;
             camera.updateProjectionMatrix();
             renderer.setSize(width, height);
-
-            if (width < 768) {
-                camera.position.set(0, 5, 90); 
-            } else {
-                camera.position.set(0, 5, 50);
-            }
+            if (width < 768) { camera.position.set(0, 5, 90); } else { camera.position.set(0, 5, 50); }
         }
-
         window.addEventListener('resize', updateCameraByScreenSize);
 
         document.addEventListener('mousemove', function(e) {
             if(Math.random() > 0.6) return; 
             const dust = document.createElement('div');
             dust.className = 'magic-dust';
-            dust.style.left = e.clientX + 'px';
-            dust.style.top = e.clientY + 'px';
+            dust.style.left = e.clientX + 'px'; dust.style.top = e.clientY + 'px';
             document.body.appendChild(dust);
             setTimeout(() => { dust.remove(); }, 1000);
         });
 
+        // --- YENİ: HEDİYE PATLATMA ETKİLEŞİMİ ---
+        document.querySelectorAll('.gift-item').forEach(gift => {
+            gift.addEventListener('click', function(e) {
+                // 1. Tıklanan noktada küçük konfeti patlaması
+                const rect = gift.getBoundingClientRect();
+                const x = rect.left + rect.width / 2;
+                const y = rect.top + rect.height / 2;
+                confetti({
+                    particleCount: 30, spread: 60, origin: { x: x / window.innerWidth, y: y / window.innerHeight },
+                    colors: ['#ff0000', '#00ff00', '#ffd700', '#ffffff'], shapes: ['circle', 'square'], scalar: 0.7, zIndex: 200
+                });
+
+                // 2. Hediyeyi "Puf" diye yok et
+                gift.style.transform = "scale(0) rotate(180deg)";
+                gift.style.opacity = "0";
+                gift.style.pointerEvents = "none"; // Yokken tıklanmasın
+
+                // 3. Bir süre sonra tatlı bir animasyonla geri getir (Respawn)
+                setTimeout(() => {
+                    gift.style.transform = ""; gift.style.opacity = ""; gift.style.pointerEvents = "";
+                    gift.classList.add('gift-respawn');
+                    setTimeout(() => { gift.classList.remove('gift-respawn'); }, 600);
+                }, 1000);
+            });
+        });
     </script>
 </body>
 </html>
