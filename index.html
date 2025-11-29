@@ -29,7 +29,7 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* YENİ: Parti Modu Arka Planı (00:00'da devreye girer) */
+        /* Parti Modu Arka Planı */
         body.party-mode {
             animation: partyGradient 3s ease infinite !important;
             background: linear-gradient(-45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
@@ -86,8 +86,11 @@
         .digit { font-variant-numeric: tabular-nums; }
         .ui-layer { position: relative; z-index: 50; }
         
+        /* KAR TANESİ */
         .snowflake {
-            position: absolute; top: -10px; background-color: white; border-radius: 50%; opacity: 0.8; pointer-events: none;
+            position: absolute; top: -10px; background-color: white; border-radius: 50%; 
+            opacity: 0.6; /* Biraz şeffaf olsun ki yazıyı kapatmasın */
+            pointer-events: none;
             animation: snowfall linear forwards; z-index: 2; 
         }
         @keyframes snowfall { to { transform: translateY(110vh); } }
@@ -108,7 +111,7 @@
             display: inline-block;
         }
 
-        /* YENİ: KUTLAMA YAZISI ANİMASYONU */
+        /* KUTLAMA YAZISI ANİMASYONU */
         .celebration-text {
             animation: zoomInBounce 1s ease-out forwards, heartbeat 1.5s ease-in-out infinite 1s;
         }
@@ -216,7 +219,7 @@
 
     <script>
         // --- SAYAÇ AYARLARI ---
-        const targetDate = new Date("Nov 29, 2025 23:29:30").getTime();
+        const targetDate = new Date("Nov 29, 2025 23:35:30").getTime();
         // const targetDate = new Date().getTime() + 15000; // TEST MODU
 
         const elDays = document.getElementById('days'); const elHours = document.getElementById('hours');
@@ -242,7 +245,7 @@
             }).catch(e => audioBtn.innerText = "⚠️ İzin Verilmedi");
         }
 
-        // TİK SESİ (Hafifletilmiş - 0.04)
+        // TİK SESİ (0.04)
         function playTickSound() {
             if (!audioEnabled || !audioCtx) return;
             const osc = audioCtx.createOscillator();
@@ -265,15 +268,23 @@
             audio.src = "https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg"; 
         }
 
+        // KAR YAĞIŞI DÜZELTMESİ (Akıllı Silme)
         function createSnowflake() {
             const sf = document.createElement('div');
             sf.className = 'snowflake';
             sf.style.left = Math.random() * 100 + 'vw';
-            sf.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            
+            // Düşme süresini hesapla (2 ile 5 saniye arası)
+            const duration = Math.random() * 3 + 2; 
+            sf.style.animationDuration = duration + 's';
+            
             sf.style.width = sf.style.height = (Math.random() * 5 + 2) + 'px';
             document.body.appendChild(sf);
-            setTimeout(() => sf.remove(), 5000);
+            
+            // KİLİT NOKTA: Düşme bittiği AN sil. Böylece yerde beklemez.
+            setTimeout(() => sf.remove(), duration * 1000);
         }
+        // Yoğun yağış (Hız geri getirildi)
         setInterval(createSnowflake, 100);
 
         let lastPlayedSecond = -1;
@@ -348,10 +359,10 @@
             }
         }, 100); 
 
-        // YENİ: GELİŞMİŞ KUTLAMA FONKSİYONU
+        // GELİŞMİŞ KUTLAMA FONKSİYONU
         function startCelebration() {
             document.body.classList.remove('mode-critical');
-            document.body.classList.add('party-mode'); // Parti arka planını aç
+            document.body.classList.add('party-mode'); 
             
             if (ambientLight) ambientLight.intensity = 2.0; 
             if (dirLight) dirLight.intensity = 2.5;
@@ -363,10 +374,9 @@
             document.querySelector('.gift-stack-container').style.display = 'none';
             document.getElementById('spotlight-overlay').style.display = 'none';
             
-            // Müzik
             if(audioEnabled && !musicStarted) { audio.play(); }
 
-            // KONFETİ HAVAİ FİŞEKLERİ (Fireworks Logic)
+            // KONFETİ HAVAİ FİŞEKLERİ
             var duration = 15 * 1000;
             var animationEnd = Date.now() + duration;
             var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
@@ -384,7 +394,7 @@
 
               var particleCount = 50 * (timeLeft / duration);
               
-              // Rastgele konfeti patlamaları (Havai Fişek Etkisi)
+              // Rastgele konfeti patlamaları
               confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
               confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
             }, 250);
