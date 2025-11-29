@@ -89,7 +89,7 @@
         /* KAR TANESİ */
         .snowflake {
             position: absolute; top: -10px; background-color: white; border-radius: 50%; 
-            opacity: 0.6; /* Biraz şeffaf olsun ki yazıyı kapatmasın */
+            opacity: 0.6; 
             pointer-events: none;
             animation: snowfall linear forwards; z-index: 2; 
         }
@@ -219,7 +219,7 @@
 
     <script>
         // --- SAYAÇ AYARLARI ---
-        const targetDate = new Date("Nov 29, 2025 23:35:30").getTime();
+        const targetDate = new Date("Nov 29, 2025 23:41:00").getTime();
         // const targetDate = new Date().getTime() + 15000; // TEST MODU
 
         const elDays = document.getElementById('days'); const elHours = document.getElementById('hours');
@@ -374,6 +374,9 @@
             document.querySelector('.gift-stack-container').style.display = 'none';
             document.getElementById('spotlight-overlay').style.display = 'none';
             
+            // --- KİLİT NOKTA: 3D SAHNEYİ KOMPLE GİZLE (Gri Noktalardan Kurtul) ---
+            document.getElementById('canvas-container').style.display = 'none';
+
             if(audioEnabled && !musicStarted) { audio.play(); }
 
             // KONFETİ HAVAİ FİŞEKLERİ
@@ -398,8 +401,6 @@
               confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
               confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
             }, 250);
-
-            initThreeJS();
         }
 
         // --- 3D DÜNYASI (Tek Seferlik Animasyon) ---
