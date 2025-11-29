@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yılbaşı Geri Sayımı</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background-color: #0f172a; 
+            transition: background-color 0.5s ease;
+            overflow: hidden; 
+            margin: 0;
+        }
+
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1; 
+            opacity: 0; 
+            transition: opacity 2s ease-in;
+            pointer-events: none;
+        }
+
+        .counter-container { transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; z-index: 10; }
+        .critical-pulse { animation: pulse-red 0.5s infinite alternate; }
+        @keyframes pulse-red {
+            from { color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.8); }
+            to { color: #ef4444; text-shadow: 0 0 40px rgba(239, 68, 68, 1); transform: scale(1.1); }
+        }
+        .digit { font-variant-numeric: tabular-nums; }
+        .ui-layer { position: relative; z-index: 50; }
+        
+        .snowflake {
+            position: absolute; top: -10px; background-color: white; border-radius: 50%; opacity: 0.8; pointer-events: none;
+            animation: snowfall linear forwards; z-index: 2; 
+        }
+        @keyframes snowfall { to { transform: translateY(110vh); } }
+    </style>
+</head>
+<body class="h-screen w-full flex flex-col items-center justify-center text-white relative">
+
+    <!-- 3D SAHNE --><div id="canvas-container"></div>
+    
+    <!-- BUTONLAR --><button id="enableAudioBtn" onclick="enableAudio()" class="ui-layer absolute top-5 right-5 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-4 py-2 rounded-full text-xs transition">
+        🎵 Sesi Aktif Et
+    </button>
+    <div class="ui-layer absolute top-5 left-5 text-gray-500 text-xs cursor-pointer hover:text-white transition" onclick="testFinalScene()">
+        (Test: Final Sahnesini Başlat)
+    </div>
+
+    <audio id="newYearSong" onerror="playFallback()">
+        <source src="mariah_its_time.mp3" type="audio/mpeg">
+        <source src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" type="audio/ogg">
+    </audio>
+
+    <main class="ui-layer z-10 text-center px-4 w-full flex flex-col items-center justify-center h-full">
+        <div id="headline-area" class="relative mb-10 transition-all duration-1000 ease-in">
+            <h1 id="headline" class="text-2xl md:text-4xl tracking-widest text-blue-200 opacity-80 uppercase transition-colors duration-300">
+                Yeni Yıla Kalan Zaman
+            </h1>
+        </div>
+
+        <div id="countdown" class="counter-container flex flex-wrap justify-center gap-4 md:gap-8 origin-center mt-10">
+            <div id="box-days" class="flex flex-col items-center p-4 bg-white/5 rounded-2xl backdrop-blur-md border border-white/10 w-24 md:w-32 lg:w-40 transition-all duration-500">
+                <span id="days" class="digit text-4xl md:text-6xl font-black">00</span>
+                <span class="text-xs md:text-sm text-gray-400 mt-2">GÜN</span>
+            </div>
+            <div id="box-hours" class="flex flex-col items-center p-4 bg-white/5 rounded-2xl backdrop-blur-md border border-white/10 w-24 md:w-32 lg:w-40 transition-all duration-500">
+                <span id="hours" class="digit text-4xl md:text-6xl font-black">00</span>
+                <span class="text-xs md:text-sm text-gray-400 mt-2">SAAT</span>
+            </div>
+            <div id="box-minutes" class="flex flex-col items-center p-4 bg-white/5 rounded-2xl backdrop-blur-md border border-white/10 w-24 md:w-32 lg:w-40 transition-all duration-500">
+                <span id="minutes" class="digit text-4xl md:text-6xl font-black">00</span>
+                <span class="text-xs md:text-sm text-gray-400 mt-2">DAKİKA</span>
+            </div>
+            <div id="box-seconds" class="flex flex-col items-center p-4 bg-white/5 rounded-2xl backdrop-blur-md border border-white/10 w-24 md:w-32 lg:w-40 relative overflow-hidden transition-all duration-500">
+                <div class="absolute inset-0 bg-red-500/0 transition-colors duration-300" id="seconds-bg"></div>
+                <span id="seconds" class="digit text-4xl md:text-6xl font-black relative z-10 text-blue-400">00</span>
+                <span class="text-xs md:text-sm text-gray-400 mt-2 relative z-10">SANİYE</span>
+            </div>
+        </div>
+
+        <div id="celebration" class="hidden absolute inset-0 flex flex-col items-center justify-center z-50 pointer-events-none">
+            <h2 class="text-6xl md:text-8xl lg:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 animate-bounce text-center px-4 drop-shadow-2xl">
+                MUTLU YILLAR!
+            </h2>
+            <p class="text-2xl md:text-4xl mt-8 text-white/90 animate-pulse font-bold drop-shadow-lg">Hoşgeldin 2026</p>
+        </div>
+    </main>
+
+    <script>
+        // --- SAYAÇ AYARLARI ---
+        const targetDate = new Date("Jan 1, 2026 00:00:00").getTime();
+        // const targetDate = new Date().getTime() + 45000; 
+        
+        const elDays = document.getElementById('days'); const elHours = document.getElementById('hours');
+        const elMinutes = document.getElementById('minutes'); const elSeconds = document.getElementById('seconds');
+        const boxDays = document.getElementById('box-days'); const boxHours = document.getElementById('box-hours');
+        const boxMinutes = document.getElementById('box-minutes');
+        const elContainer = document.getElementById('countdown');
+        const elCelebration = document.getElementById('celebration');
+        const elHeadlineArea = document.getElementById('headline-area'); 
+        const audio = document.getElementById('newYearSong');
+        const audioBtn = document.getElementById('enableAudioBtn');
+
+        let audioEnabled = false;
+        let musicStarted = false; 
+
+        function enableAudio() {
+            audio.play().then(() => {
+                audio.pause(); audio.currentTime = 0; audioEnabled = true;
+                audioBtn.innerHTML = "✅ Ses Hazır";
+                setTimeout(() => audioBtn.style.display = 'none', 2000);
+            }).catch(e => audioBtn.innerText = "⚠️ İzin Verilmedi");
+        }
+
+        function playFallback() { 
+            console.log("Ses dosyası hatası, yedek çalınıyor.");
+            audio.src = "https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg"; 
+        }
+
+        function createSnowflake() {
+            const sf = document.createElement('div');
+            sf.className = 'snowflake';
+            sf.style.left = Math.random() * 100 + 'vw';
+            sf.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            sf.style.width = sf.style.height = (Math.random() * 5 + 2) + 'px';
+            document.body.appendChild(sf);
+            setTimeout(() => sf.remove(), 5000);
+        }
+        setInterval(createSnowflake, 100);
+
+        const timer = setInterval(() => {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            elDays.innerText = days < 10 ? '0' + days : days;
+            elHours.innerText = hours < 10 ? '0' + hours : hours;
+            elMinutes.innerText = minutes < 10 ? '0' + minutes : minutes;
+            elSeconds.innerText = seconds < 10 ? '0' + seconds : seconds;
+
+            boxDays.style.display = days <= 0 ? 'none' : 'flex';
+            boxHours.style.display = (days <= 0 && hours <= 0) ? 'none' : 'flex';
+            boxMinutes.style.display = (days <= 0 && hours <= 0 && minutes <= 0) ? 'none' : 'flex';
+
+            const totalSecondsLeft = Math.floor(distance / 1000);
+            
+            elContainer.style.transform = "scale(1)";
+            elSeconds.classList.remove('text-yellow-400', 'text-orange-500', 'critical-pulse');
+            document.body.classList.remove('bg-red-900');
+            
+            if (totalSecondsLeft > 30) {
+                elHeadlineArea.style.transform = "scale(1)";
+                elHeadlineArea.style.opacity = "1";
+            }
+
+            if (distance > 0) {
+                if (distance <= 1500 && !musicStarted) {
+                    if (audioEnabled) { audio.play().catch(e => {}); }
+                    musicStarted = true;
+                }
+
+                if (totalSecondsLeft <= 30 && totalSecondsLeft > 20) {
+                    elContainer.style.transform = "scale(1.5)"; 
+                    elSeconds.classList.add('text-yellow-300');
+                    elHeadlineArea.style.transform = "scale(1.5) translateY(-50px)";
+                    elHeadlineArea.style.opacity = "0.8";
+                } else if (totalSecondsLeft <= 20 && totalSecondsLeft > 10) {
+                    elContainer.style.transform = "scale(3.0)"; 
+                    elSeconds.classList.add('text-orange-500');
+                    elHeadlineArea.style.transform = "scale(3.0) translateY(-150px)";
+                    elHeadlineArea.style.opacity = "0.3";
+                } else if (totalSecondsLeft <= 10) {
+                    elContainer.style.transform = "scale(6.0)"; 
+                    elSeconds.classList.add('critical-pulse');
+                    document.body.style.backgroundColor = (totalSecondsLeft % 2 === 0) ? "#450a0a" : "#000000"; 
+                    elHeadlineArea.style.transform = "scale(5.0) translateY(-300px)";
+                    elHeadlineArea.style.opacity = "0";
+                } else {
+                    document.body.style.backgroundColor = "#0f172a";
+                }
+            } else {
+                clearInterval(timer);
+                startCelebration();
+            }
+        }, 100); 
+
+        function startCelebration() {
+            document.body.style.backgroundColor = "#1a0b2e"; 
+            elContainer.style.display = 'none'; 
+            elHeadlineArea.style.display = 'none'; 
+            elCelebration.classList.remove('hidden'); 
+            
+            var duration = 15 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                confetti(Object.assign({}, defaults, { particleCount: 50 * (timeLeft / duration), origin: { x: Math.random(), y: Math.random() - 0.2 } }));
+            }, 250);
+
+            if(audioEnabled && !musicStarted) { audio.play(); }
+
+            initThreeJS();
+        }
+
+        function testFinalScene() {
+            clearInterval(timer);
+            startCelebration();
+        }
+
+        // --- 3D DÜNYASI ---
+        let scene, camera, renderer, sleighGroup;
+        let clock = new THREE.Clock();
+        
+        // Viraj animasyonu için gerekli değişkenler
+        let pathCurve; 
+        let pathDuration = 20; // Yolculuk süresi (20 saniye) - ÇOK YAVAŞ
+        let animationStartTime = 0; 
+        
+        function initThreeJS() {
+            const container = document.getElementById('canvas-container');
+            container.style.opacity = 1;
+
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x1a0b2e, 0.002); 
+
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 5, 50);
+
+            renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.toneMapping = THREE.ReinhardToneMapping;
+            container.appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 2.0); 
+            scene.add(ambientLight);
+            const dirLight = new THREE.DirectionalLight(0xffd700, 2.5); 
+            dirLight.position.set(20, 50, 20);
+            scene.add(dirLight);
+
+            const starGeo = new THREE.BufferGeometry();
+            const starPos = new Float32Array(3000);
+            for(let i=0; i<3000; i++) starPos[i] = (Math.random() - 0.5) * 400;
+            starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+            scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({color: 0xffffff, size: 0.5})));
+
+            sleighGroup = new THREE.Group();
+            scene.add(sleighGroup);
+
+            const loader = new THREE.GLTFLoader();
+            const modelScale = 12;
+
+            loader.load('sled.glb', function (gltf) {
+                const model = gltf.scene;
+                // Kızağın Kendi Dönüş Ayarı (Modelin doğal yönü)
+                model.rotation.y = 0; 
+                model.scale.set(modelScale, modelScale, modelScale); 
+                sleighGroup.add(model);
+            });
+
+            // --- KURABİYE ADAM DÜZENLEMESİ ---
+            loader.load('gingerbread-man.glb', function (gltf) {
+                const model = gltf.scene;
+                // Kurabiye adamın kendi yönü sıfırlandı.
+                model.rotation.y = 0; 
+                // Boyut
+                model.scale.set(modelScale * 3.0, modelScale * 3.0, modelScale * 3.0); 
+                // Konum (Kızağın Üstü ve Biraz Daha Önü)
+                model.position.set(0, 6, 2.0); 
+                sleighGroup.add(model);
+            });
+
+            loader.load('reindeer.glb', function (gltf) {
+                const deer1 = gltf.scene.clone();
+                deer1.scale.set(modelScale, modelScale, modelScale);
+                deer1.rotation.y = 0; 
+                deer1.position.set(-3, 0, 15); 
+                sleighGroup.add(deer1);
+
+                const deer2 = gltf.scene.clone();
+                deer2.scale.set(modelScale, modelScale, modelScale);
+                deer2.rotation.y = 0; 
+                deer2.position.set(3, 0, 15); 
+                sleighGroup.add(deer2);
+            });
+
+            // --- BEZIER EĞRİSİ TANIMI (VİRAJ YOLU) ---
+            const points = [
+                // 1. Başlangıç (Ekranın sağ dışından, ÇOK daha uzakta)
+                new THREE.Vector3(200, 20, -700), 
+                // 2. Kontrol Noktası 1 (Virajı başlat, ekrana ÇOK yaklaştır)
+                new THREE.Vector3(5, 5, 20),
+                // 3. Kontrol Noktası 2 (Merkeze yaklaşırken kavis tamamlanıyor, Virajın en yavaş noktası)
+                new THREE.Vector3(-100, 15, 50), 
+                // 4. Hedef Noktası (Durma noktası, tam ekran ortası)
+                new THREE.Vector3(-50, 15, 60) 
+            ];
+
+            pathCurve = new THREE.CatmullRomCurve3(points);
+            animationStartTime = performance.now();
+            sleighGroup.position.copy(pathCurve.getPoint(0)); 
+            
+            animate3D();
+        }
+
+        let isWaiting = false; 
+
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            const currentTime = performance.now();
+            const elapsed = (currentTime - animationStartTime) / 1000;
+            
+            const totalDuration = pathDuration; 
+            let t = elapsed / totalDuration; 
+
+            // Yumuşak hızlanma/yavaşlama (Viraj hissini artırır)
+            t = t * t * (3 - 2 * t); // Smoothstep easing - Virajı yumuşatır
+
+            if (!isWaiting) {
+                if (t > 1) {
+                    // 1. AŞAMA: Viraj tamamlandı, 5 saniye bekleme başlıyor
+                    isWaiting = true;
+                    // Kızağı durma noktasında sabitle (Son noktada dursun)
+                    sleighGroup.position.copy(pathCurve.getPoint(1)); 
+                    sleighGroup.rotation.y = Math.PI / 2; // Profilden bize bakması için döndür
+                    
+                    setTimeout(() => {
+                        // 2. AŞAMA: Bekleme bitti, çıkış başlasın
+                        isWaiting = false;
+                        animationStartTime = performance.now(); 
+                        
+                        // Çıkış rotası için yeni bir eğri tanımla (Gözden kaybolacak şekilde)
+                        const exitPoints = [
+                            sleighGroup.position.clone(), // Başlangıç (Beklediği yer)
+                            new THREE.Vector3(50, 20, 100), // Kontrol Noktası (Yatay hızlanma)
+                            // ÇIKIŞ YÜKSEKLİĞİ DÜZELTİLDİ: ÇIKIŞ YÜKSEKLİĞİ SIFIRLANDI (EKRANIN TAM ORTASI)
+                            new THREE.Vector3(300, 0, 400)  // Bitiş (Ekrandan Çıkış, tam merkez)
+                        ];
+                        pathCurve = new THREE.CatmullRomCurve3(exitPoints);
+                        pathDuration = 5; // Hızlıca çıkış
+                        t = 0; 
+                    }, 5000); 
+                }
+
+                if (!isWaiting) {
+                    // Yolda İlerleme
+                    const position = pathCurve.getPoint(t);
+                    sleighGroup.position.copy(position);
+                    
+                    // Dönüşü yola uydur (Kavisli viraj alma efekti)
+                    const tangent = pathCurve.getTangent(t).normalize();
+                    sleighGroup.lookAt(sleighGroup.position.clone().add(tangent));
+                }
+            }
+            
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            if(camera && renderer) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        });
+    </script>
+</body>
+</html>
