@@ -17,7 +17,7 @@
             background: linear-gradient(-45deg, #0f172a, #1a0b2e, #090979, #020024);
             background-size: 400% 400%;
             animation: auroraGradient 15s ease infinite;
-            transition: background-color 0.5s ease, filter 1s ease; /* Filter geçişi eklendi (Karartma için) */
+            transition: background-color 0.5s ease;
             overflow: hidden; 
             margin: 0;
         }
@@ -46,11 +46,39 @@
              transform: translateY(-5px) scale(1.03);
         }
 
-        .critical-pulse { animation: pulse-red 0.5s infinite alternate; }
-        @keyframes pulse-red {
-            from { color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.8); }
-            to { color: #ef4444; text-shadow: 0 0 40px rgba(239, 68, 68, 1); transform: scale(1.1); }
+        /* YENİ: SPOT IŞIĞI EFEKTLERİ */
+        
+        /* 1. Karanlık Perde (Ortası Delik) */
+        #spotlight-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            /* Ortası şeffaf, kenarları simsiyah bir gradyan */
+            background: radial-gradient(circle at center, transparent 20%, #000000 90%);
+            opacity: 0; /* Başlangıçta görünmez */
+            transition: opacity 1s ease; 
+            pointer-events: none; 
+            z-index: 25; /* 3D sahnenin ve dekorların üstünde */
         }
+
+        /* KRİTİK MOD (Son 10 Saniye) Sınıfları */
+        body.mode-critical #spotlight-overlay { opacity: 1; } /* Perdeyi indir */
+        
+        /* Sayacı perdenin üzerine çıkar ve parlat */
+        body.mode-critical #countdown {
+            z-index: 30; 
+            transform: scale(1.5);
+            /* Kutsal Işık Efekti: Beyaz güçlü gölge */
+            filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.9)); 
+        }
+
+        /* Diğer her şeyi silikleştir */
+        body.mode-critical #headline-area,
+        body.mode-critical .tree-container,
+        body.mode-critical .gift-stack-container {
+            opacity: 0.1;
+            filter: blur(2px);
+            transition: all 1s ease;
+        }
+
         .digit { font-variant-numeric: tabular-nums; }
         .ui-layer { position: relative; z-index: 50; }
         
@@ -80,9 +108,11 @@
         .tree-container {
             position: fixed; bottom: -50px; left: -40px; font-size: 350px; z-index: 20;
             filter: drop-shadow(0 0 40px rgba(0, 255, 0, 0.3)); pointer-events: none; line-height: 1;
+            transition: opacity 1s;
         }
         .gift-stack-container {
             position: fixed; bottom: 0; right: 10px; display: flex; align-items: flex-end; gap: -10px; z-index: 30;
+            transition: opacity 1s;
         }
         .gift-column { display: flex; flex-direction: column-reverse; margin-left: -15px; }
         .gift-item {
@@ -110,6 +140,8 @@
     </style>
 </head>
 <body class="h-screen w-full flex flex-col items-center justify-center text-white relative">
+
+    <div id="spotlight-overlay"></div>
 
     <div class="tree-container">🎄</div>
     
@@ -168,8 +200,8 @@
 
     <script>
         // --- SAYAÇ AYARLARI ---
-        const targetDate = new Date("Nov 29, 2025 22:36:00").getTime();
-        // TEST İÇİN: 45 saniye sonrasına ayarla
+        const targetDate = new Date("Jan 1, 2026 00:00:00").getTime();
+        // TEST İÇİN AÇ (45 saniye sonra Yılbaşı):
         // const targetDate = new Date().getTime() + 45000; 
 
         const elDays = document.getElementById('days'); const elHours = document.getElementById('hours');
@@ -184,47 +216,37 @@
 
         let audioEnabled = false;
         let musicStarted = false; 
-        
-        // Ses oluşturma bağlamı (Tik-Tak için)
         let audioCtx;
 
         function enableAudio() {
             audio.play().then(() => {
                 audio.pause(); audio.currentTime = 0; audioEnabled = true;
-                // AudioContext'i başlat
                 if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                
                 audioBtn.innerHTML = "✅ Ses Hazır";
                 setTimeout(() => audioBtn.style.display = 'none', 2000);
             }).catch(e => audioBtn.innerText = "⚠️ İzin Verilmedi");
         }
 
-        // Tik Sesi Üretme Fonksiyonu (Dosyasız)
         function playTickSound() {
             if (!audioEnabled || !audioCtx) return;
             const osc = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
             osc.connect(gainNode);
             gainNode.connect(audioCtx.destination);
-            
             osc.type = 'square';
-            osc.frequency.setValueAtTime(1000, audioCtx.currentTime); // Tiz bir ses
+            osc.frequency.setValueAtTime(1000, audioCtx.currentTime); 
             gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-            
             osc.start();
             osc.stop(audioCtx.currentTime + 0.1);
         }
 
-        // Sesli Geri Sayım Fonksiyonu (Türkçe)
         function speakNumber(num) {
             if (!window.speechSynthesis) return;
-            // Önceki konuşmayı durdur (üst üste binmesin)
             window.speechSynthesis.cancel(); 
-            
             let utterance = new SpeechSynthesisUtterance(num.toString());
             utterance.lang = 'tr-TR'; 
-            utterance.rate = 1.2; // Biraz hızlı konuşsun
+            utterance.rate = 1.2; 
             utterance.volume = 1; 
             window.speechSynthesis.speak(utterance);
         }
@@ -245,7 +267,7 @@
         }
         setInterval(createSnowflake, 100);
 
-        let lastPlayedSecond = -1; // Saniyenin değiştiğini takip etmek için
+        let lastPlayedSecond = -1;
 
         const timer = setInterval(() => {
             const now = new Date().getTime();
@@ -266,69 +288,52 @@
             boxHours.style.display = (days <= 0 && hours <= 0) ? 'none' : 'flex';
             boxMinutes.style.display = (days <= 0 && hours <= 0 && minutes <= 0) ? 'none' : 'flex';
 
-            // --- YENİ EKLENEN ANİMASYON MANTIKLARI ---
+            // --- ETKİLEŞİM MANTIĞI ---
             
-            // 1. TİK-TAK SESİ (Son 30 Saniye)
-            // Saniye değiştiyse ve 30'dan az kaldıysa
+            // 1. TİK-TAK SESİ (Son 30 sn)
             if (totalSecondsLeft <= 30 && totalSecondsLeft > 0 && totalSecondsLeft !== lastPlayedSecond) {
                 playTickSound();
             }
 
-            // 2. IŞIKLARIN SÖNMESİ ve SESLİ SAYIM (Son 10 Saniye)
+            // 2. KRİTİK MOD: SPOT IŞIĞI (Son 10 sn)
             if (totalSecondsLeft <= 10 && totalSecondsLeft > 0) {
-                // Işıkları Kıs (Dim Lights)
-                if (ambientLight) ambientLight.intensity = 0.2; // Çok loş
-                if (dirLight) dirLight.intensity = 0.5;
-                document.body.style.filter = "brightness(0.4)"; // Arka planı karart
+                // "mode-critical" sınıfını body'e ekle
+                document.body.classList.add('mode-critical');
                 
-                // Sesli Sayım (Her saniye başında)
+                // 3D Işıkları Kıs (Sadece sahneyi karart, spot ışığını overlay yapıyor)
+                if (ambientLight) ambientLight.intensity = 0.2; 
+                if (dirLight) dirLight.intensity = 0.5;
+                
                 if (totalSecondsLeft !== lastPlayedSecond) {
                     speakNumber(totalSecondsLeft);
                 }
             } else {
-                // Işıkları Normal Tut (10 saniyeden fazlaysa)
+                // Kritik Moddan Çık
+                document.body.classList.remove('mode-critical');
                 if (ambientLight) ambientLight.intensity = 2.0; 
                 if (dirLight) dirLight.intensity = 2.5;
-                document.body.style.filter = "brightness(1)"; 
             }
 
-            // Son saniyeyi kaydet
             lastPlayedSecond = totalSecondsLeft;
 
-            // Görsel Efektler (Mevcut Kod)
-            elContainer.style.transform = "scale(1)";
-            elSeconds.classList.remove('text-yellow-400', 'text-orange-500', 'critical-pulse');
-            document.body.classList.remove('bg-red-900');
-            document.body.style.background = "linear-gradient(-45deg, #0f172a, #1a0b2e, #090979, #020024)";
-            document.body.style.backgroundSize = "400% 400%";
-            
-            if (totalSecondsLeft > 30) {
-                elHeadlineArea.style.transform = "scale(1)";
-                elHeadlineArea.style.opacity = "1";
+            // Görsel İyileştirmeler (Sadece normal zamanda çalışır, kritik mod CSS ile yönetiliyor)
+            if (totalSecondsLeft > 10) {
+                 elContainer.style.transform = "scale(1)";
+                 elHeadlineArea.style.opacity = "1";
             }
-
+            
+            // Müzik Başlatma
             if (distance > 0) {
                 if (distance <= 1500 && !musicStarted) {
                     if (audioEnabled) { audio.play().catch(e => {}); }
                     musicStarted = true;
                 }
-
-                if (totalSecondsLeft <= 30 && totalSecondsLeft > 20) {
-                    elContainer.style.transform = "scale(1.2)"; 
-                    elSeconds.classList.add('text-yellow-300');
-                    elHeadlineArea.style.transform = "scale(1.2) translateY(-20px)";
-                    elHeadlineArea.style.opacity = "0.8";
-                } else if (totalSecondsLeft <= 20 && totalSecondsLeft > 10) {
-                    elContainer.style.transform = "scale(1.5)"; 
+                
+                // Son 30-10 saniye arası hafif sarı/turuncu uyarılar
+                if (totalSecondsLeft <= 30 && totalSecondsLeft > 10) {
                     elSeconds.classList.add('text-orange-500');
-                    elHeadlineArea.style.transform = "scale(1.5) translateY(-50px)";
-                    elHeadlineArea.style.opacity = "0.3";
-                } else if (totalSecondsLeft <= 10) {
-                    elContainer.style.transform = "scale(2.0)"; 
-                    elSeconds.classList.add('critical-pulse');
-                    // Kırmızı alarmı kaldırdık, yerine karartma (dimming) geldiği için burayı sade bıraktım
-                    elHeadlineArea.style.transform = "scale(2.0) translateY(-100px)";
-                    elHeadlineArea.style.opacity = "0";
+                } else {
+                    elSeconds.classList.remove('text-orange-500');
                 }
             } else {
                 clearInterval(timer);
@@ -337,10 +342,11 @@
         }, 100); 
 
         function startCelebration() {
-            // Işıkları geri aç (Party Modu)
+            // Işıkları Geri Aç ve Kutlama Moduna Geç
+            document.body.classList.remove('mode-critical');
             if (ambientLight) ambientLight.intensity = 2.0; 
             if (dirLight) dirLight.intensity = 2.5;
-            document.body.style.filter = "brightness(1)"; 
+            
             document.body.style.background = "#1a0b2e"; 
             
             elContainer.style.display = 'none'; 
@@ -348,6 +354,7 @@
             elCelebration.classList.remove('hidden'); 
             document.querySelector('.tree-container').style.display = 'none';
             document.querySelector('.gift-stack-container').style.display = 'none';
+            document.getElementById('spotlight-overlay').style.display = 'none';
             
             var duration = 15 * 1000;
             var animationEnd = Date.now() + duration;
@@ -363,11 +370,9 @@
             initThreeJS();
         }
 
-        // --- 3D DÜNYASI (Işık Değişkenleri Global Yapıldı) ---
+        // --- 3D DÜNYASI ---
         let scene, camera, renderer, sleighGroup;
-        // Global ışık değişkenleri (Karartma efekti için)
         let ambientLight, dirLight;
-        
         let clock = new THREE.Clock();
         let pathCurve; 
         let pathDuration = 20; 
@@ -388,7 +393,6 @@
             renderer.toneMapping = THREE.ReinhardToneMapping;
             container.appendChild(renderer.domElement);
 
-            // Işıkları global değişkenlere atadık
             ambientLight = new THREE.AmbientLight(0xffffff, 2.0); 
             scene.add(ambientLight);
             
@@ -525,4 +529,3 @@
     </script>
 </body>
 </html>
-
