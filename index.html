@@ -124,7 +124,7 @@
         const targetDate = new Date("Jan 1, 2026 00:00:00").getTime();
         const gui = new lil.GUI({ title: 'YÖNETMEN PANELİ' });
         
-        // --- SENİN VERDİĞİN ALTIN DEĞERLER (V27.4) ---
+        // --- SENİN VERDİĞİN ALTIN DEĞERLER (V27.5) ---
         const config = {
             // AĞAÇ (SOL)
             treeX: -22.15, treeY: -14.08, treeZ: 31.6, treeScale: 12.054,
@@ -148,10 +148,14 @@
 
         function checkLoading() {
             itemsLoaded++;
-            // Tüm ana modeller (ağaç, kardan adam, kardan adam şapkası, fener, en az bir hediye) yüklendiğinde yükleme ekranını kapat.
-            // Şimdi kardan adam tek model, şapka onun ayrı bir parçası olarak yüklenecek.
-            // 1 ağaç + 1 kardan adam + 1 kardan adam şapkası + 1 fener + 1 hediye = 5
-            if(itemsLoaded >= 5) forceOpen(); 
+            // Toplamda yüklenecek ana model sayısı:
+            // 1 ağaç + 1 kardan adam (gövde) + 1 kardan adam şapkası + 1 fener + 4 hediye = 8 model
+            // Yükleme sırasında kızak ve geyik de var ama onların yükleme sayacı yok.
+            // Sadece ana elemanları sayarak bu sefer doğru çalışmasını sağlayalım.
+            // 1 ağaç + 1 kardan adam + 1 şapka + 1 fener = 4 ana model (hediyeler altta sayılacak)
+            if(itemsLoaded >= 4) { // Hediyeler ayrı ayrı sayılacağı için bu sayıyı doğru tutalım.
+                forceOpen(); 
+            }
         }
 
         function loadGifts(treePos) {
@@ -166,7 +170,7 @@
                     gift.position.set(treePos.x + (Math.random() * 5 - 2.5), -12, treePos.z + (Math.random() * 4 + 2)); 
                     gift.rotation.y = Math.random() * Math.PI;
                     scene.add(gift);
-                    checkLoading(); // Her hediye yüklendiğinde sayacı artır.
+                    checkLoading(); // Her hediye yüklendiğinde sayacı artır. (Toplamda 4 hediye + 4 ana model = 8)
                 });
             }
         }
@@ -212,26 +216,28 @@
                 fTree.add(config, 'treeScale', 1, 50).name('Boyut').onChange(v => treeGroup.scale.set(v,v,v));
             }, undefined, function(error) { console.error('Ağaç yüklenirken hata oluştu:', error); checkLoading(); });
 
-            // 2. KARDAN ADAM (Orijinal Renkler)
-            // Sadece bir tane kardan adam modeli yüklenecek
+            // 2. KARDAN ADAM (Orijinal Renkler) - Tek parça ve şapka üzerine konumlandırılacak
             loader.load('snowman.glb', function(gltf) {
-                snowmanModel = gltf.scene; // snowmanModel değişkenine atıyoruz
+                snowmanModel = gltf.scene;
                 snowmanModel.scale.set(config.snowScale, config.snowScale, config.snowScale);
                 snowmanModel.rotation.y = -0.8;
-                snowmanModel.position.set(config.snowX, config.snowY, config.snowZ); // Ana kardan adamın pozisyonu
-                scene.add(snowmanModel); // Doğrudan sahneye ekliyoruz
-                checkLoading(); // Kardan adam gövdesi yüklendi.
+                snowmanModel.position.set(config.snowX, config.snowY, config.snowZ);
+                scene.add(snowmanModel);
+                checkLoading();
 
+                // Kardan adam yüklendikten sonra şapkayı yükle ve konumlandır
                 loader.load('snowman-hat.glb', function(hatGltf) {
-                    snowmanHatModel = hatGltf.scene; // snowmanHatModel değişkenine atıyoruz
+                    snowmanHatModel = hatGltf.scene;
                     snowmanHatModel.scale.set(config.snowScale, config.snowScale, config.snowScale);
-                    // Şapkanın pozisyonu kardan adama göre ayarlanacak
-                    snowmanHatModel.position.set(config.snowX, config.snowY + 7 * config.snowScale / 10, config.snowZ); // Kardan adamın üstüne yerleştir
-                    snowmanHatModel.rotation.y = -0.8; // Kardan adamla aynı rotasyon
+                    // Şapkayı kardan adamın tepesine göre ayarla
+                    // config.snowY + (snowmanModel'in üst kısmı için bir ofset)
+                    // 7 birim ofset kardan adam modeline göre makul bir değer gibi duruyor.
+                    snowmanHatModel.position.set(config.snowX, config.snowY + 7 * config.snowScale / 10, config.snowZ); 
+                    snowmanHatModel.rotation.y = -0.8; 
                     scene.add(snowmanHatModel);
-                    checkLoading(); // Kardan adam şapkası yüklendi.
+                    checkLoading();
                 }, undefined, function(error) { console.error('Kardan adam şapkası yüklenirken hata oluştu:', error); checkLoading(); });
-                
+
                 // GUI BAĞLANTILARI
                 fSnow.add(config, 'snowX', 0, 100).name('Sağ/Sol').onChange(v => {
                     snowmanModel.position.x = v;
@@ -239,7 +245,7 @@
                 });
                 fSnow.add(config, 'snowY', -50, 10).name('Yukarı/Aşağı').onChange(v => {
                     snowmanModel.position.y = v;
-                    if(snowmanHatModel) snowmanHatModel.position.y = v + 7 * config.snowScale / 10; // Şapkayı da yukarı hareket ettir
+                    if(snowmanHatModel) snowmanHatModel.position.y = v + 7 * config.snowScale / 10;
                 });
                 fSnow.add(config, 'snowZ', -50, 50).name('İleri/Geri').onChange(v => {
                     snowmanModel.position.z = v;
@@ -249,9 +255,10 @@
                     snowmanModel.scale.set(v,v,v);
                     if(snowmanHatModel) {
                         snowmanHatModel.scale.set(v,v,v);
-                        snowmanHatModel.position.y = snowmanModel.position.y + 7 * v / 10; // Şapkanın Y pozisyonunu da ölçekle ayarla
+                        snowmanHatModel.position.y = snowmanModel.position.y + 7 * v / 10;
                     }
                 });
+
             }, undefined, function(error) { console.error('Kardan adam gövdesi yüklenirken hata oluştu:', error); checkLoading(); });
             
             // 3. FENER (Orijinal Renkler)
@@ -260,7 +267,7 @@
                 lanternModel.scale.set(config.lanternScale, config.lanternScale, config.lanternScale);
                 lanternModel.position.set(config.lanternX, config.lanternY, config.lanternZ); 
                 scene.add(lanternModel);
-                checkLoading(); // Fener yüklendi.
+                checkLoading();
                 
                 fLamp.add(config, 'lanternX', -50, 50).name('X Konum').onChange(v => lanternModel.position.x = v);
                 fLamp.add(config, 'lanternY', -50, 20).name('Y Konum').onChange(v => lanternModel.position.y = v);
@@ -268,7 +275,7 @@
                 fLamp.add(config, 'lanternScale', 1, 20).name('Boyut').onChange(v => lanternModel.scale.set(v,v,v));
             }, undefined, function(error) { console.error('Fener yüklenirken hata oluştu:', error); checkLoading(); });
 
-            // Eski Kızak ve Geyik (Bunları da orijinal renkleriyle yükleyelim)
+            // Eski Kızak ve Geyik (Bunları da orijinal renkleriyle yükleyelim, bunların yükleme sayacı yok)
             const sleighGroup = new THREE.Group();
             scene.add(sleighGroup);
             loader.load('sled.glb', (g) => { 
@@ -295,7 +302,7 @@
             }
             if (snowmanModel) { 
                 snowmanModel.rotation.y += 0.005; 
-                if (snowmanHatModel) snowmanHatModel.rotation.y += 0.005; // Şapka da kardan adamla dönsün
+                if (snowmanHatModel) snowmanHatModel.rotation.y += 0.005; 
             } 
             renderer.render(scene, camera);
         }
