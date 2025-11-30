@@ -77,7 +77,7 @@
         body.mode-critical #headline-area,
         body.mode-critical .tree-container,
         body.mode-critical .gift-stack-container,
-        body.mode-critical .string-lights-container { /* Işıklar da kritik modda sönsün */
+        body.mode-critical .icicle-lights-container { /* Işıklar da kritik modda sönsün */
             opacity: 0.1; filter: blur(2px); transition: all 1s ease;
         }
 
@@ -125,47 +125,65 @@
             100% { transform: scale(1); }
         }
 
-        /* --- YENİ EKLENTİ: SARKAÇ SÜS IŞIKLARI (STRING LIGHTS) --- */
-        .string-lights-container {
+        /* --- YENİ EKLENTİ: SARKAN PERDE IŞIKLARI (ICICLE LIGHTS) --- */
+        .icicle-lights-container {
             position: fixed;
-            top: -15px; /* Kabloyu ekranın hemen üstüne gizle */
+            top: 0;
             left: 0;
             width: 100%;
-            display: flex;
-            justify-content: space-around; /* Eşit aralıklarla diz */
-            z-index: 45; /* Spot ışığının üstünde, sayacın altında */
+            height: 100%; /* Işıkların sarkabileceği alan */
             pointer-events: none;
-            padding: 0 20px;
+            z-index: 45;
         }
 
-        .light-bulb {
-            position: relative;
-            width: 20px;
-            height: 30px;
-            border-radius: 50%;
-            background: #fff; /* Varsayılan renk */
-            /* Yanıp sönme animasyonu: currentColor kutunun kendi rengini kullanır */
-            animation: flash 2s infinite alternate ease-in-out;
-        }
-
-        /* Ampulün duy kısmı (kablo bağlantısı) */
-        .light-bulb::before {
-            content: '';
+        /* Işık İpi (Kablo) */
+        .light-string {
             position: absolute;
-            top: -5px; left: 50%; transform: translateX(-50%);
-            width: 8px; height: 10px; background: #222;
-            border-radius: 2px;
+            top: 0;
+            width: 2px; /* İnce kablo */
+            background-color: rgba(255, 255, 255, 0.2); /* Hafif belirgin kablo rengi */
         }
 
-        /* Işıkların Renk ve Zamanlama Döngüsü (4 Renk) */
-        .light-bulb:nth-child(4n+1) { background: #ff3333; color: #ff3333; animation-delay: 0.2s; box-shadow: 0 5px 15px #ff3333;} /* Kırmızı */
-        .light-bulb:nth-child(4n+2) { background: #3366ff; color: #3366ff; animation-delay: 0.7s; box-shadow: 0 5px 15px #3366ff;} /* Mavi */
-        .light-bulb:nth-child(4n+3) { background: #33ff33; color: #33ff33; animation-delay: 1.2s; box-shadow: 0 5px 15px #33ff33;} /* Yeşil */
-        .light-bulb:nth-child(4n+4) { background: #ffcc33; color: #ffcc33; animation-delay: 1.7s; box-shadow: 0 5px 15px #ffcc33;} /* Sarı */
+        /* İpin Ucundaki Ampul */
+        .light-bulb-end {
+            position: absolute;
+            bottom: 0; /* İpin en ucunda */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 18px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; /* Damla şekli */
+            background: #fff;
+            animation: flash 1.5s infinite alternate ease-in-out;
+        }
+
+        /* --- RASTGELELİK (UZUNLUK VE KONUM) --- */
+        /* Her 5. ipte bir döngü ile rastgelelik hissi */
+        .light-string:nth-child(5n+1) { height: 15vh; left: 5%;  animation-delay: 0.1s; }
+        .light-string:nth-child(5n+2) { height: 25vh; left: 20%; animation-delay: 0.5s; }
+        .light-string:nth-child(5n+3) { height: 10vh; left: 35%; animation-delay: 1.2s; }
+        .light-string:nth-child(5n+4) { height: 30vh; left: 50%; animation-delay: 0.3s; }
+        .light-string:nth-child(5n+5) { height: 18vh; left: 65%; animation-delay: 0.8s; }
+        
+        /* Daha fazla ip ekleyerek ve konumlarını kaydırarak doluluk sağla */
+        .light-string:nth-child(n+6)  { left: 12%; }
+        .light-string:nth-child(n+11) { left: 28%; }
+        .light-string:nth-child(n+16) { left: 42%; }
+        .light-string:nth-child(n+21) { left: 58%; }
+        .light-string:nth-child(n+26) { left: 75%; }
+        .light-string:nth-child(n+31) { left: 85%; height: 22vh; }
+        .light-string:nth-child(n+36) { left: 95%; height: 12vh; }
+
+        /* --- RENK VE YANIP SÖNME --- */
+        /* Ampullerin renklerini ve parlama efektini ata */
+        .light-string:nth-child(4n+1) .light-bulb-end { background: #ff3333; color: #ff3333; box-shadow: 0 3px 10px #ff3333; } /* Kırmızı */
+        .light-string:nth-child(4n+2) .light-bulb-end { background: #3366ff; color: #3366ff; box-shadow: 0 3px 10px #3366ff; } /* Mavi */
+        .light-string:nth-child(4n+3) .light-bulb-end { background: #33ff33; color: #33ff33; box-shadow: 0 3px 10px #33ff33; } /* Yeşil */
+        .light-string:nth-child(4n+4) .light-bulb-end { background: #ffcc33; color: #ffcc33; box-shadow: 0 3px 10px #ffcc33; } /* Sarı */
 
         @keyframes flash {
-            0%, 100% { opacity: 1; filter: brightness(1.5); box-shadow: 0 5px 25px currentColor; transform: scale(1.1); }
-            50% { opacity: 0.4; filter: brightness(0.8); box-shadow: none; transform: scale(0.9); }
+            0%, 100% { opacity: 1; filter: brightness(1.8); box-shadow: 0 3px 20px currentColor; transform: translateX(-50%) scale(1.1); }
+            50% { opacity: 0.5; filter: brightness(0.8); box-shadow: none; transform: translateX(-50%) scale(0.9); }
         }
 
 
@@ -220,6 +238,9 @@
             #headline-area { margin-bottom: 3vh !important; }
             .counter-container { margin-top: 0 !important; }
             main { padding-bottom: 15vh !important; }
+            /* Geniş ekranda ipler biraz daha uzun olabilir */
+            .light-string:nth-child(5n+2) { height: 35vh; }
+            .light-string:nth-child(5n+4) { height: 40vh; }
         }
 
         /* MOBİL UYUMLULUK */
@@ -230,32 +251,57 @@
             .col-1, .col-2 { display: none; }
             #headline-area { margin-bottom: 2rem; }
             .icy-headline { font-size: 24px; }
-            /* Mobilde ışıkları biraz küçült */
-            .light-bulb { width: 15px; height: 25px; }
+            /* Mobilde ışıklar daha kısa ve küçük olsun */
+            .light-string { width: 1px; }
+            .light-bulb-end { width: 8px; height: 12px; }
+            .light-string:nth-child(5n+2) { height: 20vh; }
+            .light-string:nth-child(5n+4) { height: 25vh; }
         }
     </style>
 </head>
 <body class="h-screen w-full flex flex-col items-center justify-center text-white relative">
 
-    <div class="string-lights-container">
-        <div class="light-bulb"></div>
-        <div class="light-bulb"></div>
-        <div class="light-bulb"></div>
-        <div class="light-bulb"></div>
-        <div class="light-bulb"></div>
-        <div class="light-bulb"></div>
-        <div class="light-bulb"></div>
-        <div class="light-bulb"></div>
-        <div class="light-bulb"></div>
-        <div class="light-bulb"></div>
-        <div class="light-bulb"></div>
-        <div class="light-bulb"></div>
-        <div class="light-bulb"></div>
-        <div class="light-bulb"></div>
-        <div class="light-bulb"></div>
-        <div class="light-bulb"></div>
-        <div class="light-bulb"></div>
-        <div class="light-bulb"></div>
+    <div class="icicle-lights-container">
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div>
     </div>
 
     <div id="spotlight-overlay"></div>
@@ -461,7 +507,8 @@
             elCelebration.classList.remove('hidden'); 
             document.querySelector('.tree-container').style.display = 'none';
             document.querySelector('.gift-stack-container').style.display = 'none';
-            document.querySelector('.string-lights-container').style.display = 'none';
+            // Sarkan ışıkları da gizle
+            document.querySelector('.icicle-lights-container').style.display = 'none';
             document.getElementById('spotlight-overlay').style.display = 'none';
             document.getElementById('canvas-container').style.display = 'none'; 
             
