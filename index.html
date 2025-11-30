@@ -76,7 +76,8 @@
 
         body.mode-critical #headline-area,
         body.mode-critical .tree-container,
-        body.mode-critical .gift-stack-container {
+        body.mode-critical .gift-stack-container,
+        body.mode-critical .string-lights-container { /* Işıklar da kritik modda sönsün */
             opacity: 0.1; filter: blur(2px); transition: all 1s ease;
         }
 
@@ -124,6 +125,50 @@
             100% { transform: scale(1); }
         }
 
+        /* --- YENİ EKLENTİ: SARKAÇ SÜS IŞIKLARI (STRING LIGHTS) --- */
+        .string-lights-container {
+            position: fixed;
+            top: -15px; /* Kabloyu ekranın hemen üstüne gizle */
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around; /* Eşit aralıklarla diz */
+            z-index: 45; /* Spot ışığının üstünde, sayacın altında */
+            pointer-events: none;
+            padding: 0 20px;
+        }
+
+        .light-bulb {
+            position: relative;
+            width: 20px;
+            height: 30px;
+            border-radius: 50%;
+            background: #fff; /* Varsayılan renk */
+            /* Yanıp sönme animasyonu: currentColor kutunun kendi rengini kullanır */
+            animation: flash 2s infinite alternate ease-in-out;
+        }
+
+        /* Ampulün duy kısmı (kablo bağlantısı) */
+        .light-bulb::before {
+            content: '';
+            position: absolute;
+            top: -5px; left: 50%; transform: translateX(-50%);
+            width: 8px; height: 10px; background: #222;
+            border-radius: 2px;
+        }
+
+        /* Işıkların Renk ve Zamanlama Döngüsü (4 Renk) */
+        .light-bulb:nth-child(4n+1) { background: #ff3333; color: #ff3333; animation-delay: 0.2s; box-shadow: 0 5px 15px #ff3333;} /* Kırmızı */
+        .light-bulb:nth-child(4n+2) { background: #3366ff; color: #3366ff; animation-delay: 0.7s; box-shadow: 0 5px 15px #3366ff;} /* Mavi */
+        .light-bulb:nth-child(4n+3) { background: #33ff33; color: #33ff33; animation-delay: 1.2s; box-shadow: 0 5px 15px #33ff33;} /* Yeşil */
+        .light-bulb:nth-child(4n+4) { background: #ffcc33; color: #ffcc33; animation-delay: 1.7s; box-shadow: 0 5px 15px #ffcc33;} /* Sarı */
+
+        @keyframes flash {
+            0%, 100% { opacity: 1; filter: brightness(1.5); box-shadow: 0 5px 25px currentColor; transform: scale(1.1); }
+            50% { opacity: 0.4; filter: brightness(0.8); box-shadow: none; transform: scale(0.9); }
+        }
+
+
         /* DEKORASYONLAR */
         .tree-container {
             position: fixed; 
@@ -170,21 +215,11 @@
         }
         .gift-respawn { animation: giftPopIn 0.6s ease-out forwards; }
 
-        /* --- TV VE GENİŞ EKRAN AYARLARI (YENİLENMİŞ) --- */
+        /* --- TV VE GENİŞ EKRAN AYARLARI --- */
         @media (min-width: 1024px) {
-            /* 1. Başlık ve Sayaç arasını aç */
-            #headline-area {
-                margin-bottom: 3vh !important;
-            }
-            .counter-container {
-                margin-top: 0 !important;
-            }
-            
-            /* 2. ANA DÜZELTME: İçeriği komple yukarı it */
-            /* Main container'ın altına boşluk ekleyerek merkezi yukarı kaydırıyoruz */
-            main {
-                padding-bottom: 15vh !important; /* Ekranın %15'i kadar alttan it */
-            }
+            #headline-area { margin-bottom: 3vh !important; }
+            .counter-container { margin-top: 0 !important; }
+            main { padding-bottom: 15vh !important; }
         }
 
         /* MOBİL UYUMLULUK */
@@ -195,10 +230,33 @@
             .col-1, .col-2 { display: none; }
             #headline-area { margin-bottom: 2rem; }
             .icy-headline { font-size: 24px; }
+            /* Mobilde ışıkları biraz küçült */
+            .light-bulb { width: 15px; height: 25px; }
         }
     </style>
 </head>
 <body class="h-screen w-full flex flex-col items-center justify-center text-white relative">
+
+    <div class="string-lights-container">
+        <div class="light-bulb"></div>
+        <div class="light-bulb"></div>
+        <div class="light-bulb"></div>
+        <div class="light-bulb"></div>
+        <div class="light-bulb"></div>
+        <div class="light-bulb"></div>
+        <div class="light-bulb"></div>
+        <div class="light-bulb"></div>
+        <div class="light-bulb"></div>
+        <div class="light-bulb"></div>
+        <div class="light-bulb"></div>
+        <div class="light-bulb"></div>
+        <div class="light-bulb"></div>
+        <div class="light-bulb"></div>
+        <div class="light-bulb"></div>
+        <div class="light-bulb"></div>
+        <div class="light-bulb"></div>
+        <div class="light-bulb"></div>
+    </div>
 
     <div id="spotlight-overlay"></div>
     <div class="tree-container">🎄</div>
@@ -403,6 +461,7 @@
             elCelebration.classList.remove('hidden'); 
             document.querySelector('.tree-container').style.display = 'none';
             document.querySelector('.gift-stack-container').style.display = 'none';
+            document.querySelector('.string-lights-container').style.display = 'none';
             document.getElementById('spotlight-overlay').style.display = 'none';
             document.getElementById('canvas-container').style.display = 'none'; 
             
