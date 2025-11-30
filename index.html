@@ -103,7 +103,7 @@
 
     <div id="spotlight-overlay"></div>
 
-    <div id="canvas-container" style="opacity: 1 !important;"></div>
+    <div id="canvas-container"></div>
     
     <button id="enableAudioBtn" onclick="enableAudio()" class="ui-layer absolute top-5 right-5 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-4 py-2 rounded-full text-xs transition">
         🎵 Sesi Aktif Et
@@ -152,7 +152,8 @@
     <script>
         // --- SAYAÇ AYARLARI ---
         const targetDate = new Date("Jan 1, 2026 00:00:00").getTime();
-        
+        // const targetDate = new Date().getTime() + 15000; 
+
         const elDays = document.getElementById('days'); const elHours = document.getElementById('hours');
         const elMinutes = document.getElementById('minutes'); const elSeconds = document.getElementById('seconds');
         const boxDays = document.getElementById('box-days'); const boxHours = document.getElementById('box-hours');
@@ -281,7 +282,6 @@
             document.querySelector('.icicle-lights-container').style.display = 'none';
             document.getElementById('spotlight-overlay').style.display = 'none';
             
-            // KIZAĞI GÖRÜNÜR YAP VE BAŞLAT
             if(sleighGroup) {
                 sleighGroup.visible = true;
                 animationStartTime = performance.now();
@@ -320,6 +320,26 @@
                 setTimeout(() => loadingScreen.style.display = 'none', 500);
             }
         }
+        
+        // --- YENİ FONKSİYON: EKANA GÖRE POZİSYON AYARLA ---
+        function updateModelPositions() {
+            if (!treeGroup || !snowmanGroup) return;
+            const width = window.innerWidth;
+            
+            // Ekran Genişliğine Göre X Pozisyonunu Dinamik Ayarla
+            // Ne kadar darsa, o kadar dışarı it (Sayaca çarpmasın diye)
+            // Veya kamerayı geriye çektiğimiz için, sabit bir "Güvenli Kenar" belirleyelim.
+            
+            if (width < 1000) { 
+                // Dar ekran (Yarım ekran): Biraz daha açalım
+                treeGroup.position.x = -35;
+                snowmanGroup.position.x = 35;
+            } else {
+                // Geniş ekran: Hafifçe merkeze yaklaşabilirler
+                treeGroup.position.x = -28;
+                snowmanGroup.position.x = 28;
+            }
+        }
 
         function initThreeJS() {
             const container = document.getElementById('canvas-container');
@@ -328,7 +348,8 @@
             scene.fog = new THREE.FogExp2(0x1a0b2e, 0.002); 
 
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 0, 60); 
+            // KAMERAYI DAHA GERİ ALDIK: 70
+            camera.position.set(0, 0, 70); 
             
             renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -351,20 +372,21 @@
 
             const loader = new THREE.GLTFLoader();
 
-            // SOL KÖŞE: AĞAÇ (GÜNCELLENDİ: MERKEZE ÇEKİLDİ)
+            // AĞAÇ
             treeGroup = new THREE.Group();
             scene.add(treeGroup);
             loader.load('tree-decorated-snow.glb', function (gltf) {
                 console.log("Ağaç Yüklendi!");
                 checkLoading();
                 const model = gltf.scene;
-                model.scale.set(25, 25, 25); 
-                model.position.set(-30, -12, 10); // X:-30 (Merkeze yakın), Y:-12 (Zemin)
+                model.scale.set(30, 30, 30); 
+                // Başlangıç konumu (Fonksiyon güncelleyecek)
+                model.position.set(-28, -8, 10); 
                 treeGroup.add(model);
                 loadGifts(model.position);
             }, undefined, function(error) { console.error("Ağaç Hatası:", error); });
 
-            // SAĞ KÖŞE: KARDAN ADAM (GÜNCELLENDİ: MERKEZE ÇEKİLDİ)
+            // KARDAN ADAM
             snowmanGroup = new THREE.Group();
             scene.add(snowmanGroup);
             
@@ -372,15 +394,15 @@
                 console.log("Kardan Adam Yüklendi!");
                 checkLoading();
                 const model = gltf.scene;
-                model.scale.set(15, 15, 15); 
-                model.position.set(30, -12, 10); // X:30 (Merkeze yakın), Y:-12 (Zemin)
+                model.scale.set(18, 18, 18); 
+                model.position.set(28, -8, 10); 
                 model.rotation.y = -0.8; 
                 snowmanGroup.add(model);
                 
                 loader.load('snowman-hat.glb', function (hatGltf) {
                     const hat = hatGltf.scene;
-                    hat.scale.set(15, 15, 15);
-                    hat.position.set(30, 0, 10); // Şapka Y konumu ayarlandı
+                    hat.scale.set(18, 18, 18);
+                    hat.position.set(28, 7, 10); // Şapka konumu (Manuel ayar gerekebilir)
                     hat.rotation.y = -0.8;
                     snowmanGroup.add(hat);
                 });
@@ -388,16 +410,15 @@
 
             loader.load('lantern.glb', function (gltf) {
                 const model = gltf.scene;
-                model.scale.set(10, 10, 10);
-                model.position.set(24, -12, 15); 
+                model.scale.set(12, 12, 12);
+                model.position.set(20, -8, 15); 
                 scene.add(model);
             });
 
-            // KIZAK (GİZLİ BAŞLAR)
+            // KIZAK (GİZLİ)
             sleighGroup = new THREE.Group();
-            sleighGroup.visible = false; // BAŞLANGIÇTA GİZLE
+            sleighGroup.visible = false; 
             scene.add(sleighGroup);
-            
             loader.load('sled.glb', function (gltf) {
                 const model = gltf.scene; model.scale.set(12, 12, 12); sleighGroup.add(model);
             });
@@ -409,12 +430,10 @@
                 const deer2 = gltf.scene.clone(); deer2.scale.set(12, 12, 12); deer2.position.set(3, 0, 15); sleighGroup.add(deer2);
             });
 
-            const entryPoints = [new THREE.Vector3(200, 20, -700), new THREE.Vector3(5, 5, 20), new THREE.Vector3(-30, 5, 0)];
+            const entryPoints = [new THREE.Vector3(300, 40, -500), new THREE.Vector3(100, 20, -100), new THREE.Vector3(0, 5, 0)];
             entryPath = new THREE.CatmullRomCurve3(entryPoints);
-            const exitPoints = [new THREE.Vector3(-30, 5, 0), new THREE.Vector3(-100, 20, -200), new THREE.Vector3(0, 50, -800)];
+            const exitPoints = [new THREE.Vector3(0, 5, 0), new THREE.Vector3(-100, 20, -100), new THREE.Vector3(-300, 50, -500)];
             exitPath = new THREE.CatmullRomCurve3(exitPoints);
-
-            // Animasyon zamanını başlangıçta değil, kutlamada başlatacağız
             
             updateCameraByScreenSize();
             animate3D();
@@ -428,7 +447,7 @@
                 loader.load(randomFile, function(gltf) {
                     const gift = gltf.scene;
                     gift.scale.set(8, 8, 8);
-                    gift.position.set(treePos.x + (Math.random() * 10 - 2), -12, treePos.z + (Math.random() * 8 + 2));
+                    gift.position.set(treePos.x + (Math.random() * 10 - 2), -8, treePos.z + (Math.random() * 8 + 2));
                     gift.rotation.y = Math.random() * Math.PI;
                     scene.add(gift);
                 });
@@ -440,10 +459,9 @@
             const currentTime = performance.now();
             const time = currentTime * 0.001; 
 
-            if(treeGroup) { const scale = 25 + Math.sin(time) * 0.2; treeGroup.scale.set(scale, scale, scale); }
+            if(treeGroup) { const scale = 30 + Math.sin(time) * 0.5; treeGroup.scale.set(scale, scale, scale); }
             if(snowmanGroup) { snowmanGroup.rotation.z = Math.sin(time * 2) * 0.05; }
 
-            // KIZAK SADECE GÖRÜNÜR OLDUĞUNDA HAREKET ETSİN
             if (sleighGroup && sleighGroup.visible) {
                 if (animationState === 3) { renderer.render(scene, camera); return; }
                 
@@ -473,7 +491,6 @@
                     }
                 }
             }
-
             renderer.render(scene, camera);
         }
 
@@ -488,11 +505,13 @@
             if (width < 768) { 
                 camera.position.set(0, 10, 110); 
             } else { 
-                camera.position.set(0, 0, 60); 
+                camera.position.set(0, 0, 70); 
             }
+            
+            // Ekran boyutu değişince modelleri de güncelle
+            updateModelPositions();
         }
         window.addEventListener('resize', updateCameraByScreenSize);
-        initThreeJS();
     </script>
 </body>
 </html>
