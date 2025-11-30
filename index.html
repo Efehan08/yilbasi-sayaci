@@ -31,10 +31,9 @@
 
         #canvas-container {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 10; pointer-events: none;
+            z-index: 10; opacity: 1; pointer-events: none;
         }
 
-        /* YÜKLEME EKRANI */
         #loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); z-index: 100;
@@ -281,7 +280,12 @@
             elCelebration.classList.remove('hidden'); 
             document.querySelector('.icicle-lights-container').style.display = 'none';
             document.getElementById('spotlight-overlay').style.display = 'none';
-            document.getElementById('canvas-container').style.display = 'none'; 
+            
+            // KIZAĞI GÖRÜNÜR YAP VE BAŞLAT
+            if(sleighGroup) {
+                sleighGroup.visible = true;
+                animationStartTime = performance.now();
+            }
             
             if(audioEnabled && !musicStarted) { audio.play(); }
 
@@ -347,20 +351,20 @@
 
             const loader = new THREE.GLTFLoader();
 
-            // SOL KÖŞE: AĞAÇ (GÜNCELLENDİ: X=-50, Y=-25, Scale=40)
+            // SOL KÖŞE: AĞAÇ (GÜNCELLENDİ: MERKEZE ÇEKİLDİ)
             treeGroup = new THREE.Group();
             scene.add(treeGroup);
             loader.load('tree-decorated-snow.glb', function (gltf) {
                 console.log("Ağaç Yüklendi!");
                 checkLoading();
                 const model = gltf.scene;
-                model.scale.set(40, 40, 40); // DEVASA
-                model.position.set(-50, -25, 25); // SOL ALT KÖŞE, ÖNDE
+                model.scale.set(25, 25, 25); 
+                model.position.set(-30, -12, 10); // X:-30 (Merkeze yakın), Y:-12 (Zemin)
                 treeGroup.add(model);
                 loadGifts(model.position);
             }, undefined, function(error) { console.error("Ağaç Hatası:", error); });
 
-            // SAĞ KÖŞE: KARDAN ADAM (GÜNCELLENDİ: X=50, Y=-25, Scale=25)
+            // SAĞ KÖŞE: KARDAN ADAM (GÜNCELLENDİ: MERKEZE ÇEKİLDİ)
             snowmanGroup = new THREE.Group();
             scene.add(snowmanGroup);
             
@@ -368,15 +372,15 @@
                 console.log("Kardan Adam Yüklendi!");
                 checkLoading();
                 const model = gltf.scene;
-                model.scale.set(25, 25, 25); // BÜYÜK
-                model.position.set(50, -25, 20); // SAĞ ALT KÖŞE, ÖNDE
+                model.scale.set(15, 15, 15); 
+                model.position.set(30, -12, 10); // X:30 (Merkeze yakın), Y:-12 (Zemin)
                 model.rotation.y = -0.8; 
                 snowmanGroup.add(model);
                 
                 loader.load('snowman-hat.glb', function (hatGltf) {
                     const hat = hatGltf.scene;
-                    hat.scale.set(25, 25, 25);
-                    hat.position.set(50, -5, 20); 
+                    hat.scale.set(15, 15, 15);
+                    hat.position.set(30, 0, 10); // Şapka Y konumu ayarlandı
                     hat.rotation.y = -0.8;
                     snowmanGroup.add(hat);
                 });
@@ -384,14 +388,16 @@
 
             loader.load('lantern.glb', function (gltf) {
                 const model = gltf.scene;
-                model.scale.set(15, 15, 15);
-                model.position.set(40, -25, 25); 
+                model.scale.set(10, 10, 10);
+                model.position.set(24, -12, 15); 
                 scene.add(model);
             });
 
-            // KIZAK (Sıfır Noktasına Resetlendi)
+            // KIZAK (GİZLİ BAŞLAR)
             sleighGroup = new THREE.Group();
+            sleighGroup.visible = false; // BAŞLANGIÇTA GİZLE
             scene.add(sleighGroup);
+            
             loader.load('sled.glb', function (gltf) {
                 const model = gltf.scene; model.scale.set(12, 12, 12); sleighGroup.add(model);
             });
@@ -403,14 +409,12 @@
                 const deer2 = gltf.scene.clone(); deer2.scale.set(12, 12, 12); deer2.position.set(3, 0, 15); sleighGroup.add(deer2);
             });
 
-            // KIZAK YOLU (Kameranın önünden geçip gitsin)
-            const entryPoints = [new THREE.Vector3(300, 40, -500), new THREE.Vector3(100, 20, -100), new THREE.Vector3(0, 5, 0)];
+            const entryPoints = [new THREE.Vector3(200, 20, -700), new THREE.Vector3(5, 5, 20), new THREE.Vector3(-30, 5, 0)];
             entryPath = new THREE.CatmullRomCurve3(entryPoints);
-            const exitPoints = [new THREE.Vector3(0, 5, 0), new THREE.Vector3(-100, 20, -100), new THREE.Vector3(-300, 50, -500)];
+            const exitPoints = [new THREE.Vector3(-30, 5, 0), new THREE.Vector3(-100, 20, -200), new THREE.Vector3(0, 50, -800)];
             exitPath = new THREE.CatmullRomCurve3(exitPoints);
 
-            animationStartTime = performance.now();
-            sleighGroup.position.copy(entryPath.getPoint(0)); 
+            // Animasyon zamanını başlangıçta değil, kutlamada başlatacağız
             
             updateCameraByScreenSize();
             animate3D();
@@ -419,13 +423,12 @@
         function loadGifts(treePos) {
             const loader = new THREE.GLTFLoader();
             const giftFiles = ['present-a-cube.glb', 'present-a-rectangle.glb', 'present-b-round.glb'];
-            for(let i=0; i<5; i++) { 
+            for(let i=0; i<4; i++) { 
                 const randomFile = giftFiles[Math.floor(Math.random() * giftFiles.length)];
                 loader.load(randomFile, function(gltf) {
                     const gift = gltf.scene;
-                    gift.scale.set(12, 12, 12);
-                    // Hediyeleri ağacın dibine yay
-                    gift.position.set(treePos.x + (Math.random() * 20 - 5), -25, treePos.z + (Math.random() * 10 + 5));
+                    gift.scale.set(8, 8, 8);
+                    gift.position.set(treePos.x + (Math.random() * 10 - 2), -12, treePos.z + (Math.random() * 8 + 2));
                     gift.rotation.y = Math.random() * Math.PI;
                     scene.add(gift);
                 });
@@ -437,36 +440,40 @@
             const currentTime = performance.now();
             const time = currentTime * 0.001; 
 
-            if(treeGroup) { const scale = 40 + Math.sin(time) * 0.5; treeGroup.scale.set(scale, scale, scale); }
+            if(treeGroup) { const scale = 25 + Math.sin(time) * 0.2; treeGroup.scale.set(scale, scale, scale); }
             if(snowmanGroup) { snowmanGroup.rotation.z = Math.sin(time * 2) * 0.05; }
 
-            if (animationState === 3) { renderer.render(scene, camera); return; }
-            
-            if (animationState === 0) { 
-                const elapsed = (currentTime - animationStartTime) / 1000;
-                let t = elapsed / 20; 
-                if (t >= 1) { t = 1; animationState = 1; waitStartTime = currentTime; }
-                t = t * t * (3 - 2 * t);
-                const pos = entryPath.getPoint(t);
-                sleighGroup.position.copy(pos);
-                if (t < 0.99) {
-                    const tangent = entryPath.getTangent(t).normalize();
-                    sleighGroup.lookAt(sleighGroup.position.clone().add(tangent));
-                }
-            } else if (animationState === 1) { 
-                if (currentTime - waitStartTime > 5000) { animationState = 2; animationStartTime = currentTime; }
-            } else if (animationState === 2) { 
-                const elapsed = (currentTime - animationStartTime) / 1000;
-                let t = elapsed / 8; 
-                if (t >= 1) { t = 1; animationState = 3; sleighGroup.visible = false; }
-                t = t * t;
-                const pos = exitPath.getPoint(t);
-                sleighGroup.position.copy(pos);
-                if (t < 0.99) {
-                    const tangent = exitPath.getTangent(t).normalize();
-                    sleighGroup.lookAt(sleighGroup.position.clone().add(tangent));
+            // KIZAK SADECE GÖRÜNÜR OLDUĞUNDA HAREKET ETSİN
+            if (sleighGroup && sleighGroup.visible) {
+                if (animationState === 3) { renderer.render(scene, camera); return; }
+                
+                if (animationState === 0) { 
+                    const elapsed = (currentTime - animationStartTime) / 1000;
+                    let t = elapsed / 20; 
+                    if (t >= 1) { t = 1; animationState = 1; waitStartTime = currentTime; }
+                    t = t * t * (3 - 2 * t);
+                    const pos = entryPath.getPoint(t);
+                    sleighGroup.position.copy(pos);
+                    if (t < 0.99) {
+                        const tangent = entryPath.getTangent(t).normalize();
+                        sleighGroup.lookAt(sleighGroup.position.clone().add(tangent));
+                    }
+                } else if (animationState === 1) { 
+                    if (currentTime - waitStartTime > 5000) { animationState = 2; animationStartTime = currentTime; }
+                } else if (animationState === 2) { 
+                    const elapsed = (currentTime - animationStartTime) / 1000;
+                    let t = elapsed / 8; 
+                    if (t >= 1) { t = 1; animationState = 3; sleighGroup.visible = false; }
+                    t = t * t;
+                    const pos = exitPath.getPoint(t);
+                    sleighGroup.position.copy(pos);
+                    if (t < 0.99) {
+                        const tangent = exitPath.getTangent(t).normalize();
+                        sleighGroup.lookAt(sleighGroup.position.clone().add(tangent));
+                    }
                 }
             }
+
             renderer.render(scene, camera);
         }
 
