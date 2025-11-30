@@ -194,6 +194,7 @@
     </div>
 
     <div id="spotlight-overlay"></div>
+
     <div id="canvas-container"></div>
     
     <button id="enableAudioBtn" onclick="enableAudio()" class="ui-layer absolute top-5 right-5 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-4 py-2 rounded-full text-xs transition">
@@ -408,6 +409,9 @@
 
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
             
+            // --- GÜNCELLENMİŞ KAMERA POZİSYONU (DAHA GENİŞ AÇI) ---
+            camera.position.set(0, 5, 70); // Geri çekildik (70)
+            
             renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.shadowMap.enabled = true;
@@ -429,35 +433,34 @@
 
             const loader = new THREE.GLTFLoader();
 
-            // 1. AĞAÇ (DÜZELTİLDİ: DAHA SOLA VE ÖNE)
+            // 1. SOL KÖŞE: AĞAÇ & HEDİYELER (GÜNCELLENMİŞ KONUM)
             treeGroup = new THREE.Group();
             scene.add(treeGroup);
             loader.load('tree-decorated-snow.glb', function (gltf) {
                 const model = gltf.scene;
-                // Boyut aynı
                 model.scale.set(15, 15, 15); 
-                // YENİ KONUM: X=-35 (Daha sol), Z=10 (Kameraya daha yakın)
-                model.position.set(-35, -12, 10); 
+                // MERKEZE YAKLAŞTIRILDI
+                model.position.set(-22, -8, 5); 
                 treeGroup.add(model);
                 loadGifts(model.position);
             });
 
-            // 2. KARDAN ADAM & FENER (DÜZELTİLDİ: DAHA SAĞA VE ÖNE)
+            // 2. SAĞ KÖŞE: KARDAN ADAM & FENER (GÜNCELLENMİŞ KONUM)
             snowmanGroup = new THREE.Group();
             scene.add(snowmanGroup);
             
             loader.load('snowman.glb', function (gltf) {
                 const model = gltf.scene;
                 model.scale.set(10, 10, 10);
-                // YENİ KONUM: X=35 (Daha sağ), Z=15 (Kameraya daha yakın)
-                model.position.set(35, -12, 15); 
-                model.rotation.y = -0.8; // Daha fazla sola dönük
+                // MERKEZE YAKLAŞTIRILDI
+                model.position.set(22, -8, 5); 
+                model.rotation.y = -0.8; 
                 snowmanGroup.add(model);
                 
                 loader.load('snowman-hat.glb', function (hatGltf) {
                     const hat = hatGltf.scene;
                     hat.scale.set(10, 10, 10);
-                    hat.position.set(35, -3.5, 15); 
+                    hat.position.set(22, 0.5, 5); // Kardan adamın yeni konumuna göre ayarlandı
                     hat.rotation.y = -0.8;
                     snowmanGroup.add(hat);
                 });
@@ -466,8 +469,8 @@
             loader.load('lantern.glb', function (gltf) {
                 const model = gltf.scene;
                 model.scale.set(8, 8, 8);
-                // Fener de Kardan Adamın yanında, önde
-                model.position.set(25, -12, 20); 
+                // Fener de Kardan Adamın yanına
+                model.position.set(16, -8, 8); 
                 scene.add(model);
             });
 
@@ -505,7 +508,8 @@
                 loader.load(randomFile, function(gltf) {
                     const gift = gltf.scene;
                     gift.scale.set(7, 7, 7);
-                    gift.position.set(treePos.x + (Math.random() * 10 - 2), -12, treePos.z + (Math.random() * 8 + 2));
+                    // Hediyeleri ağacın yeni konumuna göre saç
+                    gift.position.set(treePos.x + (Math.random() * 10 - 2), -8, treePos.z + (Math.random() * 8 + 2));
                     gift.rotation.y = Math.random() * Math.PI;
                     scene.add(gift);
                 });
@@ -557,7 +561,14 @@
             camera.aspect = width / height;
             camera.updateProjectionMatrix();
             renderer.setSize(width, height);
-            if (width < 768) { camera.position.set(0, 5, 110); } else { camera.position.set(0, 5, 50); }
+            
+            // MOBİL AYARI: Mobilde kamerayı çok daha geri çekiyoruz
+            if (width < 768) { 
+                camera.position.set(0, 10, 110); 
+            } else { 
+                // PC AYARI: V15.1 için güncellendi (70)
+                camera.position.set(0, 5, 70); 
+            }
         }
         window.addEventListener('resize', updateCameraByScreenSize);
     </script>
