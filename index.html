@@ -143,20 +143,22 @@
             animation: flash 1.5s infinite alternate ease-in-out;
         }
 
-        /* RASTGELELİK (Uzunluklar ve Konumlar) */
-        .light-string:nth-child(5n+1) { height: 15vh; left: 5%;  animation-delay: 0.1s; }
-        .light-string:nth-child(5n+2) { height: 25vh; left: 20%; animation-delay: 0.5s; }
-        .light-string:nth-child(5n+3) { height: 10vh; left: 35%; animation-delay: 1.2s; }
-        .light-string:nth-child(5n+4) { height: 30vh; left: 50%; animation-delay: 0.3s; }
-        .light-string:nth-child(5n+5) { height: 18vh; left: 65%; animation-delay: 0.8s; }
+        /* RASTGELELİK (Uzunluklar KISALTILDI ve Konumlar) */
+        /* Eski değerler: 15vh, 25vh, 10vh, 30vh, 18vh */
+        /* Yeni, daha kısa değerler: */
+        .light-string:nth-child(5n+1) { height: 10vh; left: 5%;  animation-delay: 0.1s; }
+        .light-string:nth-child(5n+2) { height: 18vh; left: 20%; animation-delay: 0.5s; }
+        .light-string:nth-child(5n+3) { height: 8vh; left: 35%; animation-delay: 1.2s; }
+        .light-string:nth-child(5n+4) { height: 20vh; left: 50%; animation-delay: 0.3s; }
+        .light-string:nth-child(5n+5) { height: 14vh; left: 65%; animation-delay: 0.8s; }
         
         .light-string:nth-child(n+6)  { left: 12%; }
         .light-string:nth-child(n+11) { left: 28%; }
         .light-string:nth-child(n+16) { left: 42%; }
         .light-string:nth-child(n+21) { left: 58%; }
         .light-string:nth-child(n+26) { left: 75%; }
-        .light-string:nth-child(n+31) { left: 85%; height: 22vh; }
-        .light-string:nth-child(n+36) { left: 95%; height: 12vh; }
+        .light-string:nth-child(n+31) { left: 85%; height: 16vh; } /* Kısaltıldı */
+        .light-string:nth-child(n+36) { left: 95%; height: 9vh; } /* Kısaltıldı */
 
         /* RENKLER */
         .light-string:nth-child(4n+1) .light-bulb-end { background: #ff3333; color: #ff3333; box-shadow: 0 3px 10px #ff3333; } 
@@ -209,9 +211,10 @@
             #headline-area { margin-bottom: 3vh !important; }
             .counter-container { margin-top: 0 !important; }
             
-            /* Geniş ekranda ipler biraz daha uzun olabilir, yazı zaten aşağıda */
-            .light-string:nth-child(5n+2) { height: 35vh; }
-            .light-string:nth-child(5n+4) { height: 40vh; }
+            /* Geniş ekranda ipler biraz daha uzun olabilir ama eskisi kadar değil */
+            /* Eski: 35vh, 40vh. Yeni: 22vh, 25vh */
+            .light-string:nth-child(5n+2) { height: 22vh; }
+            .light-string:nth-child(5n+4) { height: 25vh; }
         }
 
         /* MOBİL UYUMLULUK */
@@ -226,8 +229,8 @@
             /* Mobilde ışıkları kısalt ve incelt */
             .light-string { width: 1px; }
             .light-bulb-end { width: 8px; height: 12px; }
-            .light-string:nth-child(5n+2) { height: 20vh; }
-            .light-string:nth-child(5n+4) { height: 25vh; }
+            .light-string:nth-child(5n+2) { height: 15vh; } /* Kısaltıldı */
+            .light-string:nth-child(5n+4) { height: 18vh; } /* Kısaltıldı */
             
             /* Mobilde paddingi biraz azaltabiliriz */
             main { padding-top: 10vh !important; }
