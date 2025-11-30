@@ -39,9 +39,11 @@
             100% {background-position: 0% 50%} 
         }
 
+        /* 3D Sahne (Artık ön planda dekorlar var) */
         #canvas-container {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1; opacity: 0; transition: opacity 2s ease-in; pointer-events: none;
+            z-index: 10; /* Arka planda ama etkileşime kapalı değil */
+            opacity: 0; transition: opacity 2s ease-in; pointer-events: none;
         }
 
         .counter-container { 
@@ -53,6 +55,8 @@
             box-shadow: 0 0 15px rgba(59, 130, 246, 0.2), inset 0 0 15px rgba(59, 130, 246, 0.1);
             border-color: rgba(59, 130, 246, 0.3) !important;
             transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05); /* Yarı saydam */
+            backdrop-filter: blur(5px);
         }
         .neon-box:hover {
              box-shadow: 0 0 30px rgba(96, 165, 250, 0.6), inset 0 0 20px rgba(96, 165, 250, 0.4);
@@ -68,18 +72,8 @@
         }
 
         body.mode-critical #spotlight-overlay { opacity: 1; }
-        
-        body.mode-critical #countdown {
-            z-index: 60; 
-            filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.9)); 
-        }
-
-        body.mode-critical #headline-area,
-        body.mode-critical .tree-container,
-        body.mode-critical .gift-stack-container,
-        body.mode-critical .icicle-lights-container {
-            opacity: 0.1; filter: blur(2px); transition: all 1s ease;
-        }
+        body.mode-critical #countdown { z-index: 60; filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.9)); }
+        body.mode-critical #headline-area, body.mode-critical .icicle-lights-container { opacity: 0.1; filter: blur(2px); transition: all 1s ease; }
 
         .digit { font-variant-numeric: tabular-nums; }
         .ui-layer { position: relative; z-index: 50; }
@@ -99,7 +93,6 @@
         }
         @keyframes fadeOutDust { to { transform: scale(0); opacity: 0; } }
 
-        /* CLAMP BAŞLIK */
         .icy-headline {
             background: linear-gradient(to right, #ffffff, #cffafe, #38bdf8);
             -webkit-background-clip: text;
@@ -125,16 +118,13 @@
             100% { transform: scale(1); }
         }
 
-        /* --- SADELEŞTİRİLMİŞ PERDE IŞIKLARI (TEK AMPUL) --- */
+        /* --- SARKAN IŞIKLAR --- */
         .icicle-lights-container {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 45;
         }
-
         .light-string {
             position: absolute; top: 0; width: 2px; background-color: rgba(255, 255, 255, 0.2);
         }
-
-        /* Ana Ampul (Sadece uçta) */
         .light-bulb-end {
             position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
             width: 12px; height: 18px;
@@ -142,97 +132,41 @@
             background: #fff;
             animation: flash 1.5s infinite alternate ease-in-out;
         }
-
-        /* RASTGELELİK (Uzunluklar KISALTILDI ve Konumlar) */
-        /* Eski değerler: 15vh, 25vh, 10vh, 30vh, 18vh */
-        /* Yeni, daha kısa değerler: */
         .light-string:nth-child(5n+1) { height: 10vh; left: 5%;  animation-delay: 0.1s; }
         .light-string:nth-child(5n+2) { height: 18vh; left: 20%; animation-delay: 0.5s; }
         .light-string:nth-child(5n+3) { height: 8vh; left: 35%; animation-delay: 1.2s; }
         .light-string:nth-child(5n+4) { height: 20vh; left: 50%; animation-delay: 0.3s; }
         .light-string:nth-child(5n+5) { height: 14vh; left: 65%; animation-delay: 0.8s; }
-        
         .light-string:nth-child(n+6)  { left: 12%; }
         .light-string:nth-child(n+11) { left: 28%; }
         .light-string:nth-child(n+16) { left: 42%; }
         .light-string:nth-child(n+21) { left: 58%; }
         .light-string:nth-child(n+26) { left: 75%; }
-        .light-string:nth-child(n+31) { left: 85%; height: 16vh; } /* Kısaltıldı */
-        .light-string:nth-child(n+36) { left: 95%; height: 9vh; } /* Kısaltıldı */
-
-        /* RENKLER */
+        .light-string:nth-child(n+31) { left: 85%; height: 16vh; }
+        .light-string:nth-child(n+36) { left: 95%; height: 9vh; }
         .light-string:nth-child(4n+1) .light-bulb-end { background: #ff3333; color: #ff3333; box-shadow: 0 3px 10px #ff3333; } 
         .light-string:nth-child(4n+2) .light-bulb-end { background: #3366ff; color: #3366ff; box-shadow: 0 3px 10px #3366ff; } 
         .light-string:nth-child(4n+3) .light-bulb-end { background: #33ff33; color: #33ff33; box-shadow: 0 3px 10px #33ff33; } 
         .light-string:nth-child(4n+4) .light-bulb-end { background: #ffcc33; color: #ffcc33; box-shadow: 0 3px 10px #ffcc33; } 
-
         @keyframes flash {
             0%, 100% { opacity: 1; filter: brightness(1.8); box-shadow: 0 3px 20px currentColor; transform: translateX(-50%) scale(1.1); }
             50% { opacity: 0.5; filter: brightness(0.8); box-shadow: none; transform: translateX(-50%) scale(0.9); }
         }
 
-        /* DEKORASYONLAR */
-        .tree-container {
-            position: fixed; bottom: -3vh; left: 2vw; 
-            font-size: clamp(150px, 30vmin, 350px); 
-            z-index: 20; filter: drop-shadow(0 0 40px rgba(0, 255, 0, 0.3)); pointer-events: none; line-height: 1; transition: opacity 1s;
-        }
-        .gift-stack-container {
-            position: fixed; bottom: 2vh; right: 5vw; display: flex; align-items: flex-end; gap: -1vh; 
-            z-index: 30; transition: opacity 1s;
-        }
-        .gift-column { display: flex; flex-direction: column-reverse; margin-left: -1.5vw; }
-        .gift-item {
-            font-size: clamp(40px, 8vmin, 90px); line-height: 0.75; cursor: pointer; transition: transform 0.2s; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
-        }
-        .gift-item:hover { transform: scale(1.1) translateY(-5px); z-index: 40; }
-        .col-1 .gift-item { filter: hue-rotate(200deg); } 
-        .col-2 .gift-item { filter: hue-rotate(90deg); }  
-        .col-3 .gift-item { filter: hue-rotate(280deg); } 
-        .col-4 .gift-item { filter: none; }               
-        
-        @keyframes giftPopIn {
-            0% { transform: scale(0); opacity: 0; }
-            80% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .gift-respawn { animation: giftPopIn 0.6s ease-out forwards; }
-
-        /* --- ANA DÜZENLEME: DİKEY BOŞLUKLAR (Yazıyı Işıklardan Kurtarmak İçin) --- */
-        main {
-            /* Üstten %15 boşluk bırak ki ışıklarla çakışmasın */
-            padding-top: 15vh !important; 
-            /* Alttan %10 boşluk bırak ki TV'de yukarı kaysın */
-            padding-bottom: 10vh !important;
-        }
-
-        /* TV VE GENİŞ EKRAN AYARLARI */
+        main { padding-top: 15vh !important; padding-bottom: 10vh !important; }
         @media (min-width: 1024px) {
             #headline-area { margin-bottom: 3vh !important; }
             .counter-container { margin-top: 0 !important; }
-            
-            /* Geniş ekranda ipler biraz daha uzun olabilir ama eskisi kadar değil */
-            /* Eski: 35vh, 40vh. Yeni: 22vh, 25vh */
             .light-string:nth-child(5n+2) { height: 22vh; }
             .light-string:nth-child(5n+4) { height: 25vh; }
         }
-
-        /* MOBİL UYUMLULUK */
         @media (max-width: 768px) {
-            .tree-container { font-size: 20vh; left: -20px; bottom: -20px; }
-            .gift-item { font-size: 6vh; }
-            .gift-stack-container { right: 0; }
-            .col-1, .col-2 { display: none; }
             #headline-area { margin-bottom: 2rem; }
             .icy-headline { font-size: 24px; }
-            
-            /* Mobilde ışıkları kısalt ve incelt */
             .light-string { width: 1px; }
             .light-bulb-end { width: 8px; height: 12px; }
-            .light-string:nth-child(5n+2) { height: 15vh; } /* Kısaltıldı */
-            .light-string:nth-child(5n+4) { height: 18vh; } /* Kısaltıldı */
-            
-            /* Mobilde paddingi biraz azaltabiliriz */
+            .light-string:nth-child(5n+2) { height: 15vh; }
+            .light-string:nth-child(5n+4) { height: 18vh; }
             main { padding-top: 10vh !important; }
         }
     </style>
@@ -240,58 +174,17 @@
 <body class="h-screen w-full flex flex-col items-center justify-center text-white relative">
 
     <div class="icicle-lights-container">
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div>
     </div>
 
     <div id="spotlight-overlay"></div>
-    <div class="tree-container">🎄</div>
-    
-    <div class="gift-stack-container">
-        <div class="gift-column col-1"><span class="gift-item">🎁</span></div>
-        <div class="gift-column col-2"><span class="gift-item">🎁</span><span class="gift-item">🎁</span></div>
-        <div class="gift-column col-3"><span class="gift-item">🎁</span><span class="gift-item">🎁</span><span class="gift-item">🎁</span></div>
-        <div class="gift-column col-4"><span class="gift-item">🎁</span><span class="gift-item">🎁</span><span class="gift-item">🎁</span><span class="gift-item">🎁</span></div>
-    </div>
-
     <div id="canvas-container"></div>
     
     <button id="enableAudioBtn" onclick="enableAudio()" class="ui-layer absolute top-5 right-5 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-4 py-2 rounded-full text-xs transition">
@@ -341,7 +234,8 @@
     <script>
         // --- SAYAÇ AYARLARI ---
         const targetDate = new Date("Jan 1, 2026 00:00:00").getTime();
-        
+        // const targetDate = new Date().getTime() + 15000; 
+
         const elDays = document.getElementById('days'); const elHours = document.getElementById('hours');
         const elMinutes = document.getElementById('minutes'); const elSeconds = document.getElementById('seconds');
         const boxDays = document.getElementById('box-days'); const boxHours = document.getElementById('box-hours');
@@ -365,7 +259,6 @@
             }).catch(e => audioBtn.innerText = "⚠️ İzin Verilmedi");
         }
 
-        // TİK SESİ (0.04)
         function playTickSound() {
             if (!audioEnabled || !audioCtx) return;
             const osc = audioCtx.createOscillator();
@@ -388,18 +281,14 @@
             audio.src = "https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg"; 
         }
 
-        // KAR YAĞIŞI
         function createSnowflake() {
             const sf = document.createElement('div');
             sf.className = 'snowflake';
             sf.style.left = Math.random() * 100 + 'vw';
-            
             const duration = Math.random() * 3 + 2; 
             sf.style.animationDuration = duration + 's';
-            
             sf.style.width = sf.style.height = (Math.random() * 5 + 2) + 'px';
             document.body.appendChild(sf);
-            
             setTimeout(() => sf.remove(), duration * 1000);
         }
         setInterval(createSnowflake, 100);
@@ -425,8 +314,6 @@
             boxHours.style.display = (days <= 0 && hours <= 0) ? 'none' : 'flex';
             boxMinutes.style.display = (days <= 0 && hours <= 0 && minutes <= 0) ? 'none' : 'flex';
 
-            // --- ETKİLEŞİM MANTIĞI ---
-            
             if (distance > 0 && totalSecondsLeft !== lastPlayedSecond) {
                 playTickSound();
             }
@@ -476,15 +363,11 @@
         function startCelebration() {
             document.body.classList.remove('mode-critical');
             document.body.classList.add('party-mode'); 
-            
             if (ambientLight) ambientLight.intensity = 2.0; 
             if (dirLight) dirLight.intensity = 2.5;
-            
             elContainer.style.display = 'none'; 
             elHeadlineArea.style.display = 'none'; 
             elCelebration.classList.remove('hidden'); 
-            document.querySelector('.tree-container').style.display = 'none';
-            document.querySelector('.gift-stack-container').style.display = 'none';
             document.querySelector('.icicle-lights-container').style.display = 'none';
             document.getElementById('spotlight-overlay').style.display = 'none';
             document.getElementById('canvas-container').style.display = 'none'; 
@@ -494,27 +377,18 @@
             var duration = 15 * 1000;
             var animationEnd = Date.now() + duration;
             var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-
-            function randomInRange(min, max) {
-              return Math.random() * (max - min) + min;
-            }
-
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
             var interval = setInterval(function() {
               var timeLeft = animationEnd - Date.now();
-
-              if (timeLeft <= 0) {
-                return clearInterval(interval);
-              }
-
+              if (timeLeft <= 0) { return clearInterval(interval); }
               var particleCount = 50 * (timeLeft / duration);
-              
               confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
               confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
             }, 250);
         }
 
-        // --- 3D DÜNYASI (Tek Seferlik Animasyon) ---
-        let scene, camera, renderer, sleighGroup;
+        // --- 3D SAHNE VE YENİ MODELLER ---
+        let scene, camera, renderer, sleighGroup, treeGroup, snowmanGroup, giftsGroup;
         let ambientLight, dirLight;
         let clock = new THREE.Clock();
         
@@ -546,59 +420,86 @@
             dirLight.position.set(20, 50, 20);
             scene.add(dirLight);
 
+            // Yıldızlar
             const starGeo = new THREE.BufferGeometry();
             const starPos = new Float32Array(3000);
             for(let i=0; i<3000; i++) starPos[i] = (Math.random() - 0.5) * 400;
             starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
             scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({color: 0xffffff, size: 0.5})));
 
+            const loader = new THREE.GLTFLoader();
+
+            // 1. SOL KÖŞE: KARLI SÜSLÜ AĞAÇ (Yazının arkasında kalsın diye Z geride)
+            treeGroup = new THREE.Group();
+            scene.add(treeGroup);
+            loader.load('tree-decorated-snow.glb', function (gltf) {
+                const model = gltf.scene;
+                // Büyük ölçek ama konum sol-ön
+                model.scale.set(15, 15, 15); 
+                // X: Sola (-25), Y: Aşağı (-12), Z: Geri (-10)
+                model.position.set(-25, -12, -10); 
+                treeGroup.add(model);
+                
+                // Hediyeleri ağacın dibine ekle
+                loadGifts(model.position);
+            });
+
+            // 2. SAĞ KÖŞE: KARDAN ADAM & FENER
+            snowmanGroup = new THREE.Group();
+            scene.add(snowmanGroup);
+            
+            // Kardan Adam Gövde
+            loader.load('snowman.glb', function (gltf) {
+                const model = gltf.scene;
+                model.scale.set(10, 10, 10);
+                model.position.set(20, -12, -5); // Sağ alt
+                model.rotation.y = -0.5; // Hafif sola baksın
+                snowmanGroup.add(model);
+                
+                // Şapkayı Kafasına Tak (Manuel Ayar)
+                loader.load('snowman-hat.glb', function (hatGltf) {
+                    const hat = hatGltf.scene;
+                    hat.scale.set(10, 10, 10);
+                    // Şapka konumu (Kardan adamın kafasına göre ayarlandı)
+                    hat.position.set(20, -3.5, -5); 
+                    hat.rotation.y = -0.5;
+                    snowmanGroup.add(hat);
+                });
+            });
+
+            // Fener
+            loader.load('lantern.glb', function (gltf) {
+                const model = gltf.scene;
+                model.scale.set(8, 8, 8);
+                model.position.set(14, -12, 0); // Kardan adamın biraz önünde
+                scene.add(model);
+            });
+
+            // 3. ANİMASYONLU KIZAK (ESKİ SİSTEM)
             sleighGroup = new THREE.Group();
             scene.add(sleighGroup);
-
-            const loader = new THREE.GLTFLoader();
-            const modelScale = 12;
-
+            
             loader.load('sled.glb', function (gltf) {
                 const model = gltf.scene;
-                model.rotation.y = 0; 
-                model.scale.set(modelScale, modelScale, modelScale); 
+                model.scale.set(12, 12, 12); 
                 sleighGroup.add(model);
             });
-
             loader.load('gingerbread-man.glb', function (gltf) {
                 const model = gltf.scene;
-                model.rotation.y = 0; 
-                model.scale.set(modelScale * 3.0, modelScale * 3.0, modelScale * 3.0); 
-                model.position.set(0, 6, 2.0); 
+                model.scale.set(36, 36, 36); model.position.set(0, 6, 2.0); 
                 sleighGroup.add(model);
             });
-
             loader.load('reindeer.glb', function (gltf) {
                 const deer1 = gltf.scene.clone();
-                deer1.scale.set(modelScale, modelScale, modelScale);
-                deer1.rotation.y = 0; 
-                deer1.position.set(-3, 0, 15); 
-                sleighGroup.add(deer1);
-
+                deer1.scale.set(12, 12, 12); deer1.position.set(-3, 0, 15); sleighGroup.add(deer1);
                 const deer2 = gltf.scene.clone();
-                deer2.scale.set(modelScale, modelScale, modelScale);
-                deer2.rotation.y = 0; 
-                deer2.position.set(3, 0, 15); 
-                sleighGroup.add(deer2);
+                deer2.scale.set(12, 12, 12); deer2.position.set(3, 0, 15); sleighGroup.add(deer2);
             });
 
-            const entryPoints = [
-                new THREE.Vector3(200, 20, -700), 
-                new THREE.Vector3(5, 5, 20),      
-                new THREE.Vector3(-50, 15, 60)    
-            ];
+            // Yollar
+            const entryPoints = [new THREE.Vector3(200, 20, -700), new THREE.Vector3(5, 5, 20), new THREE.Vector3(-30, 5, 0)];
             entryPath = new THREE.CatmullRomCurve3(entryPoints);
-
-            const exitPoints = [
-                new THREE.Vector3(-50, 15, 60),   
-                new THREE.Vector3(-100, 20, 100), 
-                new THREE.Vector3(300, 50, 500)   
-            ];
+            const exitPoints = [new THREE.Vector3(-30, 5, 0), new THREE.Vector3(-100, 20, -200), new THREE.Vector3(0, 50, -800)];
             exitPath = new THREE.CatmullRomCurve3(exitPoints);
 
             animationStartTime = performance.now();
@@ -608,49 +509,68 @@
             animate3D();
         }
 
+        // Hediyeleri Rastgele Dağıt
+        function loadGifts(treePos) {
+            const loader = new THREE.GLTFLoader();
+            const giftFiles = ['present-a-cube.glb', 'present-a-rectangle.glb', 'present-b-round.glb'];
+            
+            for(let i=0; i<4; i++) { // 4 Hediye
+                const randomFile = giftFiles[Math.floor(Math.random() * giftFiles.length)];
+                loader.load(randomFile, function(gltf) {
+                    const gift = gltf.scene;
+                    gift.scale.set(7, 7, 7);
+                    // Ağacın etrafına rastgele saç
+                    gift.position.set(
+                        treePos.x + (Math.random() * 10 - 2), 
+                        -12, // Yerde
+                        treePos.z + (Math.random() * 8 + 2)
+                    );
+                    gift.rotation.y = Math.random() * Math.PI;
+                    scene.add(gift);
+                });
+            }
+        }
+
         function animate3D() {
             requestAnimationFrame(animate3D);
-            if (animationState === 3) return;
-
             const currentTime = performance.now();
+            const time = currentTime * 0.001; // Saniye cinsinden zaman
+
+            // --- DEKOR ANİMASYONLARI ---
+            if(treeGroup) {
+                // Ağaç Nefes Alıyor (Scale)
+                const scale = 15 + Math.sin(time) * 0.2;
+                treeGroup.scale.set(scale, scale, scale);
+            }
+            if(snowmanGroup) {
+                // Kardan Adam Sallanıyor (Rotation Z)
+                snowmanGroup.rotation.z = Math.sin(time * 2) * 0.05;
+            }
+
+            // --- KIZAK ANİMASYONU (AYNI KALDI) ---
+            if (animationState === 3) {
+                renderer.render(scene, camera);
+                return;
+            }
             
-            if (animationState === 0) {
+            if (animationState === 0) { // GİRİŞ
                 const elapsed = (currentTime - animationStartTime) / 1000;
                 let t = elapsed / 20; 
-                
-                if (t >= 1) {
-                    t = 1;
-                    animationState = 1; 
-                    waitStartTime = currentTime;
-                }
-                
+                if (t >= 1) { t = 1; animationState = 1; waitStartTime = currentTime; }
                 t = t * t * (3 - 2 * t);
-                
                 const pos = entryPath.getPoint(t);
                 sleighGroup.position.copy(pos);
                 if (t < 0.99) {
                     const tangent = entryPath.getTangent(t).normalize();
                     sleighGroup.lookAt(sleighGroup.position.clone().add(tangent));
                 }
-
-            } else if (animationState === 1) {
-                if (currentTime - waitStartTime > 5000) {
-                    animationState = 2; 
-                    animationStartTime = currentTime; 
-                }
-
-            } else if (animationState === 2) {
+            } else if (animationState === 1) { // BEKLEME
+                if (currentTime - waitStartTime > 5000) { animationState = 2; animationStartTime = currentTime; }
+            } else if (animationState === 2) { // ÇIKIŞ
                 const elapsed = (currentTime - animationStartTime) / 1000;
                 let t = elapsed / 8; 
-
-                if (t >= 1) {
-                    t = 1;
-                    animationState = 3; 
-                    sleighGroup.visible = false; 
-                }
-
+                if (t >= 1) { t = 1; animationState = 3; sleighGroup.visible = false; }
                 t = t * t;
-
                 const pos = exitPath.getPoint(t);
                 sleighGroup.position.copy(pos);
                 if (t < 0.99) {
@@ -669,38 +589,11 @@
             camera.aspect = width / height;
             camera.updateProjectionMatrix();
             renderer.setSize(width, height);
-            if (width < 768) { camera.position.set(0, 5, 90); } else { camera.position.set(0, 5, 50); }
+            
+            // Mobilde kamerayı daha geriye çek ki dekorlar sığsın
+            if (width < 768) { camera.position.set(0, 5, 110); } else { camera.position.set(0, 5, 50); }
         }
         window.addEventListener('resize', updateCameraByScreenSize);
-
-        document.addEventListener('mousemove', function(e) {
-            if(Math.random() > 0.6) return; 
-            const dust = document.createElement('div');
-            dust.className = 'magic-dust';
-            dust.style.left = e.clientX + 'px'; dust.style.top = e.clientY + 'px';
-            document.body.appendChild(dust);
-            setTimeout(() => { dust.remove(); }, 1000);
-        });
-
-        document.querySelectorAll('.gift-item').forEach(gift => {
-            gift.addEventListener('click', function(e) {
-                const rect = gift.getBoundingClientRect();
-                const x = rect.left + rect.width / 2;
-                const y = rect.top + rect.height / 2;
-                confetti({
-                    particleCount: 30, spread: 60, origin: { x: x / window.innerWidth, y: y / window.innerHeight },
-                    colors: ['#ff0000', '#00ff00', '#ffd700', '#ffffff'], shapes: ['circle', 'square'], scalar: 0.7, zIndex: 200
-                });
-                gift.style.transform = "scale(0) rotate(180deg)";
-                gift.style.opacity = "0";
-                gift.style.pointerEvents = "none"; 
-                setTimeout(() => {
-                    gift.style.transform = ""; gift.style.opacity = ""; gift.style.pointerEvents = "auto";
-                    gift.classList.add('gift-respawn');
-                    setTimeout(() => { gift.classList.remove('gift-respawn'); }, 600);
-                }, 1000);
-            });
-        });
     </script>
 </body>
 </html>
