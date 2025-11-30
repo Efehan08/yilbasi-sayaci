@@ -34,12 +34,20 @@
             z-index: 10; opacity: 1; pointer-events: none;
         }
 
+        /* YÜKLEME EKRANI - TIKLANABİLİR YAPILDI */
         #loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 100;
+            background: rgba(15, 23, 42, 0.95); z-index: 100;
             display: flex; justify-content: center; align-items: center; flex-direction: column;
             color: #fbbf24; font-size: 24px; font-weight: bold; transition: opacity 0.5s;
+            cursor: pointer; /* Tıklanabilir olduğunu göster */
         }
+        #skip-btn {
+            margin-top: 20px; font-size: 14px; color: white; 
+            border: 1px solid rgba(255,255,255,0.3); padding: 5px 15px; border-radius: 20px;
+            background: rgba(255,255,255,0.1); cursor: pointer;
+        }
+        #skip-btn:hover { background: rgba(255,255,255,0.3); }
 
         /* IŞIKLAR */
         .icicle-lights-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 45; }
@@ -85,9 +93,10 @@
 </head>
 <body class="h-screen w-full flex flex-col items-center justify-center text-white relative">
 
-    <div id="loading-screen">
+    <div id="loading-screen" onclick="forceOpen()">
         <div>🎁 3D Sahne Hazırlanıyor...</div>
-        <div style="font-size: 14px; color: #ccc; margin-top: 10px;">(En fazla 5 saniye sürecek)</div>
+        <div style="font-size: 12px; color: #999; margin-top: 5px;">(Açılmazsa ekrana tıklayın)</div>
+        <button id="skip-btn" onclick="forceOpen()">Yüklemeyi Atla ve Başlat</button>
     </div>
 
     <div class="icicle-lights-container">
@@ -103,7 +112,7 @@
 
     <div id="spotlight-overlay"></div>
 
-    <div id="canvas-container"></div>
+    <div id="canvas-container" style="opacity: 1 !important;"></div>
     
     <button id="enableAudioBtn" onclick="enableAudio()" class="ui-layer absolute top-5 right-5 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-4 py-2 rounded-full text-xs transition">
         🎵 Sesi Aktif Et
@@ -281,6 +290,7 @@
             document.querySelector('.icicle-lights-container').style.display = 'none';
             document.getElementById('spotlight-overlay').style.display = 'none';
             
+            // KIZAĞI GÖRÜNÜR YAP VE BAŞLAT
             if(sleighGroup) {
                 sleighGroup.visible = true;
                 animationStartTime = performance.now();
@@ -312,25 +322,34 @@
         let waitStartTime = 0;
         let itemsLoaded = 0;
 
-        function checkLoading() {
-            itemsLoaded++;
-            if(itemsLoaded >= 2) {
+        // GÜVENLİK SİGORTASI: Zorla Aç
+        function forceOpen() {
+            if (loadingScreen.style.display !== 'none') {
+                console.warn("⚠️ Ekran zorla açılıyor.");
                 loadingScreen.style.opacity = 0;
                 setTimeout(() => loadingScreen.style.display = 'none', 500);
             }
         }
+        // Sayfa yüklendikten 3 saniye sonra kesinlikle aç (Otomatik)
+        window.addEventListener('load', function() {
+             setTimeout(forceOpen, 3000);
+        });
+
+        function checkLoading() {
+            itemsLoaded++;
+            if(itemsLoaded >= 2) {
+                forceOpen();
+            }
+        }
         
-        // DINAMIK POZISYON FONKSIYONU (V19.0)
         function updateModelPositions() {
             if (!treeGroup || !snowmanGroup) return;
             const width = window.innerWidth;
-            
-            // V19.1 GÜNCELLEMESİ: AĞAÇ İYİCE İÇERİ ALINDI
             if (width < 1000) { 
-                treeGroup.position.x = -18; // İYİCE İÇERİ (-35 DEĞİL)
-                snowmanGroup.position.x = 18; // İYİCE İÇERİ
+                treeGroup.position.x = -18;
+                snowmanGroup.position.x = 18;
             } else {
-                treeGroup.position.x = -15; // MASAÜSTÜNDE DE İÇERDE
+                treeGroup.position.x = -15;
                 snowmanGroup.position.x = 15;
             }
         }
@@ -369,13 +388,12 @@
             treeGroup = new THREE.Group();
             scene.add(treeGroup);
             loader.load('tree-decorated-snow.glb', function (gltf) {
-                console.log("Ağaç Yüklendi!");
-                checkLoading();
                 const model = gltf.scene;
-                model.scale.set(18, 18, 18); // BOYUT: 25 -> 18 (Sığsın diye küçüldü)
-                model.position.set(-15, -12, 20); // KONUM: -28 -> -15 (İçeri alındı)
+                model.scale.set(18, 18, 18); 
+                model.position.set(-15, -12, 20); 
                 treeGroup.add(model);
                 loadGifts(model.position);
+                checkLoading(); 
             }, undefined, function() { checkLoading(); });
 
             // KARDAN ADAM (V19.1: KONUM 15)
@@ -383,13 +401,12 @@
             scene.add(snowmanGroup);
             
             loader.load('snowman.glb', function (gltf) {
-                console.log("Kardan Adam Yüklendi!");
-                checkLoading();
                 const model = gltf.scene;
-                model.scale.set(15, 15, 15); // BOYUT: 18 -> 15
-                model.position.set(15, -12, 20); // KONUM: 28 -> 15
+                model.scale.set(15, 15, 15); 
+                model.position.set(15, -12, 20); 
                 model.rotation.y = -0.8; 
                 snowmanGroup.add(model);
+                checkLoading();
                 
                 loader.load('snowman-hat.glb', function (hatGltf) {
                     const hat = hatGltf.scene;
@@ -438,8 +455,8 @@
                 const randomFile = giftFiles[Math.floor(Math.random() * giftFiles.length)];
                 loader.load(randomFile, function(gltf) {
                     const gift = gltf.scene;
-                    gift.scale.set(6, 6, 6);
-                    gift.position.set(treePos.x + (Math.random() * 10 - 2), -12, treePos.z + (Math.random() * 5 + 2));
+                    gift.scale.set(8, 8, 8);
+                    gift.position.set(treePos.x + (Math.random() * 10 - 2), -12, treePos.z + (Math.random() * 8 + 2));
                     gift.rotation.y = Math.random() * Math.PI;
                     scene.add(gift);
                 });
@@ -503,6 +520,7 @@
             updateModelPositions();
         }
         window.addEventListener('resize', updateCameraByScreenSize);
+        initThreeJS();
     </script>
 </body>
 </html>
