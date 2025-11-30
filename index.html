@@ -18,172 +18,82 @@
             background-size: 400% 400%;
             animation: auroraGradient 15s ease infinite;
             transition: background-color 0.5s ease;
-            overflow: hidden; 
-            margin: 0;
+            overflow: hidden; margin: 0;
         }
-
-        @keyframes auroraGradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
+        @keyframes auroraGradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        
+        /* PARTİ MODU */
         body.party-mode {
             animation: partyGradient 3s ease infinite !important;
             background: linear-gradient(-45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
             background-size: 600% 600%;
         }
-        @keyframes partyGradient { 
-            0% {background-position: 0% 50%} 
-            50% {background-position: 100% 50%} 
-            100% {background-position: 0% 50%} 
-        }
+        @keyframes partyGradient { 0% {background-position: 0% 50%} 50% {background-position: 100% 50%} 100% {background-position: 0% 50%} }
 
-        /* --- DÜZELTME BURADA YAPILDI --- */
+        /* CANVAS (3D ALANI) */
         #canvas-container {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 10; 
-            opacity: 1; /* ARTIK GÖRÜNÜR! (Eskiden 0 idi) */
-            pointer-events: none;
+            z-index: 10; pointer-events: none;
+            /* Stil satır içi (inline) verildi, buradan silinmedi ama ezilecek */
         }
 
-        .counter-container { 
-            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); 
-            position: relative; z-index: 50; 
-        }
-        
-        .neon-box {
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2), inset 0 0 15px rgba(59, 130, 246, 0.1);
-            border-color: rgba(59, 130, 246, 0.3) !important;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(5px);
-        }
-        .neon-box:hover {
-             box-shadow: 0 0 30px rgba(96, 165, 250, 0.6), inset 0 0 20px rgba(96, 165, 250, 0.4);
-             border-color: rgba(96, 165, 250, 0.7) !important;
-             transform: translateY(-5px) scale(1.03);
-        }
-
-        #spotlight-overlay {
+        /* YÜKLEME EKRANI */
+        #loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at center, transparent 20%, #000000 95%);
-            opacity: 0; transition: opacity 1s ease; 
-            pointer-events: none; z-index: 40; 
+            background: rgba(0,0,0,0.8); z-index: 100;
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+            color: #fbbf24; font-size: 24px; font-weight: bold; transition: opacity 0.5s;
         }
 
-        body.mode-critical #spotlight-overlay { opacity: 1; }
-        body.mode-critical #countdown { z-index: 60; filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.9)); }
-        body.mode-critical #headline-area, body.mode-critical .icicle-lights-container { opacity: 0.1; filter: blur(2px); transition: all 1s ease; }
-
-        .digit { font-variant-numeric: tabular-nums; }
-        .ui-layer { position: relative; z-index: 50; }
-        
-        .snowflake {
-            position: absolute; top: -10px; background-color: white; border-radius: 50%; 
-            opacity: 0.6; pointer-events: none;
-            animation: snowfall linear forwards; z-index: 2; 
-        }
-        @keyframes snowfall { to { transform: translateY(110vh); } }
-
-        .magic-dust {
-            position: fixed; width: 6px; height: 6px; background: transparent;
-            box-shadow: 0 0 10px 3px #60a5fa, 0 0 20px 5px #a855f7;
-            border-radius: 50%; pointer-events: none; z-index: 100;
-            animation: fadeOutDust 1s forwards;
-        }
-        @keyframes fadeOutDust { to { transform: scale(0); opacity: 0; } }
-
-        .icy-headline {
-            background: linear-gradient(to right, #ffffff, #cffafe, #38bdf8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.8));
-            display: inline-block;
-            position: relative; z-index: 50;
-            font-size: clamp(24px, 5vw, 60px); 
-            line-height: 1.2;
-        }
-
-        .celebration-text {
-            animation: zoomInBounce 1s ease-out forwards, heartbeat 1.5s ease-in-out infinite 1s;
-        }
-        @keyframes zoomInBounce {
-            0% { transform: scale(0); opacity: 0; }
-            60% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        @keyframes heartbeat {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); text-shadow: 0 0 30px rgba(255,255,255,0.8); }
-            100% { transform: scale(1); }
-        }
-
-        /* --- SARKAN IŞIKLAR --- */
-        .icicle-lights-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 45;
-        }
-        .light-string {
-            position: absolute; top: 0; width: 2px; background-color: rgba(255, 255, 255, 0.2);
-        }
-        .light-bulb-end {
-            position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-            width: 12px; height: 18px;
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            background: #fff;
-            animation: flash 1.5s infinite alternate ease-in-out;
-        }
-        .light-bulb-end::before, .light-bulb-end::after {
-            content: ''; position: absolute; left: 0; width: 100%; height: 100%;
-            border-radius: inherit; background-color: inherit; box-shadow: inherit; opacity: 0.8;
-        }
-        .light-bulb-end::before { bottom: 40px; }
-        .light-bulb-end::after { bottom: 80px; }
-        @media (min-width: 1024px) {
-            .light-bulb-end::before { bottom: 10vh; } 
-            .light-bulb-end::after { bottom: 20vh; }
-        }
-
-        .light-string:nth-child(5n+1) { height: 10vh; left: 5%;  animation-delay: 0.1s; }
+        /* IŞIKLAR */
+        .icicle-lights-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 45; }
+        .light-string { position: absolute; top: 0; width: 2px; background-color: rgba(255, 255, 255, 0.2); }
+        .light-bulb-end { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 12px; height: 18px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: #fff; animation: flash 1.5s infinite alternate ease-in-out; }
+        .light-bulb-end::before, .light-bulb-end::after { content: ''; position: absolute; left: 0; width: 100%; height: 100%; border-radius: inherit; background-color: inherit; box-shadow: inherit; opacity: 0.8; }
+        .light-bulb-end::before { bottom: 40px; } .light-bulb-end::after { bottom: 80px; }
+        @media (min-width: 1024px) { .light-bulb-end::before { bottom: 10vh; } .light-bulb-end::after { bottom: 20vh; } }
+        .light-string:nth-child(5n+1) { height: 10vh; left: 5%; animation-delay: 0.1s; }
         .light-string:nth-child(5n+2) { height: 18vh; left: 20%; animation-delay: 0.5s; }
         .light-string:nth-child(5n+3) { height: 8vh; left: 35%; animation-delay: 1.2s; }
         .light-string:nth-child(5n+4) { height: 20vh; left: 50%; animation-delay: 0.3s; }
         .light-string:nth-child(5n+5) { height: 14vh; left: 65%; animation-delay: 0.8s; }
-        .light-string:nth-child(n+6)  { left: 12%; }
-        .light-string:nth-child(n+11) { left: 28%; }
-        .light-string:nth-child(n+16) { left: 42%; }
-        .light-string:nth-child(n+21) { left: 58%; }
-        .light-string:nth-child(n+26) { left: 75%; }
-        .light-string:nth-child(n+31) { left: 85%; height: 16vh; }
-        .light-string:nth-child(n+36) { left: 95%; height: 9vh; }
+        .light-string:nth-child(n+6) { left: 12%; } .light-string:nth-child(n+11) { left: 28%; } .light-string:nth-child(n+16) { left: 42%; } .light-string:nth-child(n+21) { left: 58%; } .light-string:nth-child(n+26) { left: 75%; } .light-string:nth-child(n+31) { left: 85%; height: 16vh; } .light-string:nth-child(n+36) { left: 95%; height: 9vh; }
         .light-string:nth-child(4n+1) .light-bulb-end { background: #ff3333; color: #ff3333; box-shadow: 0 3px 10px #ff3333; } 
         .light-string:nth-child(4n+2) .light-bulb-end { background: #3366ff; color: #3366ff; box-shadow: 0 3px 10px #3366ff; } 
         .light-string:nth-child(4n+3) .light-bulb-end { background: #33ff33; color: #33ff33; box-shadow: 0 3px 10px #33ff33; } 
         .light-string:nth-child(4n+4) .light-bulb-end { background: #ffcc33; color: #ffcc33; box-shadow: 0 3px 10px #ffcc33; } 
-        @keyframes flash {
-            0%, 100% { opacity: 1; filter: brightness(1.8); box-shadow: 0 3px 20px currentColor; transform: translateX(-50%) scale(1.1); }
-            50% { opacity: 0.5; filter: brightness(0.8); box-shadow: none; transform: translateX(-50%) scale(0.9); }
-        }
+        @keyframes flash { 0%, 100% { opacity: 1; filter: brightness(1.8); box-shadow: 0 3px 20px currentColor; transform: translateX(-50%) scale(1.1); } 50% { opacity: 0.5; filter: brightness(0.8); box-shadow: none; transform: translateX(-50%) scale(0.9); } }
+
+        .neon-box { box-shadow: 0 0 15px rgba(59, 130, 246, 0.2), inset 0 0 15px rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3) !important; transition: all 0.3s ease; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(5px); }
+        .icy-headline { background: linear-gradient(to right, #ffffff, #cffafe, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.8)); display: inline-block; position: relative; z-index: 50; font-size: clamp(24px, 5vw, 60px); line-height: 1.2; }
+        
+        .celebration-text { animation: zoomInBounce 1s ease-out forwards, heartbeat 1.5s ease-in-out infinite 1s; }
+        @keyframes zoomInBounce { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes heartbeat { 0% { transform: scale(1); } 50% { transform: scale(1.05); text-shadow: 0 0 30px rgba(255,255,255,0.8); } 100% { transform: scale(1); } }
+
+        /* SPOT IŞIĞI */
+        #spotlight-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, transparent 20%, #000000 95%); opacity: 0; transition: opacity 1s ease; pointer-events: none; z-index: 40; }
+        body.mode-critical #spotlight-overlay { opacity: 1; }
+        body.mode-critical #countdown { z-index: 60; filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.9)); }
+        body.mode-critical #headline-area, body.mode-critical .icicle-lights-container { opacity: 0.1; filter: blur(2px); transition: all 1s ease; }
+
+        /* DÜZEN */
+        .counter-container { transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; z-index: 50; }
+        .digit { font-variant-numeric: tabular-nums; } .ui-layer { position: relative; z-index: 50; }
+        .snowflake { position: absolute; top: -10px; background-color: white; border-radius: 50%; opacity: 0.6; pointer-events: none; animation: snowfall linear forwards; z-index: 2; }
+        @keyframes snowfall { to { transform: translateY(110vh); } }
 
         main { padding-top: 15vh !important; padding-bottom: 10vh !important; }
-        @media (min-width: 1024px) {
-            #headline-area { margin-bottom: 3vh !important; }
-            .counter-container { margin-top: 0 !important; }
-            .light-string:nth-child(5n+2) { height: 22vh; }
-            .light-string:nth-child(5n+4) { height: 25vh; }
-        }
-        @media (max-width: 768px) {
-            #headline-area { margin-bottom: 2rem; }
-            .icy-headline { font-size: 24px; }
-            .light-string { width: 1px; }
-            .light-bulb-end { width: 8px; height: 12px; }
-            .light-string:nth-child(5n+2) { height: 15vh; }
-            .light-string:nth-child(5n+4) { height: 18vh; }
-            main { padding-top: 10vh !important; }
-        }
+        @media (min-width: 1024px) { #headline-area { margin-bottom: 3vh !important; } .counter-container { margin-top: 0 !important; } .light-string:nth-child(5n+2) { height: 22vh; } .light-string:nth-child(5n+4) { height: 25vh; } }
+        @media (max-width: 768px) { #headline-area { margin-bottom: 2rem; } .icy-headline { font-size: 24px; } .light-string { width: 1px; } .light-bulb-end { width: 8px; height: 12px; } .light-string:nth-child(5n+2) { height: 15vh; } .light-string:nth-child(5n+4) { height: 18vh; } main { padding-top: 10vh !important; } }
     </style>
 </head>
 <body class="h-screen w-full flex flex-col items-center justify-center text-white relative">
+
+    <div id="loading-screen">
+        <div>🎁 3D Sahneler Hazırlanıyor...</div>
+        <div style="font-size: 14px; color: #ccc; margin-top: 10px;">Lütfen Bekleyin</div>
+    </div>
 
     <div class="icicle-lights-container">
         <div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div>
@@ -198,7 +108,7 @@
 
     <div id="spotlight-overlay"></div>
 
-    <div id="canvas-container"></div>
+    <div id="canvas-container" style="opacity: 1 !important;"></div>
     
     <button id="enableAudioBtn" onclick="enableAudio()" class="ui-layer absolute top-5 right-5 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-4 py-2 rounded-full text-xs transition">
         🎵 Sesi Aktif Et
@@ -257,6 +167,7 @@
         const elHeadlineArea = document.getElementById('headline-area'); 
         const audio = document.getElementById('newYearSong');
         const audioBtn = document.getElementById('enableAudioBtn');
+        const loadingScreen = document.getElementById('loading-screen');
 
         let audioEnabled = false;
         let musicStarted = false; 
@@ -400,6 +311,16 @@
         let animationStartTime = 0;
         let animationState = 0; 
         let waitStartTime = 0;
+        let itemsLoaded = 0; // Yüklenen model sayacı
+
+        function checkLoading() {
+            itemsLoaded++;
+            // En az 2 model (Ağaç ve Kardan Adam) yüklenince ekranı aç
+            if(itemsLoaded >= 2) {
+                loadingScreen.style.opacity = 0;
+                setTimeout(() => loadingScreen.style.display = 'none', 500);
+            }
+        }
 
         function initThreeJS() {
             const container = document.getElementById('canvas-container');
@@ -408,7 +329,7 @@
             scene.fog = new THREE.FogExp2(0x1a0b2e, 0.002); 
 
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 0, 60); // GÖRÜNÜR KONUM
+            camera.position.set(0, 0, 60); 
             
             renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -431,42 +352,45 @@
 
             const loader = new THREE.GLTFLoader();
 
-            // AĞAÇ (Yükleniyor Logu)
+            // SOL KÖŞE: AĞAÇ
+            treeGroup = new THREE.Group();
+            scene.add(treeGroup);
             loader.load('tree-decorated-snow.glb', function (gltf) {
                 console.log("Ağaç Yüklendi!");
+                checkLoading();
                 const model = gltf.scene;
                 model.scale.set(25, 25, 25); 
-                model.position.set(-25, -5, 15); 
-                treeGroup = new THREE.Group();
+                model.position.set(-22, -5, 15); 
                 treeGroup.add(model);
-                scene.add(treeGroup);
                 loadGifts(model.position);
-            });
+            }, undefined, function(error) { console.error("Ağaç Hatası:", error); });
 
-            // KARDAN ADAM
+            // SAĞ KÖŞE: KARDAN ADAM
+            snowmanGroup = new THREE.Group();
+            scene.add(snowmanGroup);
+            
             loader.load('snowman.glb', function (gltf) {
                 console.log("Kardan Adam Yüklendi!");
+                checkLoading();
                 const model = gltf.scene;
                 model.scale.set(15, 15, 15); 
-                model.position.set(25, -5, 15); 
+                model.position.set(22, -5, 15); 
                 model.rotation.y = -0.8; 
-                snowmanGroup = new THREE.Group();
                 snowmanGroup.add(model);
-                scene.add(snowmanGroup);
                 
                 loader.load('snowman-hat.glb', function (hatGltf) {
                     const hat = hatGltf.scene;
                     hat.scale.set(15, 15, 15);
-                    hat.position.set(25, 7, 15); 
+                    hat.position.set(22, 7, 15); 
                     hat.rotation.y = -0.8;
                     snowmanGroup.add(hat);
                 });
-            });
+            }, undefined, function(error) { console.error("Kardan Adam Hatası:", error); });
 
             loader.load('lantern.glb', function (gltf) {
                 const model = gltf.scene;
                 model.scale.set(10, 10, 10);
-                model.position.set(18, -5, 20); 
+                model.position.set(16, -5, 20); 
                 scene.add(model);
             });
 
@@ -564,6 +488,7 @@
             }
         }
         window.addEventListener('resize', updateCameraByScreenSize);
+        initThreeJS(); // Başlat
     </script>
 </body>
 </html>
