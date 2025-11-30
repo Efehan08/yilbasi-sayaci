@@ -34,9 +34,11 @@
             z-index: 10; opacity: 1; pointer-events: none;
         }
 
+        /* YÜKLEME EKRANI (GÜNCELLENDİ) */
         #loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 100;
+            background: #0f172a; /* Tamamen kapatsın ki arkası görünmesin */
+            z-index: 100;
             display: flex; justify-content: center; align-items: center; flex-direction: column;
             color: #fbbf24; font-size: 24px; font-weight: bold; transition: opacity 0.5s;
         }
@@ -87,7 +89,7 @@
 
     <div id="loading-screen">
         <div>🎁 3D Sahne Hazırlanıyor...</div>
-        <div style="font-size: 14px; color: #ccc; margin-top: 10px;">Yılbaşı Ağacı Kuruluyor</div>
+        <div style="font-size: 14px; color: #ccc; margin-top: 10px;">(En fazla 5 saniye sürecek)</div>
     </div>
 
     <div class="icicle-lights-container">
@@ -152,8 +154,7 @@
     <script>
         // --- SAYAÇ AYARLARI ---
         const targetDate = new Date("Jan 1, 2026 00:00:00").getTime();
-        // const targetDate = new Date().getTime() + 15000; 
-
+        
         const elDays = document.getElementById('days'); const elHours = document.getElementById('hours');
         const elMinutes = document.getElementById('minutes'); const elSeconds = document.getElementById('seconds');
         const boxDays = document.getElementById('box-days'); const boxHours = document.getElementById('box-hours');
@@ -313,29 +314,34 @@
         let waitStartTime = 0;
         let itemsLoaded = 0;
 
+        // GÜVENLİK SİGORTASI: Yükleme tamamlanmazsa ekranı zorla aç
+        function forceOpen() {
+            if (loadingScreen.style.display !== 'none') {
+                console.warn("⚠️ Modeller geç yüklendi veya yüklenemedi, ekran zorla açılıyor.");
+                loadingScreen.style.opacity = 0;
+                setTimeout(() => loadingScreen.style.display = 'none', 500);
+            }
+        }
+        setTimeout(forceOpen, 5000); // 5 Saniye sonra aç
+
         function checkLoading() {
             itemsLoaded++;
+            // 2 ana model (Ağaç, Kardan Adam) yüklendiğinde aç
             if(itemsLoaded >= 2) {
                 loadingScreen.style.opacity = 0;
                 setTimeout(() => loadingScreen.style.display = 'none', 500);
             }
         }
         
-        // --- YENİ FONKSİYON: EKANA GÖRE POZİSYON AYARLA ---
+        // DINAMIK POZISYON FONKSIYONU (V19.0)
         function updateModelPositions() {
             if (!treeGroup || !snowmanGroup) return;
             const width = window.innerWidth;
             
-            // Ekran Genişliğine Göre X Pozisyonunu Dinamik Ayarla
-            // Ne kadar darsa, o kadar dışarı it (Sayaca çarpmasın diye)
-            // Veya kamerayı geriye çektiğimiz için, sabit bir "Güvenli Kenar" belirleyelim.
-            
             if (width < 1000) { 
-                // Dar ekran (Yarım ekran): Biraz daha açalım
                 treeGroup.position.x = -35;
                 snowmanGroup.position.x = 35;
             } else {
-                // Geniş ekran: Hafifçe merkeze yaklaşabilirler
                 treeGroup.position.x = -28;
                 snowmanGroup.position.x = 28;
             }
@@ -348,7 +354,6 @@
             scene.fog = new THREE.FogExp2(0x1a0b2e, 0.002); 
 
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            // KAMERAYI DAHA GERİ ALDIK: 70
             camera.position.set(0, 0, 70); 
             
             renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -376,37 +381,34 @@
             treeGroup = new THREE.Group();
             scene.add(treeGroup);
             loader.load('tree-decorated-snow.glb', function (gltf) {
-                console.log("Ağaç Yüklendi!");
-                checkLoading();
                 const model = gltf.scene;
                 model.scale.set(30, 30, 30); 
-                // Başlangıç konumu (Fonksiyon güncelleyecek)
-                model.position.set(-28, -8, 10); 
+                model.position.set(-28, -8, 10); // Dinamik fonksiyon bunu güncelleyecek
                 treeGroup.add(model);
                 loadGifts(model.position);
-            }, undefined, function(error) { console.error("Ağaç Hatası:", error); });
+                checkLoading(); // Başarılı yükleme
+            }, undefined, function() { checkLoading(); }); // Hata olsa bile say
 
             // KARDAN ADAM
             snowmanGroup = new THREE.Group();
             scene.add(snowmanGroup);
             
             loader.load('snowman.glb', function (gltf) {
-                console.log("Kardan Adam Yüklendi!");
-                checkLoading();
                 const model = gltf.scene;
                 model.scale.set(18, 18, 18); 
                 model.position.set(28, -8, 10); 
                 model.rotation.y = -0.8; 
                 snowmanGroup.add(model);
+                checkLoading(); // Başarılı yükleme
                 
                 loader.load('snowman-hat.glb', function (hatGltf) {
                     const hat = hatGltf.scene;
                     hat.scale.set(18, 18, 18);
-                    hat.position.set(28, 7, 10); // Şapka konumu (Manuel ayar gerekebilir)
+                    hat.position.set(28, 7, 10); 
                     hat.rotation.y = -0.8;
                     snowmanGroup.add(hat);
                 });
-            }, undefined, function(error) { console.error("Kardan Adam Hatası:", error); });
+            }, undefined, function() { checkLoading(); }); // Hata olsa bile say
 
             loader.load('lantern.glb', function (gltf) {
                 const model = gltf.scene;
@@ -415,7 +417,7 @@
                 scene.add(model);
             });
 
-            // KIZAK (GİZLİ)
+            // KIZAK
             sleighGroup = new THREE.Group();
             sleighGroup.visible = false; 
             scene.add(sleighGroup);
@@ -508,10 +510,10 @@
                 camera.position.set(0, 0, 70); 
             }
             
-            // Ekran boyutu değişince modelleri de güncelle
             updateModelPositions();
         }
         window.addEventListener('resize', updateCameraByScreenSize);
+        initThreeJS();
     </script>
 </body>
 </html>
