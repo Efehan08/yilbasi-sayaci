@@ -124,7 +124,7 @@
         const targetDate = new Date("Jan 1, 2026 00:00:00").getTime();
         const gui = new lil.GUI({ title: 'YÖNETMEN PANELİ' });
         
-        // --- SENİN VERDİĞİN ALTIN DEĞERLER (V27.3) ---
+        // --- SENİN VERDİĞİN ALTIN DEĞERLER (V27.4) ---
         const config = {
             // AĞAÇ (SOL)
             treeX: -22.15, treeY: -14.08, treeZ: 31.6, treeScale: 12.054,
@@ -136,7 +136,7 @@
             camZ: 60.48
         };
 
-        let scene, camera, renderer, treeGroup, snowmanGroup, lanternModel;
+        let scene, camera, renderer, treeGroup, snowmanModel, snowmanHatModel, lanternModel;
         let itemsLoaded = 0;
         const loadingScreen = document.getElementById('loading-screen');
         
@@ -148,9 +148,9 @@
 
         function checkLoading() {
             itemsLoaded++;
-            // Tüm ana modeller (ağaç, kardan adam, fener, en az bir hediye) yüklendiğinde yükleme ekranını kapat.
-            // Bu sayı, sahnedeki ana GLTF model sayısına göre ayarlanmalı.
-            // 1 ağaç + 1 kardan adam gövdesi + 1 kardan adam şapkası + 1 fener + 1 hediye = 5
+            // Tüm ana modeller (ağaç, kardan adam, kardan adam şapkası, fener, en az bir hediye) yüklendiğinde yükleme ekranını kapat.
+            // Şimdi kardan adam tek model, şapka onun ayrı bir parçası olarak yüklenecek.
+            // 1 ağaç + 1 kardan adam + 1 kardan adam şapkası + 1 fener + 1 hediye = 5
             if(itemsLoaded >= 5) forceOpen(); 
         }
 
@@ -198,7 +198,6 @@
             treeGroup = new THREE.Group(); scene.add(treeGroup);
             loader.load('tree-decorated-snow.glb', function(gltf) {
                 const model = gltf.scene;
-                // MATERYAL ZORLAMA KALDIRILDI
                 treeGroup.add(model);
                 treeGroup.position.set(config.treeX, config.treeY, config.treeZ);
                 treeGroup.scale.set(config.treeScale, config.treeScale, config.treeScale);
@@ -214,40 +213,50 @@
             }, undefined, function(error) { console.error('Ağaç yüklenirken hata oluştu:', error); checkLoading(); });
 
             // 2. KARDAN ADAM (Orijinal Renkler)
-            snowmanGroup = new THREE.Group(); scene.add(snowmanGroup);
+            // Sadece bir tane kardan adam modeli yüklenecek
             loader.load('snowman.glb', function(gltf) {
-                const model = gltf.scene;
-                // MATERYAL ZORLAMA KALDIRILDI
-                model.scale.set(config.snowScale, config.snowScale, config.snowScale);
-                model.rotation.y = -0.8;
-                snowmanGroup.add(model);
+                snowmanModel = gltf.scene; // snowmanModel değişkenine atıyoruz
+                snowmanModel.scale.set(config.snowScale, config.snowScale, config.snowScale);
+                snowmanModel.rotation.y = -0.8;
+                snowmanModel.position.set(config.snowX, config.snowY, config.snowZ); // Ana kardan adamın pozisyonu
+                scene.add(snowmanModel); // Doğrudan sahneye ekliyoruz
                 checkLoading(); // Kardan adam gövdesi yüklendi.
 
-                loader.load('snowman-hat.glb', function(hat) {
-                    hat.scene.scale.set(config.snowScale, config.snowScale, config.snowScale);
-                    hat.scene.position.set(0, 7, 0); 
-                    hat.scene.rotation.y = -0.8;
-                    snowmanGroup.add(hat.scene);
+                loader.load('snowman-hat.glb', function(hatGltf) {
+                    snowmanHatModel = hatGltf.scene; // snowmanHatModel değişkenine atıyoruz
+                    snowmanHatModel.scale.set(config.snowScale, config.snowScale, config.snowScale);
+                    // Şapkanın pozisyonu kardan adama göre ayarlanacak
+                    snowmanHatModel.position.set(config.snowX, config.snowY + 7 * config.snowScale / 10, config.snowZ); // Kardan adamın üstüne yerleştir
+                    snowmanHatModel.rotation.y = -0.8; // Kardan adamla aynı rotasyon
+                    scene.add(snowmanHatModel);
                     checkLoading(); // Kardan adam şapkası yüklendi.
                 }, undefined, function(error) { console.error('Kardan adam şapkası yüklenirken hata oluştu:', error); checkLoading(); });
                 
-                snowmanGroup.position.set(config.snowX, config.snowY, config.snowZ);
-                
                 // GUI BAĞLANTILARI
-                fSnow.add(config, 'snowX', 0, 100).name('Sağ/Sol').onChange(v => snowmanGroup.position.x = v);
-                fSnow.add(config, 'snowY', -50, 10).name('Yukarı/Aşağı').onChange(v => snowmanGroup.position.y = v);
-                fSnow.add(config, 'snowZ', -50, 50).name('İleri/Geri').onChange(v => snowmanGroup.position.z = v);
+                fSnow.add(config, 'snowX', 0, 100).name('Sağ/Sol').onChange(v => {
+                    snowmanModel.position.x = v;
+                    if(snowmanHatModel) snowmanHatModel.position.x = v;
+                });
+                fSnow.add(config, 'snowY', -50, 10).name('Yukarı/Aşağı').onChange(v => {
+                    snowmanModel.position.y = v;
+                    if(snowmanHatModel) snowmanHatModel.position.y = v + 7 * config.snowScale / 10; // Şapkayı da yukarı hareket ettir
+                });
+                fSnow.add(config, 'snowZ', -50, 50).name('İleri/Geri').onChange(v => {
+                    snowmanModel.position.z = v;
+                    if(snowmanHatModel) snowmanHatModel.position.z = v;
+                });
                 fSnow.add(config, 'snowScale', 1, 50).name('Boyut').onChange(v => {
-                    snowmanGroup.scale.set(v,v,v);
-                    snowmanGroup.children[0].scale.set(v,v,v);
-                    if(snowmanGroup.children[1]) snowmanGroup.children[1].scale.set(v,v,v);
+                    snowmanModel.scale.set(v,v,v);
+                    if(snowmanHatModel) {
+                        snowmanHatModel.scale.set(v,v,v);
+                        snowmanHatModel.position.y = snowmanModel.position.y + 7 * v / 10; // Şapkanın Y pozisyonunu da ölçekle ayarla
+                    }
                 });
             }, undefined, function(error) { console.error('Kardan adam gövdesi yüklenirken hata oluştu:', error); checkLoading(); });
             
             // 3. FENER (Orijinal Renkler)
             loader.load('lantern.glb', function(gltf) {
                 lanternModel = gltf.scene;
-                // MATERYAL ZORLAMA KALDIRILDI
                 lanternModel.scale.set(config.lanternScale, config.lanternScale, config.lanternScale);
                 lanternModel.position.set(config.lanternX, config.lanternY, config.lanternZ); 
                 scene.add(lanternModel);
@@ -263,11 +272,9 @@
             const sleighGroup = new THREE.Group();
             scene.add(sleighGroup);
             loader.load('sled.glb', (g) => { 
-                // MATERYAL ZORLAMA KALDIRILDI
                 g.scene.scale.set(8,8,8); sleighGroup.add(g.scene); 
             }, undefined, function(error) { console.error('Kızak yüklenirken hata oluştu:', error); });
             loader.load('reindeer.glb', (g) => { 
-                // MATERYAL ZORLAMA KALDIRILDI
                 g.scene.scale.set(8,8,8); g.scene.position.set(0,0,10); sleighGroup.add(g.scene); 
             }, undefined, function(error) { console.error('Geyik yüklenirken hata oluştu:', error); });
             
@@ -286,8 +293,9 @@
                 // treeGroup.rotation.y = Math.sin(time * 0.5) * rotationFactor;
                 // treeGroup.rotation.z = Math.cos(time * 0.4) * rotationFactor;
             }
-            if (snowmanGroup) { 
-                snowmanGroup.rotation.y += 0.005; 
+            if (snowmanModel) { 
+                snowmanModel.rotation.y += 0.005; 
+                if (snowmanHatModel) snowmanHatModel.rotation.y += 0.005; // Şapka da kardan adamla dönsün
             } 
             renderer.render(scene, camera);
         }
