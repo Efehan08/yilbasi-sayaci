@@ -98,8 +98,7 @@
         }
         @keyframes fadeOutDust { to { transform: scale(0); opacity: 0; } }
 
-        /* --- BAŞLIK DÜZELTMESİ (CLAMP KULLANIMI) --- */
-        /* clamp(min, ideal, max) -> Ekran genişliğine (vw) göre büyür, asla çok küçük kalmaz */
+        /* CLAMP BAŞLIK */
         .icy-headline {
             background: linear-gradient(to right, #ffffff, #cffafe, #38bdf8);
             -webkit-background-clip: text;
@@ -107,7 +106,6 @@
             filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.8));
             display: inline-block;
             position: relative; z-index: 50;
-            /* YENİ AYAR: Yarım ekranda da büyük dursun */
             font-size: clamp(24px, 5vw, 60px); 
             line-height: 1.2;
         }
@@ -126,14 +124,12 @@
             100% { transform: scale(1); }
         }
 
-        /* --- DEKORASYONLAR (DİNAMİK VMIN KULLANIMI) --- */
-        /* vmin: Ekranın en kısa kenarını baz alır. Böylece yarım ekranda da orantılı kalır. */
-        
+        /* DEKORASYONLAR */
         .tree-container {
             position: fixed; 
             bottom: -3vh; 
             left: 2vw; 
-            font-size: clamp(150px, 30vmin, 350px); /* Dinamik Boyutlandırma */
+            font-size: clamp(150px, 30vmin, 350px); 
             z-index: 20; 
             filter: drop-shadow(0 0 40px rgba(0, 255, 0, 0.3)); 
             pointer-events: none; 
@@ -155,7 +151,7 @@
         .gift-column { display: flex; flex-direction: column-reverse; margin-left: -1.5vw; }
         
         .gift-item {
-            font-size: clamp(40px, 8vmin, 90px); /* Dinamik Hediye Boyutu */
+            font-size: clamp(40px, 8vmin, 90px);
             line-height: 0.75; 
             cursor: pointer; 
             transition: transform 0.2s; 
@@ -174,13 +170,20 @@
         }
         .gift-respawn { animation: giftPopIn 0.6s ease-out forwards; }
 
-        /* TELEVİZYON ve GENİŞ EKRANLAR */
+        /* --- TV VE GENİŞ EKRAN AYARLARI (YENİLENMİŞ) --- */
         @media (min-width: 1024px) {
+            /* 1. Başlık ve Sayaç arasını aç */
             #headline-area {
                 margin-bottom: 3vh !important;
             }
             .counter-container {
                 margin-top: 0 !important;
+            }
+            
+            /* 2. ANA DÜZELTME: İçeriği komple yukarı it */
+            /* Main container'ın altına boşluk ekleyerek merkezi yukarı kaydırıyoruz */
+            main {
+                padding-bottom: 15vh !important; /* Ekranın %15'i kadar alttan it */
             }
         }
 
@@ -191,8 +194,6 @@
             .gift-stack-container { right: 0; }
             .col-1, .col-2 { display: none; }
             #headline-area { margin-bottom: 2rem; }
-            
-            /* Mobilde yazı boyutunu manuel ayarla */
             .icy-headline { font-size: 24px; }
         }
     </style>
@@ -305,7 +306,7 @@
             audio.src = "https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg"; 
         }
 
-        // KAR YAĞIŞI DÜZELTMESİ (Akıllı Silme)
+        // KAR YAĞIŞI
         function createSnowflake() {
             const sf = document.createElement('div');
             sf.className = 'snowflake';
