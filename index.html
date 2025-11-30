@@ -22,14 +22,12 @@
             margin: 0;
         }
 
-        /* Normal Mod Arka Planı */
         @keyframes auroraGradient {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
 
-        /* Parti Modu Arka Planı */
         body.party-mode {
             animation: partyGradient 3s ease infinite !important;
             background: linear-gradient(-45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
@@ -46,9 +44,10 @@
             z-index: 1; opacity: 0; transition: opacity 2s ease-in; pointer-events: none;
         }
 
+        /* Sayaç En Üstte Olmalı (Z-Index 50) */
         .counter-container { 
             transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); 
-            position: relative; z-index: 10; 
+            position: relative; z-index: 50; 
         }
         
         .neon-box {
@@ -62,18 +61,17 @@
              transform: translateY(-5px) scale(1.03);
         }
 
-        /* SPOT IŞIĞI */
         #spotlight-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at center, transparent 20%, #000000 95%);
             opacity: 0; transition: opacity 1s ease; 
-            pointer-events: none; z-index: 25; 
+            pointer-events: none; z-index: 40; /* Dekorların üstü, sayacın altı */
         }
 
         body.mode-critical #spotlight-overlay { opacity: 1; }
         
         body.mode-critical #countdown {
-            z-index: 30; 
+            z-index: 60; 
             filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.9)); 
         }
 
@@ -86,11 +84,9 @@
         .digit { font-variant-numeric: tabular-nums; }
         .ui-layer { position: relative; z-index: 50; }
         
-        /* KAR TANESİ */
         .snowflake {
             position: absolute; top: -10px; background-color: white; border-radius: 50%; 
-            opacity: 0.6; 
-            pointer-events: none;
+            opacity: 0.6; pointer-events: none;
             animation: snowfall linear forwards; z-index: 2; 
         }
         @keyframes snowfall { to { transform: translateY(110vh); } }
@@ -109,9 +105,9 @@
             -webkit-text-fill-color: transparent;
             filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.8));
             display: inline-block;
+            position: relative; z-index: 50; /* Yazı en üstte */
         }
 
-        /* KUTLAMA YAZISI ANİMASYONU */
         .celebration-text {
             animation: zoomInBounce 1s ease-out forwards, heartbeat 1.5s ease-in-out infinite 1s;
         }
@@ -126,17 +122,40 @@
             100% { transform: scale(1); }
         }
 
-        /* DEKORASYONLAR */
+        /* --- DEKORASYONLAR (AKILLI ORANLAMA) --- */
+        /* 'vh' (viewport height) birimi kullanıldı. Ekran boyu neyse %35'i kadar olur. */
+        
         .tree-container {
-            position: fixed; bottom: -50px; left: -40px; font-size: 350px; z-index: 20;
-            filter: drop-shadow(0 0 40px rgba(0, 255, 0, 0.3)); pointer-events: none; line-height: 1; transition: opacity 1s;
+            position: fixed; 
+            bottom: -3vh; /* Ekranın %3'ü kadar aşağıda */
+            left: -2vw; 
+            font-size: 35vh; /* Ekran yüksekliğinin %35'i kadar (PC'de devasa, TV'de orantılı) */
+            z-index: 20; /* En altta (Yazıların arkasında) */
+            filter: drop-shadow(0 0 40px rgba(0, 255, 0, 0.3)); 
+            pointer-events: none; 
+            line-height: 1; 
+            transition: opacity 1s;
         }
+        
         .gift-stack-container {
-            position: fixed; bottom: 0; right: 10px; display: flex; align-items: flex-end; gap: -10px; z-index: 30; transition: opacity 1s;
+            position: fixed; 
+            bottom: 0; 
+            right: 2vw; 
+            display: flex; 
+            align-items: flex-end; 
+            gap: -1vh; 
+            z-index: 30; /* Ağacın önünde, sayacın arkasında */
+            transition: opacity 1s;
         }
-        .gift-column { display: flex; flex-direction: column-reverse; margin-left: -15px; }
+        
+        .gift-column { display: flex; flex-direction: column-reverse; margin-left: -1.5vw; }
+        
         .gift-item {
-            font-size: 80px; line-height: 0.75; cursor: pointer; transition: transform 0.2s; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+            font-size: 9vh; /* Hediye boyutu ekranın %9'u */
+            line-height: 0.75; 
+            cursor: pointer; 
+            transition: transform 0.2s; 
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
         }
         .gift-item:hover { transform: scale(1.1) translateY(-5px); z-index: 40; }
         .col-1 .gift-item { filter: hue-rotate(200deg); } 
@@ -151,9 +170,11 @@
         }
         .gift-respawn { animation: giftPopIn 0.6s ease-out forwards; }
 
+        /* MOBİL UYUMLULUK */
         @media (max-width: 768px) {
-            .tree-container { font-size: 180px; left: -30px; bottom: -20px; }
-            .gift-item { font-size: 50px; }
+            /* Mobilde daha küçük oranlar */
+            .tree-container { font-size: 20vh; left: -20px; bottom: -20px; }
+            .gift-item { font-size: 6vh; }
             .gift-stack-container { right: 0; }
             .col-1, .col-2 { display: none; }
         }
@@ -274,17 +295,14 @@
             sf.className = 'snowflake';
             sf.style.left = Math.random() * 100 + 'vw';
             
-            // Düşme süresini hesapla (2 ile 5 saniye arası)
             const duration = Math.random() * 3 + 2; 
             sf.style.animationDuration = duration + 's';
             
             sf.style.width = sf.style.height = (Math.random() * 5 + 2) + 'px';
             document.body.appendChild(sf);
             
-            // KİLİT NOKTA: Düşme bittiği AN sil. Böylece yerde beklemez.
             setTimeout(() => sf.remove(), duration * 1000);
         }
-        // Yoğun yağış (Hız geri getirildi)
         setInterval(createSnowflake, 100);
 
         let lastPlayedSecond = -1;
@@ -310,12 +328,10 @@
 
             // --- ETKİLEŞİM MANTIĞI ---
             
-            // SÜREKLİ TİK SESİ
             if (distance > 0 && totalSecondsLeft !== lastPlayedSecond) {
                 playTickSound();
             }
 
-            // KRİTİK MOD (SON 10 SANİYE)
             if (totalSecondsLeft <= 10 && totalSecondsLeft > 0) {
                 document.body.classList.add('mode-critical');
                 if (ambientLight) ambientLight.intensity = 0.2; 
@@ -328,7 +344,6 @@
 
             lastPlayedSecond = totalSecondsLeft;
 
-            // SCALE (BÜYÜME) EFEKTİ
             if (totalSecondsLeft <= 30 && totalSecondsLeft > 20) {
                 elContainer.style.transform = "scale(1.2)";
             } else if (totalSecondsLeft <= 20 && totalSecondsLeft > 10) {
@@ -359,7 +374,6 @@
             }
         }, 100); 
 
-        // GELİŞMİŞ KUTLAMA FONKSİYONU
         function startCelebration() {
             document.body.classList.remove('mode-critical');
             document.body.classList.add('party-mode'); 
@@ -373,13 +387,10 @@
             document.querySelector('.tree-container').style.display = 'none';
             document.querySelector('.gift-stack-container').style.display = 'none';
             document.getElementById('spotlight-overlay').style.display = 'none';
+            document.getElementById('canvas-container').style.display = 'none'; 
             
-            // --- KİLİT NOKTA: 3D SAHNEYİ KOMPLE GİZLE (Gri Noktalardan Kurtul) ---
-            document.getElementById('canvas-container').style.display = 'none';
-
             if(audioEnabled && !musicStarted) { audio.play(); }
 
-            // KONFETİ HAVAİ FİŞEKLERİ
             var duration = 15 * 1000;
             var animationEnd = Date.now() + duration;
             var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
@@ -397,7 +408,6 @@
 
               var particleCount = 50 * (timeLeft / duration);
               
-              // Rastgele konfeti patlamaları
               confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
               confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
             }, 250);
@@ -594,4 +604,3 @@
     </script>
 </body>
 </html>
-
