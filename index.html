@@ -22,7 +22,6 @@
         }
         @keyframes auroraGradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
-        /* PARTİ MODU */
         body.party-mode {
             animation: partyGradient 3s ease infinite !important;
             background: linear-gradient(-45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
@@ -30,17 +29,15 @@
         }
         @keyframes partyGradient { 0% {background-position: 0% 50%} 50% {background-position: 100% 50%} 100% {background-position: 0% 50%} }
 
-        /* CANVAS (3D ALANI) */
         #canvas-container {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 10; pointer-events: none;
-            /* Stil satır içi (inline) verildi, buradan silinmedi ama ezilecek */
         }
 
         /* YÜKLEME EKRANI */
         #loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 100;
+            background: rgba(0,0,0,0.9); z-index: 100;
             display: flex; justify-content: center; align-items: center; flex-direction: column;
             color: #fbbf24; font-size: 24px; font-weight: bold; transition: opacity 0.5s;
         }
@@ -52,6 +49,7 @@
         .light-bulb-end::before, .light-bulb-end::after { content: ''; position: absolute; left: 0; width: 100%; height: 100%; border-radius: inherit; background-color: inherit; box-shadow: inherit; opacity: 0.8; }
         .light-bulb-end::before { bottom: 40px; } .light-bulb-end::after { bottom: 80px; }
         @media (min-width: 1024px) { .light-bulb-end::before { bottom: 10vh; } .light-bulb-end::after { bottom: 20vh; } }
+        
         .light-string:nth-child(5n+1) { height: 10vh; left: 5%; animation-delay: 0.1s; }
         .light-string:nth-child(5n+2) { height: 18vh; left: 20%; animation-delay: 0.5s; }
         .light-string:nth-child(5n+3) { height: 8vh; left: 35%; animation-delay: 1.2s; }
@@ -71,13 +69,11 @@
         @keyframes zoomInBounce { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
         @keyframes heartbeat { 0% { transform: scale(1); } 50% { transform: scale(1.05); text-shadow: 0 0 30px rgba(255,255,255,0.8); } 100% { transform: scale(1); } }
 
-        /* SPOT IŞIĞI */
         #spotlight-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, transparent 20%, #000000 95%); opacity: 0; transition: opacity 1s ease; pointer-events: none; z-index: 40; }
         body.mode-critical #spotlight-overlay { opacity: 1; }
         body.mode-critical #countdown { z-index: 60; filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.9)); }
         body.mode-critical #headline-area, body.mode-critical .icicle-lights-container { opacity: 0.1; filter: blur(2px); transition: all 1s ease; }
 
-        /* DÜZEN */
         .counter-container { transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; z-index: 50; }
         .digit { font-variant-numeric: tabular-nums; } .ui-layer { position: relative; z-index: 50; }
         .snowflake { position: absolute; top: -10px; background-color: white; border-radius: 50%; opacity: 0.6; pointer-events: none; animation: snowfall linear forwards; z-index: 2; }
@@ -91,8 +87,8 @@
 <body class="h-screen w-full flex flex-col items-center justify-center text-white relative">
 
     <div id="loading-screen">
-        <div>🎁 3D Sahneler Hazırlanıyor...</div>
-        <div style="font-size: 14px; color: #ccc; margin-top: 10px;">Lütfen Bekleyin</div>
+        <div>🎁 3D Sahne Hazırlanıyor...</div>
+        <div style="font-size: 14px; color: #ccc; margin-top: 10px;">Yılbaşı Ağacı Kuruluyor</div>
     </div>
 
     <div class="icicle-lights-container">
@@ -311,11 +307,10 @@
         let animationStartTime = 0;
         let animationState = 0; 
         let waitStartTime = 0;
-        let itemsLoaded = 0; // Yüklenen model sayacı
+        let itemsLoaded = 0;
 
         function checkLoading() {
             itemsLoaded++;
-            // En az 2 model (Ağaç ve Kardan Adam) yüklenince ekranı aç
             if(itemsLoaded >= 2) {
                 loadingScreen.style.opacity = 0;
                 setTimeout(() => loadingScreen.style.display = 'none', 500);
@@ -352,20 +347,20 @@
 
             const loader = new THREE.GLTFLoader();
 
-            // SOL KÖŞE: AĞAÇ
+            // SOL KÖŞE: AĞAÇ (GÜNCELLENDİ: X=-50, Y=-25, Scale=40)
             treeGroup = new THREE.Group();
             scene.add(treeGroup);
             loader.load('tree-decorated-snow.glb', function (gltf) {
                 console.log("Ağaç Yüklendi!");
                 checkLoading();
                 const model = gltf.scene;
-                model.scale.set(25, 25, 25); 
-                model.position.set(-22, -5, 15); 
+                model.scale.set(40, 40, 40); // DEVASA
+                model.position.set(-50, -25, 25); // SOL ALT KÖŞE, ÖNDE
                 treeGroup.add(model);
                 loadGifts(model.position);
             }, undefined, function(error) { console.error("Ağaç Hatası:", error); });
 
-            // SAĞ KÖŞE: KARDAN ADAM
+            // SAĞ KÖŞE: KARDAN ADAM (GÜNCELLENDİ: X=50, Y=-25, Scale=25)
             snowmanGroup = new THREE.Group();
             scene.add(snowmanGroup);
             
@@ -373,15 +368,15 @@
                 console.log("Kardan Adam Yüklendi!");
                 checkLoading();
                 const model = gltf.scene;
-                model.scale.set(15, 15, 15); 
-                model.position.set(22, -5, 15); 
+                model.scale.set(25, 25, 25); // BÜYÜK
+                model.position.set(50, -25, 20); // SAĞ ALT KÖŞE, ÖNDE
                 model.rotation.y = -0.8; 
                 snowmanGroup.add(model);
                 
                 loader.load('snowman-hat.glb', function (hatGltf) {
                     const hat = hatGltf.scene;
-                    hat.scale.set(15, 15, 15);
-                    hat.position.set(22, 7, 15); 
+                    hat.scale.set(25, 25, 25);
+                    hat.position.set(50, -5, 20); 
                     hat.rotation.y = -0.8;
                     snowmanGroup.add(hat);
                 });
@@ -389,12 +384,12 @@
 
             loader.load('lantern.glb', function (gltf) {
                 const model = gltf.scene;
-                model.scale.set(10, 10, 10);
-                model.position.set(16, -5, 20); 
+                model.scale.set(15, 15, 15);
+                model.position.set(40, -25, 25); 
                 scene.add(model);
             });
 
-            // KIZAK
+            // KIZAK (Sıfır Noktasına Resetlendi)
             sleighGroup = new THREE.Group();
             scene.add(sleighGroup);
             loader.load('sled.glb', function (gltf) {
@@ -408,9 +403,10 @@
                 const deer2 = gltf.scene.clone(); deer2.scale.set(12, 12, 12); deer2.position.set(3, 0, 15); sleighGroup.add(deer2);
             });
 
-            const entryPoints = [new THREE.Vector3(200, 20, -700), new THREE.Vector3(5, 5, 20), new THREE.Vector3(-30, 5, 0)];
+            // KIZAK YOLU (Kameranın önünden geçip gitsin)
+            const entryPoints = [new THREE.Vector3(300, 40, -500), new THREE.Vector3(100, 20, -100), new THREE.Vector3(0, 5, 0)];
             entryPath = new THREE.CatmullRomCurve3(entryPoints);
-            const exitPoints = [new THREE.Vector3(-30, 5, 0), new THREE.Vector3(-100, 20, -200), new THREE.Vector3(0, 50, -800)];
+            const exitPoints = [new THREE.Vector3(0, 5, 0), new THREE.Vector3(-100, 20, -100), new THREE.Vector3(-300, 50, -500)];
             exitPath = new THREE.CatmullRomCurve3(exitPoints);
 
             animationStartTime = performance.now();
@@ -423,12 +419,13 @@
         function loadGifts(treePos) {
             const loader = new THREE.GLTFLoader();
             const giftFiles = ['present-a-cube.glb', 'present-a-rectangle.glb', 'present-b-round.glb'];
-            for(let i=0; i<4; i++) { 
+            for(let i=0; i<5; i++) { 
                 const randomFile = giftFiles[Math.floor(Math.random() * giftFiles.length)];
                 loader.load(randomFile, function(gltf) {
                     const gift = gltf.scene;
-                    gift.scale.set(8, 8, 8);
-                    gift.position.set(treePos.x + (Math.random() * 10 - 2), -5, treePos.z + (Math.random() * 8 + 2));
+                    gift.scale.set(12, 12, 12);
+                    // Hediyeleri ağacın dibine yay
+                    gift.position.set(treePos.x + (Math.random() * 20 - 5), -25, treePos.z + (Math.random() * 10 + 5));
                     gift.rotation.y = Math.random() * Math.PI;
                     scene.add(gift);
                 });
@@ -440,7 +437,7 @@
             const currentTime = performance.now();
             const time = currentTime * 0.001; 
 
-            if(treeGroup) { const scale = 25 + Math.sin(time) * 0.2; treeGroup.scale.set(scale, scale, scale); }
+            if(treeGroup) { const scale = 40 + Math.sin(time) * 0.5; treeGroup.scale.set(scale, scale, scale); }
             if(snowmanGroup) { snowmanGroup.rotation.z = Math.sin(time * 2) * 0.05; }
 
             if (animationState === 3) { renderer.render(scene, camera); return; }
@@ -488,7 +485,7 @@
             }
         }
         window.addEventListener('resize', updateCameraByScreenSize);
-        initThreeJS(); // Başlat
+        initThreeJS();
     </script>
 </body>
 </html>
