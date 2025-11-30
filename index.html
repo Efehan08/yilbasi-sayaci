@@ -34,11 +34,9 @@
             z-index: 10; opacity: 1; pointer-events: none;
         }
 
-        /* YÜKLEME EKRANI (GÜNCELLENDİ) */
         #loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #0f172a; /* Tamamen kapatsın ki arkası görünmesin */
-            z-index: 100;
+            background: rgba(0,0,0,0.9); z-index: 100;
             display: flex; justify-content: center; align-items: center; flex-direction: column;
             color: #fbbf24; font-size: 24px; font-weight: bold; transition: opacity 0.5s;
         }
@@ -314,19 +312,8 @@
         let waitStartTime = 0;
         let itemsLoaded = 0;
 
-        // GÜVENLİK SİGORTASI: Yükleme tamamlanmazsa ekranı zorla aç
-        function forceOpen() {
-            if (loadingScreen.style.display !== 'none') {
-                console.warn("⚠️ Modeller geç yüklendi veya yüklenemedi, ekran zorla açılıyor.");
-                loadingScreen.style.opacity = 0;
-                setTimeout(() => loadingScreen.style.display = 'none', 500);
-            }
-        }
-        setTimeout(forceOpen, 5000); // 5 Saniye sonra aç
-
         function checkLoading() {
             itemsLoaded++;
-            // 2 ana model (Ağaç, Kardan Adam) yüklendiğinde aç
             if(itemsLoaded >= 2) {
                 loadingScreen.style.opacity = 0;
                 setTimeout(() => loadingScreen.style.display = 'none', 500);
@@ -338,12 +325,13 @@
             if (!treeGroup || !snowmanGroup) return;
             const width = window.innerWidth;
             
+            // V19.1 GÜNCELLEMESİ: AĞAÇ İYİCE İÇERİ ALINDI
             if (width < 1000) { 
-                treeGroup.position.x = -35;
-                snowmanGroup.position.x = 35;
+                treeGroup.position.x = -18; // İYİCE İÇERİ (-35 DEĞİL)
+                snowmanGroup.position.x = 18; // İYİCE İÇERİ
             } else {
-                treeGroup.position.x = -28;
-                snowmanGroup.position.x = 28;
+                treeGroup.position.x = -15; // MASAÜSTÜNDE DE İÇERDE
+                snowmanGroup.position.x = 15;
             }
         }
 
@@ -377,47 +365,49 @@
 
             const loader = new THREE.GLTFLoader();
 
-            // AĞAÇ
+            // AĞAÇ (V19.1: KONUM -15)
             treeGroup = new THREE.Group();
             scene.add(treeGroup);
             loader.load('tree-decorated-snow.glb', function (gltf) {
+                console.log("Ağaç Yüklendi!");
+                checkLoading();
                 const model = gltf.scene;
-                model.scale.set(30, 30, 30); 
-                model.position.set(-28, -8, 10); // Dinamik fonksiyon bunu güncelleyecek
+                model.scale.set(18, 18, 18); // BOYUT: 25 -> 18 (Sığsın diye küçüldü)
+                model.position.set(-15, -12, 20); // KONUM: -28 -> -15 (İçeri alındı)
                 treeGroup.add(model);
                 loadGifts(model.position);
-                checkLoading(); // Başarılı yükleme
-            }, undefined, function() { checkLoading(); }); // Hata olsa bile say
+            }, undefined, function() { checkLoading(); });
 
-            // KARDAN ADAM
+            // KARDAN ADAM (V19.1: KONUM 15)
             snowmanGroup = new THREE.Group();
             scene.add(snowmanGroup);
             
             loader.load('snowman.glb', function (gltf) {
+                console.log("Kardan Adam Yüklendi!");
+                checkLoading();
                 const model = gltf.scene;
-                model.scale.set(18, 18, 18); 
-                model.position.set(28, -8, 10); 
+                model.scale.set(15, 15, 15); // BOYUT: 18 -> 15
+                model.position.set(15, -12, 20); // KONUM: 28 -> 15
                 model.rotation.y = -0.8; 
                 snowmanGroup.add(model);
-                checkLoading(); // Başarılı yükleme
                 
                 loader.load('snowman-hat.glb', function (hatGltf) {
                     const hat = hatGltf.scene;
-                    hat.scale.set(18, 18, 18);
-                    hat.position.set(28, 7, 10); 
+                    hat.scale.set(15, 15, 15);
+                    hat.position.set(15, 5, 20); 
                     hat.rotation.y = -0.8;
                     snowmanGroup.add(hat);
                 });
-            }, undefined, function() { checkLoading(); }); // Hata olsa bile say
+            }, undefined, function() { checkLoading(); });
 
             loader.load('lantern.glb', function (gltf) {
                 const model = gltf.scene;
-                model.scale.set(12, 12, 12);
-                model.position.set(20, -8, 15); 
+                model.scale.set(10, 10, 10);
+                model.position.set(10, -12, 22); 
                 scene.add(model);
             });
 
-            // KIZAK
+            // KIZAK (GİZLİ)
             sleighGroup = new THREE.Group();
             sleighGroup.visible = false; 
             scene.add(sleighGroup);
@@ -448,8 +438,8 @@
                 const randomFile = giftFiles[Math.floor(Math.random() * giftFiles.length)];
                 loader.load(randomFile, function(gltf) {
                     const gift = gltf.scene;
-                    gift.scale.set(8, 8, 8);
-                    gift.position.set(treePos.x + (Math.random() * 10 - 2), -8, treePos.z + (Math.random() * 8 + 2));
+                    gift.scale.set(6, 6, 6);
+                    gift.position.set(treePos.x + (Math.random() * 10 - 2), -12, treePos.z + (Math.random() * 5 + 2));
                     gift.rotation.y = Math.random() * Math.PI;
                     scene.add(gift);
                 });
@@ -461,7 +451,7 @@
             const currentTime = performance.now();
             const time = currentTime * 0.001; 
 
-            if(treeGroup) { const scale = 30 + Math.sin(time) * 0.5; treeGroup.scale.set(scale, scale, scale); }
+            if(treeGroup) { const scale = 18 + Math.sin(time) * 0.3; treeGroup.scale.set(scale, scale, scale); }
             if(snowmanGroup) { snowmanGroup.rotation.z = Math.sin(time * 2) * 0.05; }
 
             if (sleighGroup && sleighGroup.visible) {
@@ -513,7 +503,6 @@
             updateModelPositions();
         }
         window.addEventListener('resize', updateCameraByScreenSize);
-        initThreeJS();
     </script>
 </body>
 </html>
