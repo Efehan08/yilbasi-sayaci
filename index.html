@@ -39,10 +39,12 @@
             100% {background-position: 0% 50%} 
         }
 
+        /* --- DÜZELTME BURADA YAPILDI --- */
         #canvas-container {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            /* GÜNCELLEME: Opacity 1 yapıldı, Z-Index 10 */
-            z-index: 10; opacity: 1; pointer-events: none;
+            z-index: 10; 
+            opacity: 1; /* ARTIK GÖRÜNÜR! (Eskiden 0 idi) */
+            pointer-events: none;
         }
 
         .counter-container { 
@@ -56,6 +58,11 @@
             transition: all 0.3s ease;
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(5px);
+        }
+        .neon-box:hover {
+             box-shadow: 0 0 30px rgba(96, 165, 250, 0.6), inset 0 0 20px rgba(96, 165, 250, 0.4);
+             border-color: rgba(96, 165, 250, 0.7) !important;
+             transform: translateY(-5px) scale(1.03);
         }
 
         #spotlight-overlay {
@@ -264,7 +271,6 @@
             }).catch(e => audioBtn.innerText = "⚠️ İzin Verilmedi");
         }
 
-        // TİK SESİ (0.04)
         function playTickSound() {
             if (!audioEnabled || !audioCtx) return;
             const osc = audioCtx.createOscillator();
@@ -283,7 +289,6 @@
             audio.src = "https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg"; 
         }
 
-        // KAR YAĞIŞI
         function createSnowflake() {
             const sf = document.createElement('div');
             sf.className = 'snowflake';
@@ -325,8 +330,8 @@
                 if (dirLight) dirLight.intensity = 0.5;
             } else {
                 document.body.classList.remove('mode-critical');
-                if (ambientLight) ambientLight.intensity = 2.0; 
-                if (dirLight) dirLight.intensity = 2.5;
+                if (ambientLight) ambientLight.intensity = 2.5; 
+                if (dirLight) dirLight.intensity = 3.0;
             }
 
             lastPlayedSecond = totalSecondsLeft;
@@ -362,8 +367,8 @@
         function startCelebration() {
             document.body.classList.remove('mode-critical');
             document.body.classList.add('party-mode'); 
-            if (ambientLight) ambientLight.intensity = 2.0; 
-            if (dirLight) dirLight.intensity = 2.5;
+            if (ambientLight) ambientLight.intensity = 2.5; 
+            if (dirLight) dirLight.intensity = 3.0;
             elContainer.style.display = 'none'; 
             elHeadlineArea.style.display = 'none'; 
             elCelebration.classList.remove('hidden'); 
@@ -386,7 +391,7 @@
             }, 250);
         }
 
-        // --- 3D SAHNE & YERLEŞTİRME (V16.0 DÜZELTMESİ) ---
+        // --- 3D SAHNE ---
         let scene, camera, renderer, sleighGroup, treeGroup, snowmanGroup;
         let ambientLight, dirLight;
         let clock = new THREE.Clock();
@@ -399,22 +404,18 @@
         function initThreeJS() {
             const container = document.getElementById('canvas-container');
             
-            // 1. Sahne
             scene = new THREE.Scene();
             scene.fog = new THREE.FogExp2(0x1a0b2e, 0.002); 
 
-            // 2. Kamera (GÜNCELLENDİ: Düz karşıdan bakış)
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 0, 60); // Y:0 ile düz bakıyor, Z:60 ile geride
+            camera.position.set(0, 0, 60); // GÖRÜNÜR KONUM
             
-            // 3. Renderer
             renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.shadowMap.enabled = true;
             renderer.toneMapping = THREE.ReinhardToneMapping;
             container.appendChild(renderer.domElement);
 
-            // 4. Işıklar (GÜÇLENDİRİLDİ)
             ambientLight = new THREE.AmbientLight(0xffffff, 2.5); 
             scene.add(ambientLight);
             
@@ -422,7 +423,6 @@
             dirLight.position.set(20, 50, 20);
             scene.add(dirLight);
 
-            // Yıldızlar
             const starGeo = new THREE.BufferGeometry();
             const starPos = new Float32Array(3000);
             for(let i=0; i<3000; i++) starPos[i] = (Math.random() - 0.5) * 400;
@@ -431,34 +431,33 @@
 
             const loader = new THREE.GLTFLoader();
 
-            // SOL KÖŞE: AĞAÇ (YÜKSELTİLDİ)
-            treeGroup = new THREE.Group();
-            scene.add(treeGroup);
+            // AĞAÇ (Yükleniyor Logu)
             loader.load('tree-decorated-snow.glb', function (gltf) {
-                console.log("Ağaç Yüklendi"); // LOG
+                console.log("Ağaç Yüklendi!");
                 const model = gltf.scene;
-                model.scale.set(25, 25, 25); // BÜYÜTÜLDÜ
-                model.position.set(-25, -5, 15); // Y:-5 (Yukarı), Z:15 (Öne)
+                model.scale.set(25, 25, 25); 
+                model.position.set(-25, -5, 15); 
+                treeGroup = new THREE.Group();
                 treeGroup.add(model);
+                scene.add(treeGroup);
                 loadGifts(model.position);
             });
 
-            // SAĞ KÖŞE: KARDAN ADAM (YÜKSELTİLDİ)
-            snowmanGroup = new THREE.Group();
-            scene.add(snowmanGroup);
-            
+            // KARDAN ADAM
             loader.load('snowman.glb', function (gltf) {
-                console.log("Kardan Adam Yüklendi"); // LOG
+                console.log("Kardan Adam Yüklendi!");
                 const model = gltf.scene;
-                model.scale.set(15, 15, 15); // BÜYÜTÜLDÜ
-                model.position.set(25, -5, 15); // Y:-5 (Yukarı), Z:15 (Öne)
+                model.scale.set(15, 15, 15); 
+                model.position.set(25, -5, 15); 
                 model.rotation.y = -0.8; 
+                snowmanGroup = new THREE.Group();
                 snowmanGroup.add(model);
+                scene.add(snowmanGroup);
                 
                 loader.load('snowman-hat.glb', function (hatGltf) {
                     const hat = hatGltf.scene;
                     hat.scale.set(15, 15, 15);
-                    hat.position.set(25, 7, 15); // Şapka Y ayarı
+                    hat.position.set(25, 7, 15); 
                     hat.rotation.y = -0.8;
                     snowmanGroup.add(hat);
                 });
