@@ -77,7 +77,7 @@
         body.mode-critical #headline-area,
         body.mode-critical .tree-container,
         body.mode-critical .gift-stack-container,
-        body.mode-critical .icicle-lights-container {
+        body.mode-critical .icicle-lights-container { /* Işıklar da kritik modda sönsün */
             opacity: 0.1; filter: blur(2px); transition: all 1s ease;
         }
 
@@ -99,6 +99,7 @@
         }
         @keyframes fadeOutDust { to { transform: scale(0); opacity: 0; } }
 
+        /* CLAMP BAŞLIK */
         .icy-headline {
             background: linear-gradient(to right, #ffffff, #cffafe, #38bdf8);
             -webkit-background-clip: text;
@@ -124,51 +125,47 @@
             100% { transform: scale(1); }
         }
 
-        /* --- SARKAN PERDE IŞIKLARI (GÜNCELLENDİ: DAHA FAZLA AMPUL) --- */
+        /* --- YENİ EKLENTİ: SARKAN PERDE IŞIKLARI (ICICLE LIGHTS) --- */
         .icicle-lights-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 45;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%; /* Işıkların sarkabileceği alan */
+            pointer-events: none;
+            z-index: 45;
         }
 
+        /* Işık İpi (Kablo) */
         .light-string {
-            position: absolute; top: 0; width: 2px; background-color: rgba(255, 255, 255, 0.2);
+            position: absolute;
+            top: 0;
+            width: 2px; /* İnce kablo */
+            background-color: rgba(255, 255, 255, 0.2); /* Hafif belirgin kablo rengi */
         }
 
-        /* Ana Ampul (En alttaki) */
+        /* İpin Ucundaki Ampul */
         .light-bulb-end {
-            position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-            width: 12px; height: 18px;
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            position: absolute;
+            bottom: 0; /* İpin en ucunda */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 18px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; /* Damla şekli */
             background: #fff;
             animation: flash 1.5s infinite alternate ease-in-out;
         }
 
-        /* YENİ: EKSTRA AMPULLER (Ortada ve Üstte) */
-        /* CSS ile her ipe 2 tane daha hayalet ampul ekliyoruz */
-        .light-bulb-end::before, .light-bulb-end::after {
-            content: '';
-            position: absolute; left: 0; width: 100%; height: 100%;
-            border-radius: inherit;
-            background-color: inherit; /* Ana rengi kopyala */
-            box-shadow: inherit; /* Parlamayı kopyala */
-            opacity: 0.8;
-        }
-        /* İpin %35'inde ve %70'inde duracaklar */
-        .light-bulb-end::before { bottom: 40px; } /* Hemen üstü */
-        .light-bulb-end::after { bottom: 80px; } /* En üstü */
-        
-        /* Eğer ip çok uzunsa (TV'de), yüzde ile dağıtalım ki boşluk kalmasın */
-        @media (min-width: 1024px) {
-            .light-bulb-end::before { bottom: 10vh; } 
-            .light-bulb-end::after { bottom: 20vh; }
-        }
-
-        /* RASTGELELİK */
+        /* --- RASTGELELİK (UZUNLUK VE KONUM) --- */
+        /* Her 5. ipte bir döngü ile rastgelelik hissi */
         .light-string:nth-child(5n+1) { height: 15vh; left: 5%;  animation-delay: 0.1s; }
         .light-string:nth-child(5n+2) { height: 25vh; left: 20%; animation-delay: 0.5s; }
         .light-string:nth-child(5n+3) { height: 10vh; left: 35%; animation-delay: 1.2s; }
         .light-string:nth-child(5n+4) { height: 30vh; left: 50%; animation-delay: 0.3s; }
         .light-string:nth-child(5n+5) { height: 18vh; left: 65%; animation-delay: 0.8s; }
         
+        /* Daha fazla ip ekleyerek ve konumlarını kaydırarak doluluk sağla */
         .light-string:nth-child(n+6)  { left: 12%; }
         .light-string:nth-child(n+11) { left: 28%; }
         .light-string:nth-child(n+16) { left: 42%; }
@@ -177,30 +174,51 @@
         .light-string:nth-child(n+31) { left: 85%; height: 22vh; }
         .light-string:nth-child(n+36) { left: 95%; height: 12vh; }
 
-        /* RENKLER */
-        .light-string:nth-child(4n+1) .light-bulb-end { background: #ff3333; color: #ff3333; box-shadow: 0 3px 10px #ff3333; } 
-        .light-string:nth-child(4n+2) .light-bulb-end { background: #3366ff; color: #3366ff; box-shadow: 0 3px 10px #3366ff; } 
-        .light-string:nth-child(4n+3) .light-bulb-end { background: #33ff33; color: #33ff33; box-shadow: 0 3px 10px #33ff33; } 
-        .light-string:nth-child(4n+4) .light-bulb-end { background: #ffcc33; color: #ffcc33; box-shadow: 0 3px 10px #ffcc33; } 
+        /* --- RENK VE YANIP SÖNME --- */
+        /* Ampullerin renklerini ve parlama efektini ata */
+        .light-string:nth-child(4n+1) .light-bulb-end { background: #ff3333; color: #ff3333; box-shadow: 0 3px 10px #ff3333; } /* Kırmızı */
+        .light-string:nth-child(4n+2) .light-bulb-end { background: #3366ff; color: #3366ff; box-shadow: 0 3px 10px #3366ff; } /* Mavi */
+        .light-string:nth-child(4n+3) .light-bulb-end { background: #33ff33; color: #33ff33; box-shadow: 0 3px 10px #33ff33; } /* Yeşil */
+        .light-string:nth-child(4n+4) .light-bulb-end { background: #ffcc33; color: #ffcc33; box-shadow: 0 3px 10px #ffcc33; } /* Sarı */
 
         @keyframes flash {
             0%, 100% { opacity: 1; filter: brightness(1.8); box-shadow: 0 3px 20px currentColor; transform: translateX(-50%) scale(1.1); }
             50% { opacity: 0.5; filter: brightness(0.8); box-shadow: none; transform: translateX(-50%) scale(0.9); }
         }
 
+
         /* DEKORASYONLAR */
         .tree-container {
-            position: fixed; bottom: -3vh; left: 2vw; 
+            position: fixed; 
+            bottom: -3vh; 
+            left: 2vw; 
             font-size: clamp(150px, 30vmin, 350px); 
-            z-index: 20; filter: drop-shadow(0 0 40px rgba(0, 255, 0, 0.3)); pointer-events: none; line-height: 1; transition: opacity 1s;
+            z-index: 20; 
+            filter: drop-shadow(0 0 40px rgba(0, 255, 0, 0.3)); 
+            pointer-events: none; 
+            line-height: 1; 
+            transition: opacity 1s;
         }
+        
         .gift-stack-container {
-            position: fixed; bottom: 2vh; right: 5vw; display: flex; align-items: flex-end; gap: -1vh; 
-            z-index: 30; transition: opacity 1s;
+            position: fixed; 
+            bottom: 2vh; 
+            right: 5vw; 
+            display: flex; 
+            align-items: flex-end; 
+            gap: -1vh; 
+            z-index: 30; 
+            transition: opacity 1s;
         }
+        
         .gift-column { display: flex; flex-direction: column-reverse; margin-left: -1.5vw; }
+        
         .gift-item {
-            font-size: clamp(40px, 8vmin, 90px); line-height: 0.75; cursor: pointer; transition: transform 0.2s; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+            font-size: clamp(40px, 8vmin, 90px);
+            line-height: 0.75; 
+            cursor: pointer; 
+            transition: transform 0.2s; 
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
         }
         .gift-item:hover { transform: scale(1.1) translateY(-5px); z-index: 40; }
         .col-1 .gift-item { filter: hue-rotate(200deg); } 
@@ -215,14 +233,17 @@
         }
         .gift-respawn { animation: giftPopIn 0.6s ease-out forwards; }
 
+        /* --- TV VE GENİŞ EKRAN AYARLARI --- */
         @media (min-width: 1024px) {
             #headline-area { margin-bottom: 3vh !important; }
             .counter-container { margin-top: 0 !important; }
             main { padding-bottom: 15vh !important; }
+            /* Geniş ekranda ipler biraz daha uzun olabilir */
             .light-string:nth-child(5n+2) { height: 35vh; }
             .light-string:nth-child(5n+4) { height: 40vh; }
         }
 
+        /* MOBİL UYUMLULUK */
         @media (max-width: 768px) {
             .tree-container { font-size: 20vh; left: -20px; bottom: -20px; }
             .gift-item { font-size: 6vh; }
@@ -230,10 +251,9 @@
             .col-1, .col-2 { display: none; }
             #headline-area { margin-bottom: 2rem; }
             .icy-headline { font-size: 24px; }
+            /* Mobilde ışıklar daha kısa ve küçük olsun */
             .light-string { width: 1px; }
             .light-bulb-end { width: 8px; height: 12px; }
-            .light-bulb-end::before { bottom: 20px; }
-            .light-bulb-end::after { bottom: 40px; }
             .light-string:nth-child(5n+2) { height: 20vh; }
             .light-string:nth-child(5n+4) { height: 25vh; }
         }
@@ -487,6 +507,7 @@
             elCelebration.classList.remove('hidden'); 
             document.querySelector('.tree-container').style.display = 'none';
             document.querySelector('.gift-stack-container').style.display = 'none';
+            // Sarkan ışıkları da gizle
             document.querySelector('.icicle-lights-container').style.display = 'none';
             document.getElementById('spotlight-overlay').style.display = 'none';
             document.getElementById('canvas-container').style.display = 'none'; 
