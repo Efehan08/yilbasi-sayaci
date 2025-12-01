@@ -363,11 +363,11 @@
                 model.position.set(-20.9, -14.08, 34); 
                 treeGroup = model; 
                 scene.add(model);
-                loadGifts(model.position); // Hediyeleri ağaç pozisyonuna göre yükle
+                loadGifts(model.position);
                 checkLoading(); 
             }, undefined, function() { checkLoading(); });
 
-            // 2. KARDAN ADAM (SAĞ)
+            // 2. KARDAN ADAM (SAĞ) - Şapka düzeltildi
             loader.load('snowman.glb', function (gltf) {
                 snowmanModel = gltf.scene;
                 snowmanModel.scale.set(6.615, 6.615, 6.615); 
@@ -375,6 +375,7 @@
                 snowmanModel.rotation.y = -0.8; 
                 scene.add(snowmanModel);
                 checkLoading();
+                // Not: Fazladan şapka yüklemesi kaldırıldı.
             }, undefined, function() { checkLoading(); });
 
             // 3. FENER
@@ -410,30 +411,30 @@
             animate3D();
         }
 
-        // --- GÜNCELLENMİŞ HEDİYE YÜKLEME FONKSİYONU (SAĞA ALINDI) ---
+        // GÜNCELLENMİŞ DAİRESEL HEDİYE YÜKLEME FONKSİYONU
         function loadGifts(treePos) {
             const loader = new THREE.GLTFLoader();
-            const groundY = -13.5; 
+            const giftFiles = ['present-a-cube.glb', 'present-a-rectangle.glb', 'present-b-round.glb'];
+            const numGifts = 6; 
 
-            // Hediye 1: Küp (Ağacın sağ dibinde)
-            loader.load('present-a-cube.glb', function(gltf) {
-                const gift1 = gltf.scene;
-                gift1.scale.set(3.5, 3.5, 3.5); 
-                // X + 4 (Sağa kaydır), Z + 4 (Öne doğru)
-                gift1.position.set(treePos.x + 4, groundY, treePos.z + 4);
-                gift1.rotation.y = -Math.PI / 4; 
-                scene.add(gift1);
-            });
+            for(let i=0; i < numGifts; i++) {
+                const randomFile = giftFiles[Math.floor(Math.random() * giftFiles.length)];
+                loader.load(randomFile, function(gltf) {
+                    const gift = gltf.scene;
+                    gift.scale.set(4, 4, 4);
 
-            // Hediye 2: Dikdörtgen (Küpün hemen yanında)
-            loader.load('present-a-rectangle.glb', function(gltf) {
-                const gift2 = gltf.scene;
-                gift2.scale.set(4, 4, 4);
-                // X + 8 (Daha da sağa), Z + 5
-                gift2.position.set(treePos.x + 8, groundY, treePos.z + 5);
-                gift2.rotation.y = Math.PI / 6; 
-                scene.add(gift2);
-            });
+                    const radius = Math.random() * 4 + 3; 
+                    const angle = Math.random() * Math.PI * 2;
+                    const posX = treePos.x + radius * Math.cos(angle);
+                    const posY = -11.5; // Zemin hizalaması güncellendi
+                    const posZ = treePos.z + radius * Math.sin(angle);
+
+                    gift.position.set(posX, posY, posZ);
+                    gift.rotation.y = Math.random() * Math.PI * 2;
+                    
+                    scene.add(gift);
+                });
+            }
         }
 
         function animate3D() {
