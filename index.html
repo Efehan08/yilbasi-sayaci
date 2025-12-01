@@ -63,7 +63,7 @@
         
         main { padding-top: 15vh !important; padding-bottom: 10vh !important; }
         @media (min-width: 1024px) { #headline-area { margin-bottom: 3vh !important; } .counter-container { margin-top: 0 !important; } }
-        @media (max-width: 768px) { #headline-area { margin-bottom: 2rem; } .icy-headline { font-size: 24px; } .light-string { width: 1px; } .light-bulb-end { width: 8px; height: 12px; } main { padding-top: 10vh !important; } }
+        @media (max-width: 768px) { #headline-area { margin-bottom: 2rem; } .icy-headline { font-size: 24px; } .light-string { width: 1px; } .light-bulb-end { width: 8px; height: 12px; } .light-string:nth-child(5n+2) { height: 15vh; } .light-string:nth-child(5n+4) { height: 18vh; } main { padding-top: 10vh !important; } }
     </style>
 </head>
 <body class="h-screen w-full flex flex-col items-center justify-center text-white relative">
@@ -93,6 +93,11 @@
         🎵 Sesi Aktif Et
     </button>
 
+    <audio id="newYearSong" onerror="playFallback()">
+        <source src="mariah_its_time.mp3" type="audio/mpeg">
+        <source src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" type="audio/ogg">
+    </audio>
+
     <main class="ui-layer z-10 text-center px-4 w-full flex flex-col items-center justify-center h-full">
         <div id="headline-area" class="relative transition-all duration-1000 ease-in">
             <h1 id="headline" class="tracking-widest uppercase transition-colors duration-300 flex items-center justify-center">
@@ -102,18 +107,19 @@
 
         <div id="countdown" class="counter-container flex flex-wrap justify-center gap-4 md:gap-8 origin-center">
             <div id="box-days" class="neon-box flex flex-col items-center p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl backdrop-blur-md border border-white/10 w-20 md:w-40 transition-all duration-500 cursor-default">
-                <span id="days" class="digit text-2xl md:text-6xl font-black drop-shadow-lg">31</span>
+                <span id="days" class="digit text-2xl md:text-6xl font-black drop-shadow-lg">00</span>
                 <span class="text-[10px] md:text-sm text-blue-200/70 mt-1 md:mt-2">GÜN</span>
             </div>
             <div id="box-hours" class="neon-box flex flex-col items-center p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl backdrop-blur-md border border-white/10 w-20 md:w-40 transition-all duration-500 cursor-default">
-                <span id="hours" class="digit text-2xl md:text-6xl font-black drop-shadow-lg">10</span>
+                <span id="hours" class="digit text-2xl md:text-6xl font-black drop-shadow-lg">00</span>
                 <span class="text-[10px] md:text-sm text-blue-200/70 mt-1 md:mt-2">SAAT</span>
             </div>
             <div id="box-minutes" class="neon-box flex flex-col items-center p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl backdrop-blur-md border border-white/10 w-20 md:w-40 transition-all duration-500 cursor-default">
-                <span id="minutes" class="digit text-2xl md:text-6xl font-black drop-shadow-lg">59</span>
+                <span id="minutes" class="digit text-2xl md:text-6xl font-black drop-shadow-lg">00</span>
                 <span class="text-[10px] md:text-sm text-blue-200/70 mt-1 md:mt-2">DAKİKA</span>
             </div>
-            <div id="box-seconds" class="neon-box flex flex-col items-center p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl backdrop-blur-md border border-white/10 w-20 md:w-40 transition-all duration-500 cursor-default">
+            <div id="box-seconds" class="neon-box flex flex-col items-center p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl backdrop-blur-md border border-white/10 w-20 md:w-40 relative overflow-hidden transition-all duration-500 cursor-default">
+                <div class="absolute inset-0 bg-red-500/0 transition-colors duration-300" id="seconds-bg"></div>
                 <span id="seconds" class="digit text-2xl md:text-6xl font-black relative z-10 text-blue-400 drop-shadow-lg">00</span>
                 <span class="text-[10px] md:text-sm text-blue-200/70 mt-1 md:mt-2 relative z-10">SANİYE</span>
             </div>
@@ -148,14 +154,7 @@
 
         function checkLoading() {
             itemsLoaded++;
-            // Toplamda yüklenecek ana model sayısı:
-            // 1 ağaç + 1 kardan adam (gövde) + 1 kardan adam şapkası + 1 fener + 4 hediye = 8 model
-            // Yükleme sırasında kızak ve geyik de var ama onların yükleme sayacı yok.
-            // Sadece ana elemanları sayarak bu sefer doğru çalışmasını sağlayalım.
-            // 1 ağaç + 1 kardan adam + 1 şapka + 1 fener = 4 ana model (hediyeler altta sayılacak)
-            if(itemsLoaded >= 4) { // Hediyeler ayrı ayrı sayılacağı için bu sayıyı doğru tutalım.
-                forceOpen(); 
-            }
+            if(itemsLoaded >= 4) forceOpen(); 
         }
 
         function loadGifts(treePos) {
@@ -170,7 +169,7 @@
                     gift.position.set(treePos.x + (Math.random() * 5 - 2.5), -12, treePos.z + (Math.random() * 4 + 2)); 
                     gift.rotation.y = Math.random() * Math.PI;
                     scene.add(gift);
-                    checkLoading(); // Her hediye yüklendiğinde sayacı artır. (Toplamda 4 hediye + 4 ana model = 8)
+                    checkLoading(); 
                 });
             }
         }
@@ -198,7 +197,7 @@
 
             const loader = new THREE.GLTFLoader();
 
-            // 1. AĞAÇ (Orijinal Renkler)
+            // 1. AĞAÇ
             treeGroup = new THREE.Group(); scene.add(treeGroup);
             loader.load('tree-decorated-snow.glb', function(gltf) {
                 const model = gltf.scene;
@@ -216,7 +215,7 @@
                 fTree.add(config, 'treeScale', 1, 50).name('Boyut').onChange(v => treeGroup.scale.set(v,v,v));
             }, undefined, function(error) { console.error('Ağaç yüklenirken hata oluştu:', error); checkLoading(); });
 
-            // 2. KARDAN ADAM (Orijinal Renkler) - Tek parça ve şapka üzerine konumlandırılacak
+            // 2. KARDAN ADAM (SADECE TEK PARÇA)
             loader.load('snowman.glb', function(gltf) {
                 snowmanModel = gltf.scene;
                 snowmanModel.scale.set(config.snowScale, config.snowScale, config.snowScale);
@@ -225,13 +224,9 @@
                 scene.add(snowmanModel);
                 checkLoading();
 
-                // Kardan adam yüklendikten sonra şapkayı yükle ve konumlandır
                 loader.load('snowman-hat.glb', function(hatGltf) {
                     snowmanHatModel = hatGltf.scene;
                     snowmanHatModel.scale.set(config.snowScale, config.snowScale, config.snowScale);
-                    // Şapkayı kardan adamın tepesine göre ayarla
-                    // config.snowY + (snowmanModel'in üst kısmı için bir ofset)
-                    // 7 birim ofset kardan adam modeline göre makul bir değer gibi duruyor.
                     snowmanHatModel.position.set(config.snowX, config.snowY + 7 * config.snowScale / 10, config.snowZ); 
                     snowmanHatModel.rotation.y = -0.8; 
                     scene.add(snowmanHatModel);
@@ -261,7 +256,7 @@
 
             }, undefined, function(error) { console.error('Kardan adam gövdesi yüklenirken hata oluştu:', error); checkLoading(); });
             
-            // 3. FENER (Orijinal Renkler)
+            // 3. FENER
             loader.load('lantern.glb', function(gltf) {
                 lanternModel = gltf.scene;
                 lanternModel.scale.set(config.lanternScale, config.lanternScale, config.lanternScale);
@@ -275,7 +270,7 @@
                 fLamp.add(config, 'lanternScale', 1, 20).name('Boyut').onChange(v => lanternModel.scale.set(v,v,v));
             }, undefined, function(error) { console.error('Fener yüklenirken hata oluştu:', error); checkLoading(); });
 
-            // Eski Kızak ve Geyik (Bunları da orijinal renkleriyle yükleyelim, bunların yükleme sayacı yok)
+            // Eski Kızak ve Geyik
             const sleighGroup = new THREE.Group();
             scene.add(sleighGroup);
             loader.load('sled.glb', (g) => { 
@@ -285,20 +280,14 @@
                 g.scene.scale.set(8,8,8); g.scene.position.set(0,0,10); sleighGroup.add(g.scene); 
             }, undefined, function(error) { console.error('Geyik yüklenirken hata oluştu:', error); });
             
-            // Animasyon döngüsü
             animate3D();
         }
 
         function animate3D() {
             requestAnimationFrame(animate3D);
             if (treeGroup) { 
-                // Ağacın Nefes Alma Animasyonu - sadece ölçek değil, rotasyon da eklendi.
                 const time = performance.now() * 0.001;
-                const scaleFactor = 0.005; // Daha hafif bir sallanma
-                const rotationFactor = 0.0005; // Çok hafif bir rotasyon
-                
-                // treeGroup.rotation.y = Math.sin(time * 0.5) * rotationFactor;
-                // treeGroup.rotation.z = Math.cos(time * 0.4) * rotationFactor;
+                const scale = config.treeScale + Math.sin(time) * 0.2; 
             }
             if (snowmanModel) { 
                 snowmanModel.rotation.y += 0.005; 
