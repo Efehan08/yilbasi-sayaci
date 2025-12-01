@@ -377,22 +377,22 @@
             
             // 2. Sağ Arka Ağaç
             loader.load('tree-snow-b.glb', function (gltf) {
-                const model = gltf.scene; model.scale.set(9, 9, 9); model.position.set(50, -15, -30); scene.add(model); checkLoading();
+                const model = gltf.scene; model.scale.set(9, 9, 9); model.position.set(55, -15, -20); scene.add(model); checkLoading();
             }, undefined, function() { checkLoading(); });
             
             // 3. Orta Arka Ağaç
             loader.load('tree-snow-c.glb', function (gltf) {
-                const model = gltf.scene; model.scale.set(7, 7, 7); model.position.set(10, -15, -50); scene.add(model); checkLoading();
+                const model = gltf.scene; model.scale.set(7, 7, 7); model.position.set(8, -15, -30); scene.add(model); checkLoading();
             }, undefined, function() { checkLoading(); });
             
             // 4. Sol Arka Kar Yığını (Siper)
             loader.load('snow-bunker.glb', function (gltf) {
-                const model = gltf.scene; model.scale.set(7, 7, 7); model.position.set(-30, -15, 0); model.rotation.y = Math.PI / 4; scene.add(model); checkLoading();
+                const model = gltf.scene; model.scale.set(7, 7, 7); model.position.set(-23, -15, 10); model.rotation.y = Math.PI / 4; scene.add(model); checkLoading();
             }, undefined, function() { checkLoading(); });
             
             // 5. Sağ Arka Kar Yığını (Siper)
             loader.load('snow-bunker.glb', function (gltf) {
-                const model = gltf.scene; model.scale.set(6, 6, 6); model.position.set(40, -15, -20); model.rotation.y = -Math.PI / 3; scene.add(model); checkLoading();
+                const model = gltf.scene; model.scale.set(6, 6, 6); model.position.set(20, -15, 15); model.rotation.y = -Math.PI / 3; scene.add(model); checkLoading();
             }, undefined, function() { checkLoading(); });
             // ---------------------------
 
@@ -540,4 +540,5 @@
     </script>
 </body>
 </html>
+
 
