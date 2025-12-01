@@ -153,7 +153,7 @@
 
     <script>
         // --- SAYAÇ AYARLARI ---
-        const targetDate = new Date("Jan 1, 2026 00:00:00").getTime();
+        const targetDate = new Date("Dec 1, 2025 12:20:00").getTime();
         const elDays = document.getElementById('days'); const elHours = document.getElementById('hours');
         const elMinutes = document.getElementById('minutes'); const elSeconds = document.getElementById('seconds');
         const elContainer = document.getElementById('countdown');
@@ -475,10 +475,10 @@
             }
 
             if (sleighGroup && sleighGroup.visible) {
-                let speed = 0.00218; 
+                let speed = 0.0012; 
                 
                 if (sleighProgress > 0.8) {
-                    speed = 0.0007; 
+                    speed = 0.0004; 
                 }
 
                 sleighProgress += speed;
@@ -515,3 +515,4 @@
     </script>
 </body>
 </html>
+
