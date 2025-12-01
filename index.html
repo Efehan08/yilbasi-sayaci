@@ -153,7 +153,7 @@
 
     <script>
         // --- SAYAÇ AYARLARI ---
-        const targetDate = new Date("Dec 1, 2025 12:20:00").getTime();
+        const targetDate = new Date("Dec 1, 2025 12:24:00").getTime();
         const elDays = document.getElementById('days'); const elHours = document.getElementById('hours');
         const elMinutes = document.getElementById('minutes'); const elSeconds = document.getElementById('seconds');
         const elContainer = document.getElementById('countdown');
@@ -403,7 +403,6 @@
             });
             loader.load('gingerbread-man.glb', function (gltf) {
                 const model = gltf.scene; model.scale.set(36, 36, 36); model.position.set(0, 6, 2.0); 
-                model.rotation.y = Math.PI; 
                 sleighGroup.add(model);
             });
             loader.load('reindeer.glb', function (gltf) {
@@ -515,4 +514,5 @@
     </script>
 </body>
 </html>
+
 
