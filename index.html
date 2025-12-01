@@ -318,8 +318,8 @@
         let sleighPath; 
         let sleighProgress = 0; 
         
-        // DEĞİŞİKLİK: Yükleme sayacı arttırıldı (9 hediye/obje + 2 zemin = 11)
-        const totalItemsToLoad = 11; 
+        // DEĞİŞİKLİK: Yükleme sayacı arttırıldı (11 -> 13)
+        const totalItemsToLoad = 13; 
         let itemsLoaded = 0;
 
         function forceOpen() {
@@ -360,25 +360,41 @@
             dirLight.position.set(20, 50, 20);
             scene.add(dirLight);
 
-            // YILDIZLAR KALDIRILDI
-
             const loader = new THREE.GLTFLoader();
 
             // --- YENİ: ZEMİN KARLARI ---
-            // 1. Ana Büyük Kar (Ağacın altı için)
+            // 1. Ana Büyük Kar (Ağacın altı için - MEVCUT)
             loader.load('snow-flat-large.glb', function (gltf) {
                 const model = gltf.scene;
-                model.scale.set(20, 1, 20); // Zemini kaplaması için büyüttük
-                model.position.set(-15, -14.5, 30); // Ağacın altına konumlandırdık
+                model.scale.set(20, 1, 20);
+                model.position.set(-15, -14.5, 30);
                 scene.add(model);
                 checkLoading();
             }, undefined, function() { checkLoading(); });
 
-            // 2. Küçük Kar (Fenerin altı için)
+            // 2. Küçük Kar (Fenerin altı için - MEVCUT)
             loader.load('snow-flat.glb', function (gltf) {
                 const model = gltf.scene;
-                model.scale.set(10, 1, 10); // Fenerin etrafı için
-                model.position.set(20, -14.5, 40); // Fenerin altına konumlandırdık
+                model.scale.set(10, 1, 10);
+                model.position.set(20, -14.5, 40);
+                scene.add(model);
+                checkLoading();
+            }, undefined, function() { checkLoading(); });
+
+            // 3. YENİ EKLEME: Kardan Adamın Arkası/Sağı
+            loader.load('snow-flat.glb', function (gltf) {
+                const model = gltf.scene;
+                model.scale.set(15, 1, 15); 
+                model.position.set(28, -14.5, 20); 
+                scene.add(model);
+                checkLoading();
+            }, undefined, function() { checkLoading(); });
+
+            // 4. YENİ EKLEME: Fenerin Daha da Sağı/Arkası (Boşluğu kapatmak için)
+            loader.load('snow-flat.glb', function (gltf) {
+                const model = gltf.scene;
+                model.scale.set(12, 1, 12);
+                model.position.set(35, -14.5, 35); 
                 scene.add(model);
                 checkLoading();
             }, undefined, function() { checkLoading(); });
@@ -488,10 +504,10 @@
             }
 
             if (sleighGroup && sleighGroup.visible) {
-                let speed = 0.0012; 
+                let speed = 0.00218; 
                 
                 if (sleighProgress > 0.8) {
-                    speed = 0.0004; 
+                    speed = 0.0007; 
                 }
 
                 sleighProgress += speed;
