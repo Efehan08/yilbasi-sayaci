@@ -317,6 +317,9 @@
         let ambientLight, dirLight;
         let sleighPath; 
         let sleighProgress = 0; 
+        
+        // DEĞİŞİKLİK: Yükleme sayacı arttırıldı (9 hediye/obje + 2 zemin = 11)
+        const totalItemsToLoad = 11; 
         let itemsLoaded = 0;
 
         function forceOpen() {
@@ -330,8 +333,6 @@
             initThreeJS(); 
             setTimeout(forceOpen, 3000); 
         });
-
-        const totalItemsToLoad = 9; 
 
         function checkLoading() {
             itemsLoaded++;
@@ -359,14 +360,29 @@
             dirLight.position.set(20, 50, 20);
             scene.add(dirLight);
 
-            // DEĞİŞİKLİK: Yıldızlar kaldırıldı
-            // const starGeo = new THREE.BufferGeometry();
-            // const starPos = new Float32Array(3000);
-            // for(let i=0; i<3000; i++) starPos[i] = (Math.random() - 0.5) * 400;
-            // starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-            // scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({color: 0xffffff, size: 0.5})));
+            // YILDIZLAR KALDIRILDI
 
             const loader = new THREE.GLTFLoader();
+
+            // --- YENİ: ZEMİN KARLARI ---
+            // 1. Ana Büyük Kar (Ağacın altı için)
+            loader.load('snow-flat-large.glb', function (gltf) {
+                const model = gltf.scene;
+                model.scale.set(20, 1, 20); // Zemini kaplaması için büyüttük
+                model.position.set(-15, -14.5, 30); // Ağacın altına konumlandırdık
+                scene.add(model);
+                checkLoading();
+            }, undefined, function() { checkLoading(); });
+
+            // 2. Küçük Kar (Fenerin altı için)
+            loader.load('snow-flat.glb', function (gltf) {
+                const model = gltf.scene;
+                model.scale.set(10, 1, 10); // Fenerin etrafı için
+                model.position.set(20, -14.5, 40); // Fenerin altına konumlandırdık
+                scene.add(model);
+                checkLoading();
+            }, undefined, function() { checkLoading(); });
+            // ---------------------------
 
             loader.load('tree-decorated-snow.glb', function (gltf) {
                 const model = gltf.scene;
@@ -403,6 +419,7 @@
             });
             loader.load('gingerbread-man.glb', function (gltf) {
                 const model = gltf.scene; model.scale.set(36, 36, 36); model.position.set(0, 6, 2.0); 
+                model.rotation.y = Math.PI; 
                 sleighGroup.add(model);
             });
             loader.load('reindeer.glb', function (gltf) {
@@ -451,9 +468,7 @@
             const time = currentTime * 0.001; 
 
             if(treeGroup) { 
-                // YENİ: Ağaç Hareketi
                 if(isCelebrationActive) {
-                    // DEĞİŞİKLİK: Zıplama şiddeti azaltıldı (4 yerine 2)
                     treeGroup.position.y = -14.08 + Math.abs(Math.sin(time * 10)) * 2;
                     treeGroup.scale.set(12.054, 12.054, 12.054); 
                 } else {
@@ -466,7 +481,6 @@
             if(snowmanModel) { 
                 if(isCelebrationActive) {
                     snowmanModel.position.y = -9.68 + Math.abs(Math.sin(time * 10)) * 3;
-                    // DEĞİŞİKLİK: Dönüş hızı azaltıldı (0.1 yerine 0.05)
                     snowmanModel.rotation.y += 0.05; 
                 } else {
                     snowmanModel.rotation.y = -0.8 + Math.sin(time * 2) * 0.05; 
@@ -514,6 +528,3 @@
     </script>
 </body>
 </html>
-
-
-
