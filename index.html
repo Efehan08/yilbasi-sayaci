@@ -410,29 +410,28 @@
             animate3D();
         }
 
-        // --- GÜNCELLENMİŞ HEDİYE YÜKLEME FONKSİYONU (MANUEL KONUMLANDIRMA) ---
+        // --- GÜNCELLENMİŞ HEDİYE YÜKLEME FONKSİYONU (SAĞA ALINDI) ---
         function loadGifts(treePos) {
             const loader = new THREE.GLTFLoader();
-            // Hediyelerin karda durması için ağaç tabanından biraz yukarıda bir Y koordinatı
             const groundY = -13.5; 
 
-            // Hediye 1: Küp (Ağacın sol ön tarafında)
+            // Hediye 1: Küp (Ağacın sağ dibinde)
             loader.load('present-a-cube.glb', function(gltf) {
                 const gift1 = gltf.scene;
-                gift1.scale.set(3.5, 3.5, 3.5); // Görsele göre boyut ayarı
-                // Ağaç merkezine göre konum: Sola (-X) ve Öne (+Z) git
-                gift1.position.set(treePos.x - 5, groundY, treePos.z + 6);
-                gift1.rotation.y = Math.PI / 4; // Hafif açılı duruş
+                gift1.scale.set(3.5, 3.5, 3.5); 
+                // X + 4 (Sağa kaydır), Z + 4 (Öne doğru)
+                gift1.position.set(treePos.x + 4, groundY, treePos.z + 4);
+                gift1.rotation.y = -Math.PI / 4; 
                 scene.add(gift1);
             });
 
-            // Hediye 2: Dikdörtgen (Küpün hemen sağında)
+            // Hediye 2: Dikdörtgen (Küpün hemen yanında)
             loader.load('present-a-rectangle.glb', function(gltf) {
                 const gift2 = gltf.scene;
                 gift2.scale.set(4, 4, 4);
-                // Ağaç merkezine göre konum: Küpün biraz sağında (-X azalır), benzer derinlikte
-                gift2.position.set(treePos.x - 1, groundY, treePos.z + 5);
-                gift2.rotation.y = -Math.PI / 6; // Diğer yöne hafif açılı duruş
+                // X + 8 (Daha da sağa), Z + 5
+                gift2.position.set(treePos.x + 8, groundY, treePos.z + 5);
+                gift2.rotation.y = Math.PI / 6; 
                 scene.add(gift2);
             });
         }
