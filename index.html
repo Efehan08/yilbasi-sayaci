@@ -316,11 +316,15 @@
                 setTimeout(() => loadingScreen.style.display = 'none', 500);
             }
         }
-        window.addEventListener('load', function() { setTimeout(forceOpen, 3000); });
+        
+        // DÜZELTME: initThreeJS burada çağrılıyor!
+        window.addEventListener('load', function() { 
+            initThreeJS(); 
+            setTimeout(forceOpen, 3000); 
+        });
 
         function checkLoading() {
             itemsLoaded++;
-            // Kritik 4 öğe (Ağaç, Kardan Adam, Şapka, Fener) yüklendi mi?
             if(itemsLoaded >= 4) { forceOpen(); }
         }
         
@@ -330,7 +334,8 @@
             scene.fog = new THREE.FogExp2(0x1a0b2e, 0.002); 
 
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
-            camera.position.set(0, 0, 60.48); 
+            // DÜZELTME: Kamera Z konumu fotoğrafa göre 62.3 yapıldı
+            camera.position.set(0, 0, 62.3); 
             
             renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -353,23 +358,25 @@
 
             const loader = new THREE.GLTFLoader();
 
-            // 1. AĞAÇ (DOĞRUDAN SAHNEYE EKLENİR, GRUP OLMADAN)
-            // Eski V29.0'daki koordinatlar: P: -22.15, -14.08, 31.6 / S: 12.054
+            // 1. AĞAÇ (SOL) - Fotoğraf Verileri
             loader.load('tree-decorated-snow.glb', function (gltf) {
                 const model = gltf.scene;
+                // Fotoğraf: Boyut 12.054
                 model.scale.set(12.054, 12.054, 12.054); 
+                // Fotoğraf: X:-20.9, Y:-14.08, Z:34
                 model.position.set(-20.9, -14.08, 34); 
-                treeGroup = model; // Animasyon için referans
+                treeGroup = model; 
                 scene.add(model);
                 loadGifts(model.position);
                 checkLoading(); 
             }, undefined, function() { checkLoading(); });
 
-            // 2. KARDAN ADAM (DOĞRUDAN SAHNEYE EKLENİR)
-            // Eski V29.0'daki koordinatlar: P: 14.35, -9.68, 41.4 / S: 6.615
+            // 2. KARDAN ADAM (SAĞ) - Fotoğraf Verileri
             loader.load('snowman.glb', function (gltf) {
                 snowmanModel = gltf.scene;
+                // Fotoğraf: Boyut 6.615
                 snowmanModel.scale.set(6.615, 6.615, 6.615); 
+                // Fotoğraf: X:14, Y:-9.68, Z:43.9 (Görselde Z=43,9 civarı görünüyor)
                 snowmanModel.position.set(14, -9.68, 43.9); 
                 snowmanModel.rotation.y = -0.8; 
                 scene.add(snowmanModel);
@@ -379,7 +386,6 @@
                     const hat = hatGltf.scene;
                     snowmanHatModel = hat;
                     hat.scale.set(6.615, 6.615, 6.615);
-                    // Şapka konumu kardan adamın üstüne: Y + (scale * factor)
                     hat.position.set(14, -9.68 + (7 * 6.615 / 10), 43.9); 
                     hat.rotation.y = -0.8;
                     scene.add(hat);
@@ -388,10 +394,12 @@
 
             }, undefined, function() { checkLoading(); });
 
-            // 3. FENER (DOĞRUDAN SAHNEYE EKLENİR)
+            // 3. FENER - Fotoğraf Verileri
             loader.load('lantern.glb', function (gltf) {
                 const model = gltf.scene;
-                model.scale.set(8.5, 8.5, 8.5);
+                // Fotoğraf: Boyut 8.322 (Eski kodda 8.5'ti, düzeltildi)
+                model.scale.set(8.322, 8.322, 8.322);
+                // Fotoğraf: X:20.5, Y:-10, Z:41.4
                 model.position.set(20.5, -10, 41.4); 
                 scene.add(model);
                 checkLoading();
@@ -495,7 +503,7 @@
             if (width < 768) { 
                 camera.position.set(0, 10, 110); 
             } else { 
-                camera.position.set(0, 0, 60.48); 
+                camera.position.set(0, 0, 62.3); 
             }
         }
         window.addEventListener('resize', updateCameraByScreenSize);
