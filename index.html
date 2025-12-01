@@ -322,9 +322,13 @@
             setTimeout(forceOpen, 3000); 
         });
 
+// 3 Ana Model (Ağaç, Kardan Adam, Fener) + 6 Hediye = Toplam 9 öğe
+        const totalItemsToLoad = 9; 
+
         function checkLoading() {
             itemsLoaded++;
-            if(itemsLoaded >= 3) { forceOpen(); }
+            // Artık 3 değil, hediyeler dahil 9 öğe yüklenince ekranı açacak
+            if(itemsLoaded >= totalItemsToLoad) { forceOpen(); }
         }
         
         function initThreeJS() {
@@ -413,9 +417,9 @@
 
         // GÜNCELLENMİŞ DAİRESEL HEDİYE YÜKLEME FONKSİYONU
         function loadGifts(treePos) {
-            const loader = new THREE.GLTFLoader();
+const loader = new THREE.GLTFLoader();
             const giftFiles = ['present-a-cube.glb', 'present-a-rectangle.glb', 'present-b-round.glb'];
-            const numGifts = 6; 
+            const numGifts = 6; // Hediye sayısı (yukarıdaki totalItemsToLoad hesabına dahil)
 
             for(let i=0; i < numGifts; i++) {
                 const randomFile = giftFiles[Math.floor(Math.random() * giftFiles.length)];
@@ -426,13 +430,21 @@
                     const radius = Math.random() * 4 + 3; 
                     const angle = Math.random() * Math.PI * 2;
                     const posX = treePos.x + radius * Math.cos(angle);
-                    const posY = -11.5; // Zemin hizalaması güncellendi
+                    const posY = -11.5; 
                     const posZ = treePos.z + radius * Math.sin(angle);
 
                     gift.position.set(posX, posY, posZ);
                     gift.rotation.y = Math.random() * Math.PI * 2;
                     
                     scene.add(gift);
+                    
+                    // EKLEME: Hediye başarıyla yüklendiğinde sayacı tetikle
+                    checkLoading(); 
+
+                }, undefined, function() { 
+                    // EKLEME: Hata olursa (dosya bulunamazsa vs.) yine de sayacı tetikle ki
+                    // yükleme ekranı sonsuza kadar takılı kalmasın.
+                    checkLoading();
                 });
             }
         }
@@ -502,3 +514,4 @@
     </script>
 </body>
 </html>
+
