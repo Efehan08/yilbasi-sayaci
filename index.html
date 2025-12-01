@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yılbaşı Geri Sayımı 2026</title>
+    <title>Yılbaşı Geri Sayımı</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -17,449 +17,534 @@
             background: linear-gradient(-45deg, #0f172a, #1a0b2e, #090979, #020024);
             background-size: 400% 400%;
             animation: auroraGradient 15s ease infinite;
-            overflow: hidden; margin: 0; height: 100vh; width: 100vw;
+            transition: background-color 0.5s ease;
+            overflow: hidden; margin: 0;
         }
         @keyframes auroraGradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
-        /* Parti Modu Arka Planı */
         body.party-mode {
-            animation: partyGradient 2s ease infinite !important;
+            animation: partyGradient 3s ease infinite !important;
             background: linear-gradient(-45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
             background-size: 600% 600%;
         }
         @keyframes partyGradient { 0% {background-position: 0% 50%} 50% {background-position: 100% 50%} 100% {background-position: 0% 50%} }
 
-        /* Yükleme Ekranı */
+        #canvas-container {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 10; opacity: 1; pointer-events: none;
+        }
+
         #loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(15, 23, 42, 1); z-index: 100;
             display: flex; justify-content: center; align-items: center; flex-direction: column;
-            color: #fbbf24; font-size: clamp(1rem, 3vw, 2rem); font-weight: bold; transition: opacity 0.5s;
+            color: #fbbf24; font-size: 24px; font-weight: bold; transition: opacity 0.5s;
             cursor: pointer;
         }
-        
-        #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
 
-        /* Responsive Sayaç Kutuları */
-        .neon-box { 
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2), inset 0 0 15px rgba(59, 130, 246, 0.1); 
-            border-color: rgba(59, 130, 246, 0.3) !important; 
-            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);
-            border-radius: clamp(10px, 2vw, 20px);
-            /* Esnek Boyutlandırma */
-            flex: 1 1 auto;
-            min-width: clamp(80px, 15vw, 200px);
-            max-width: clamp(120px, 20vw, 300px);
-            padding: clamp(10px, 2vw, 30px);
-            margin: clamp(5px, 1vw, 20px);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: all 0.5s ease;
-        }
-
-        .digit { font-size: clamp(2rem, 8vw, 6rem); line-height: 1; font-weight: 900; }
-        .label { font-size: clamp(0.6rem, 1.5vw, 1.5rem); color: rgba(191, 219, 254, 0.7); margin-top: 5px; }
-        
-        .hidden-box { display: none !important; } /* Kutuları gizlemek için */
-
-        /* Başlık Alanı */
-        .icy-headline { 
-            background: linear-gradient(to right, #ffffff, #cffafe, #38bdf8); 
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
-            filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.8)); 
-            font-size: clamp(1.5rem, 5vw, 4rem); 
-            text-align: center; font-weight: 900; letter-spacing: 0.1em;
-        }
-
-        /* Kutlama Yazısı */
-        .celebration-text { 
-            font-size: clamp(3rem, 12vw, 8rem); 
-            line-height: 1.1; font-weight: 900; text-align: center;
-            background: linear-gradient(to right, #fbbf24, #ef4444, #ec4899);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
-            animation: zoomInBounce 1s ease-out forwards;
-        }
-        @keyframes zoomInBounce { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
-
-        /* Işıklar */
+        /* IŞIKLAR */
         .icicle-lights-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 45; }
         .light-string { position: absolute; top: 0; width: 2px; background-color: rgba(255, 255, 255, 0.2); }
-        .light-bulb-end { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: clamp(8px, 1vw, 16px); height: clamp(12px, 1.5vw, 24px); border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: #fff; animation: flash 1.5s infinite alternate ease-in-out; }
+        .light-bulb-end { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 12px; height: 18px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: #fff; animation: flash 1.5s infinite alternate ease-in-out; }
+        .light-bulb-end::before, .light-bulb-end::after { content: ''; position: absolute; left: 0; width: 100%; height: 100%; border-radius: inherit; background-color: inherit; box-shadow: inherit; opacity: 0.8; }
+        .light-bulb-end::before { bottom: 40px; } .light-bulb-end::after { bottom: 80px; }
+        @media (min-width: 1024px) { .light-bulb-end::before { bottom: 10vh; } .light-bulb-end::after { bottom: 20vh; } }
         
-        .light-string:nth-child(odd) { height: 10vh; } .light-string:nth-child(even) { height: 18vh; }
-        .light-string:nth-child(1) { left: 10%; } .light-string:nth-child(2) { left: 30%; } .light-string:nth-child(3) { left: 50%; } .light-string:nth-child(4) { left: 70%; } .light-string:nth-child(5) { left: 90%; }
-        
-        .light-string:nth-child(4n+1) .light-bulb-end { background: #ff3333; box-shadow: 0 3px 10px #ff3333; } 
-        .light-string:nth-child(4n+2) .light-bulb-end { background: #3366ff; box-shadow: 0 3px 10px #3366ff; } 
-        @keyframes flash { 0%, 100% { opacity: 1; filter: brightness(1.5); } 50% { opacity: 0.5; filter: brightness(0.8); } }
+        .light-string:nth-child(5n+1) { height: 10vh; left: 5%; animation-delay: 0.1s; }
+        .light-string:nth-child(5n+2) { height: 18vh; left: 20%; animation-delay: 0.5s; }
+        .light-string:nth-child(5n+3) { height: 8vh; left: 35%; animation-delay: 1.2s; }
+        .light-string:nth-child(5n+4) { height: 20vh; left: 50%; animation-delay: 0.3s; }
+        .light-string:nth-child(5n+5) { height: 14vh; left: 65%; animation-delay: 0.8s; }
+        .light-string:nth-child(n+6) { left: 12%; } .light-string:nth-child(n+11) { left: 28%; } .light-string:nth-child(n+16) { left: 42%; } .light-string:nth-child(n+21) { left: 58%; } .light-string:nth-child(n+26) { left: 75%; } .light-string:nth-child(n+31) { left: 85%; height: 16vh; } .light-string:nth-child(n+36) { left: 95%; height: 9vh; }
+        .light-string:nth-child(4n+1) .light-bulb-end { background: #ff3333; color: #ff3333; box-shadow: 0 3px 10px #ff3333; } 
+        .light-string:nth-child(4n+2) .light-bulb-end { background: #3366ff; color: #3366ff; box-shadow: 0 3px 10px #3366ff; } 
+        .light-string:nth-child(4n+3) .light-bulb-end { background: #33ff33; color: #33ff33; box-shadow: 0 3px 10px #33ff33; } 
+        .light-string:nth-child(4n+4) .light-bulb-end { background: #ffcc33; color: #ffcc33; box-shadow: 0 3px 10px #ffcc33; } 
+        @keyframes flash { 0%, 100% { opacity: 1; filter: brightness(1.8); box-shadow: 0 3px 20px currentColor; transform: translateX(-50%) scale(1.1); } 50% { opacity: 0.5; filter: brightness(0.8); box-shadow: none; transform: translateX(-50%) scale(0.9); } }
 
-        /* UI Düzeni */
-        main { position: relative; z-index: 50; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
-        #countdown-container { display: flex; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 1200px; gap: clamp(10px, 2vw, 40px); }
+        .neon-box { box-shadow: 0 0 15px rgba(59, 130, 246, 0.2), inset 0 0 15px rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3) !important; transition: all 0.3s ease; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(5px); }
+        .icy-headline { background: linear-gradient(to right, #ffffff, #cffafe, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.8)); display: inline-block; position: relative; z-index: 50; font-size: clamp(24px, 5vw, 60px); line-height: 1.2; }
         
-        .ui-btn { position: absolute; top: 20px; right: 20px; z-index: 200; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 20px; backdrop-filter: blur(5px); cursor: pointer; font-size: 12px; }
+        .celebration-text { animation: zoomInBounce 1s ease-out forwards, heartbeat 1.5s ease-in-out infinite 1s; }
+        @keyframes zoomInBounce { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes heartbeat { 0% { transform: scale(1); } 50% { transform: scale(1.05); text-shadow: 0 0 30px rgba(255,255,255,0.8); } 100% { transform: scale(1); } }
+
+        #spotlight-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, transparent 20%, #000000 95%); opacity: 0; transition: opacity 1s ease; pointer-events: none; z-index: 40; }
+        body.mode-critical #spotlight-overlay { opacity: 1; }
+        body.mode-critical #countdown { z-index: 60; filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.9)); }
+        body.mode-critical #headline-area, body.mode-critical .icicle-lights-container { opacity: 0.1; filter: blur(2px); transition: all 1s ease; }
+
+        .counter-container { transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; z-index: 50; }
+        .digit { font-variant-numeric: tabular-nums; } .ui-layer { position: relative; z-index: 50; }
+        .snowflake { position: absolute; top: -10px; background-color: white; border-radius: 50%; opacity: 0.6; pointer-events: none; animation: snowfall linear forwards; z-index: 2; }
+        @keyframes snowfall { to { transform: translateY(110vh); } }
+
+        /* YENİ: Kutuları gizlemek için yardımcı sınıf (Tasarımı bozmadan) */
+        .hidden-box { display: none !important; }
+
+        main { padding-top: 15vh !important; padding-bottom: 10vh !important; }
+        @media (min-width: 1024px) { #headline-area { margin-bottom: 3vh !important; } .counter-container { margin-top: 0 !important; } .light-string:nth-child(5n+2) { height: 22vh; } .light-string:nth-child(5n+4) { height: 25vh; } }
+        @media (max-width: 768px) { #headline-area { margin-bottom: 2rem; } .icy-headline { font-size: 24px; } .light-string { width: 1px; } .light-bulb-end { width: 8px; height: 12px; } .light-string:nth-child(5n+2) { height: 15vh; } .light-string:nth-child(5n+4) { height: 18vh; } main { padding-top: 10vh !important; } }
     </style>
 </head>
-<body>
+<body class="h-screen w-full flex flex-col items-center justify-center text-white relative">
 
     <div id="loading-screen" onclick="forceOpen()">
-        <div>🎄 Sahne Hazırlanıyor...</div>
-        <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 10px;">(Otomatik açılmazsa tıkla)</div>
+        <div>🎁 Yılbaşı Hazırlığı...</div>
+        <div style="font-size: 12px; color: #999; margin-top: 5px;">(Açılmazsa tıklayın)</div>
+        <button id="skip-btn" onclick="forceOpen()">BAŞLAT</button>
     </div>
-
-    <div id="canvas-container"></div>
-    <div id="spotlight-overlay"></div>
 
     <div class="icicle-lights-container">
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
-        <div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div>
+        <div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div><div class="light-string"><div class="light-bulb-end"></div></div>
     </div>
 
-    <button id="audioBtn" class="ui-btn" onclick="enableAudio()">🎵 Sesi Aç</button>
-    <audio id="bgMusic" loop>
+    <div id="spotlight-overlay"></div>
+
+    <div id="canvas-container" style="opacity: 1 !important;"></div>
+    
+    <button id="enableAudioBtn" onclick="enableAudio()" class="ui-layer absolute top-5 right-5 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-4 py-2 rounded-full text-xs transition">
+        🎵 Sesi Aktif Et
+    </button>
+
+    <audio id="newYearSong" onerror="playFallback()">
         <source src="mariah_its_time.mp3" type="audio/mpeg">
+        <source src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" type="audio/ogg">
     </audio>
 
-    <main>
-        <div id="headline-area" class="mb-8 md:mb-12">
-            <h1 class="icy-headline">YENİ YILA KALAN ZAMAN</h1>
+    <main class="ui-layer z-10 text-center px-4 w-full flex flex-col items-center justify-center h-full">
+        <div id="headline-area" class="relative transition-all duration-1000 ease-in">
+            <h1 id="headline" class="tracking-widest uppercase transition-colors duration-300 flex items-center justify-center">
+                <span class="icy-headline font-black">Yeni Yıla Kalan Zaman</span>
+            </h1>
         </div>
 
-        <div id="countdown-container">
-            <div id="box-days" class="neon-box">
-                <span id="days" class="digit">00</span>
-                <span class="label">GÜN</span>
+        <div id="countdown" class="counter-container flex flex-wrap justify-center gap-4 md:gap-8 origin-center">
+            <div id="box-days" class="neon-box flex flex-col items-center p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl backdrop-blur-md border border-white/10 w-20 md:w-40 transition-all duration-500 cursor-default">
+                <span id="days" class="digit text-2xl md:text-6xl font-black drop-shadow-lg">00</span>
+                <span class="text-[10px] md:text-sm text-blue-200/70 mt-1 md:mt-2">GÜN</span>
             </div>
-            <div id="box-hours" class="neon-box">
-                <span id="hours" class="digit">00</span>
-                <span class="label">SAAT</span>
+            <div id="box-hours" class="neon-box flex flex-col items-center p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl backdrop-blur-md border border-white/10 w-20 md:w-40 transition-all duration-500 cursor-default">
+                <span id="hours" class="digit text-2xl md:text-6xl font-black drop-shadow-lg">00</span>
+                <span class="text-[10px] md:text-sm text-blue-200/70 mt-1 md:mt-2">SAAT</span>
             </div>
-            <div id="box-minutes" class="neon-box">
-                <span id="minutes" class="digit">00</span>
-                <span class="label">DAKİKA</span>
+            <div id="box-minutes" class="neon-box flex flex-col items-center p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl backdrop-blur-md border border-white/10 w-20 md:w-40 transition-all duration-500 cursor-default">
+                <span id="minutes" class="digit text-2xl md:text-6xl font-black drop-shadow-lg">00</span>
+                <span class="text-[10px] md:text-sm text-blue-200/70 mt-1 md:mt-2">DAKİKA</span>
             </div>
-            <div id="box-seconds" class="neon-box">
-                <span id="seconds" class="digit text-blue-300">00</span>
-                <span class="label">SANİYE</span>
+            <div id="box-seconds" class="neon-box flex flex-col items-center p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl backdrop-blur-md border border-white/10 w-20 md:w-40 relative overflow-hidden transition-all duration-500 cursor-default">
+                <div class="absolute inset-0 bg-red-500/0 transition-colors duration-300" id="seconds-bg"></div>
+                <span id="seconds" class="digit text-2xl md:text-6xl font-black relative z-10 text-blue-400 drop-shadow-lg">00</span>
+                <span class="text-[10px] md:text-sm text-blue-200/70 mt-1 md:mt-2 relative z-10">SANİYE</span>
             </div>
         </div>
 
-        <div id="celebration" class="hidden absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <h2 class="celebration-text">MUTLU<br>YILLAR!</h2>
-            <p class="text-xl md:text-3xl text-white mt-4 font-bold drop-shadow-lg animate-pulse">Hoşgeldin 2026</p>
+        <div id="celebration" class="hidden absolute inset-0 flex flex-col items-center justify-center z-50 pointer-events-none">
+            <h2 class="celebration-text text-4xl md:text-8xl lg:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 text-center px-4 drop-shadow-2xl">
+                MUTLU YILLAR!
+            </h2>
+            <p class="text-xl md:text-4xl mt-4 md:mt-8 text-white/90 animate-pulse font-bold drop-shadow-lg">Hoşgeldin 2026</p>
         </div>
     </main>
 
     <script>
-        // --- 1. SAYAÇ MANTIĞI ---
+        // --- SAYAÇ AYARLARI ---
         const targetDate = new Date("Jan 1, 2026 00:00:00").getTime();
-        
-        const elDays = document.getElementById('days');
-        const elHours = document.getElementById('hours');
-        const elMinutes = document.getElementById('minutes');
-        const elSeconds = document.getElementById('seconds');
+        const elDays = document.getElementById('days'); const elHours = document.getElementById('hours');
+        const elMinutes = document.getElementById('minutes'); const elSeconds = document.getElementById('seconds');
         
         const boxDays = document.getElementById('box-days');
         const boxHours = document.getElementById('box-hours');
         const boxMinutes = document.getElementById('box-minutes');
         const boxSeconds = document.getElementById('box-seconds');
-        
-        const headlineArea = document.getElementById('headline-area');
-        const countdownContainer = document.getElementById('countdown-container');
-        const celebrationDiv = document.getElementById('celebration');
-        
-        const bgMusic = document.getElementById('bgMusic');
+
+        const elContainer = document.getElementById('countdown');
+        const elCelebration = document.getElementById('celebration');
+        const elHeadlineArea = document.getElementById('headline-area'); 
+        const audio = document.getElementById('newYearSong');
+        const audioBtn = document.getElementById('enableAudioBtn');
+        const loadingScreen = document.getElementById('loading-screen');
+
         let audioEnabled = false;
-        let musicStarted = false;
+        let musicStarted = false; 
+        let audioCtx;
 
         function enableAudio() {
-            bgMusic.play().then(() => {
-                bgMusic.pause();
-                bgMusic.currentTime = 0;
-                audioEnabled = true;
-                document.getElementById('audioBtn').style.display = 'none';
-            }).catch(e => console.log("Ses izni alınamadı"));
+            audio.play().then(() => {
+                audio.pause(); audio.currentTime = 0; audioEnabled = true;
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                audioBtn.innerHTML = "✅ Ses Hazır";
+                setTimeout(() => audioBtn.style.display = 'none', 2000);
+            }).catch(e => audioBtn.innerText = "⚠️ İzin Verilmedi");
         }
 
-        const timerInterval = setInterval(() => {
+        function playTickSound() {
+            if (!audioEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            osc.type = 'sine'; osc.frequency.setValueAtTime(600, audioCtx.currentTime); 
+            gainNode.gain.setValueAtTime(0.04, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+        }
+
+        function playFallback() { 
+            console.log("Ses dosyası hatası, yedek çalınıyor.");
+            audio.src = "https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg"; 
+        }
+
+        function createSnowflake() {
+            const sf = document.createElement('div');
+            sf.className = 'snowflake';
+            sf.style.left = Math.random() * 100 + 'vw';
+            const duration = Math.random() * 3 + 2; 
+            sf.style.animationDuration = duration + 's';
+            sf.style.width = sf.style.height = (Math.random() * 5 + 2) + 'px';
+            document.body.appendChild(sf);
+            setTimeout(() => sf.remove(), duration * 1000);
+        }
+        setInterval(createSnowflake, 100);
+
+        let lastPlayedSecond = -1;
+
+        const timer = setInterval(() => {
             const now = new Date().getTime();
             let distance = targetDate - now;
 
-            // 4. MADDE: Son 1 saniye kala (1000ms) müzik başlasın
+            // Müzik: Son 1 saniye kala (1000ms) çalsın
             if (distance <= 1000 && distance > 0 && !musicStarted && audioEnabled) {
-                bgMusic.play();
+                audio.play().catch(e => {});
                 musicStarted = true;
             }
 
-            // 3. MADDE: Sayaç eksiye düşmesin
+            // Negatif sayı engeli: Süre bittiyse 0'a eşitle ve kutlamayı başlat
             if (distance < 0) {
                 distance = 0;
-                clearInterval(timerInterval);
-                startNewYearShow(); // Sayaç bitti, şovu başlat
+                clearInterval(timer);
+                
+                // Son kez 00:00:00:00 yazdır
+                elDays.innerText = "00"; elHours.innerText = "00";
+                elMinutes.innerText = "00"; elSeconds.innerText = "00";
+                
+                startCelebration();
+                return;
             }
 
-            // Hesaplamalar
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            const totalSecondsLeft = Math.floor(distance / 1000);
 
-            // Ekrana Yazdır
             elDays.innerText = days < 10 ? '0' + days : days;
             elHours.innerText = hours < 10 ? '0' + hours : hours;
             elMinutes.innerText = minutes < 10 ? '0' + minutes : minutes;
             elSeconds.innerText = seconds < 10 ? '0' + seconds : seconds;
 
-            // 2. MADDE: Biten zaman dilimlerini gizle (Responsive Düzen)
-            // Eğer gün bittiyse (0 ise), gün kutusunu kaldır.
+            // KUTU GİZLEME MANTIĞI (Responsive)
             if (days <= 0) { 
                 boxDays.classList.add('hidden-box'); 
             } else {
                 boxDays.classList.remove('hidden-box');
             }
 
-            // Eğer hem gün hem saat bittiyse, saat kutusunu kaldır.
             if (days <= 0 && hours <= 0) {
                 boxHours.classList.add('hidden-box');
             }
 
-            // Eğer gün, saat ve dakika bittiyse, dakika kutusunu kaldır.
             if (days <= 0 && hours <= 0 && minutes <= 0) {
                 boxMinutes.classList.add('hidden-box');
-                // Sadece saniye kalınca stili biraz değiştirelim (uyarı rengi)
-                elSeconds.classList.add('text-red-500');
             }
 
-        }, 100);
+            // Kritik Mod (Son 10 saniye)
+            if (distance > 0 && totalSecondsLeft !== lastPlayedSecond) { playTickSound(); }
 
-        function startNewYearShow() {
-            // 5. MADDE: Ekran Değişimi
-            headlineArea.style.display = 'none';
-            countdownContainer.style.display = 'none'; // Sayacı tamamen gizle
-            celebrationDiv.classList.remove('hidden'); // Kutlamayı aç
+            if (totalSecondsLeft <= 10 && totalSecondsLeft > 0) {
+                document.body.classList.add('mode-critical');
+                if (ambientLight) ambientLight.intensity = 0.2; 
+                if (dirLight) dirLight.intensity = 0.5;
+            } else if (distance > 0) {
+                document.body.classList.remove('mode-critical');
+                if (ambientLight) ambientLight.intensity = 2.5; 
+                if (dirLight) dirLight.intensity = 3.0;
+            }
+
+            lastPlayedSecond = totalSecondsLeft;
+
+            // Kalp atışı animasyonu (Son saniyeler)
+            if (totalSecondsLeft <= 30 && totalSecondsLeft > 20) {
+                elContainer.style.transform = "scale(1.2)";
+            } else if (totalSecondsLeft <= 20 && totalSecondsLeft > 10) {
+                elContainer.style.transform = "scale(1.5)";
+            } else if (totalSecondsLeft <= 10 && totalSecondsLeft > 0) {
+                elContainer.style.transform = "scale(2.0)";
+            } else {
+                elContainer.style.transform = "scale(1)";
+            }
+
+            if (totalSecondsLeft > 10) { elHeadlineArea.style.opacity = "1"; }
             
-            document.body.classList.add('party-mode');
-            document.querySelector('.icicle-lights-container').style.display = 'none'; // Eski ışıkları kaldır
+            // Renk değişimi (Son 30 saniye)
+            if (distance > 0) {
+                if (totalSecondsLeft <= 30 && totalSecondsLeft > 10) {
+                    elSeconds.classList.add('text-orange-500');
+                } else {
+                    elSeconds.classList.remove('text-orange-500');
+                }
+            }
+        }, 100); 
 
-            // 6. MADDE: Konfeti Patlaması
-            const duration = 15 * 1000;
-            const animationEnd = Date.now() + duration;
-            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-
-            const interval = setInterval(function() {
-                const timeLeft = animationEnd - Date.now();
-                if (timeLeft <= 0) { return clearInterval(interval); }
-                const particleCount = 50 * (timeLeft / duration);
-                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random(), y: Math.random() - 0.2 } }));
+        function startCelebration() {
+            document.body.classList.remove('mode-critical');
+            document.body.classList.add('party-mode'); 
+            if (ambientLight) ambientLight.intensity = 2.5; 
+            if (dirLight) dirLight.intensity = 3.0;
+            
+            elContainer.style.display = 'none'; 
+            elHeadlineArea.style.display = 'none'; 
+            elCelebration.classList.remove('hidden'); 
+            document.querySelector('.icicle-lights-container').style.display = 'none';
+            document.getElementById('spotlight-overlay').style.display = 'none';
+            
+            // Sinematik Kızağı Tetikle
+            if(sleighGroup) {
+                sleighGroup.visible = true;
+                animationStartTime = performance.now();
+                animationState = 0; // Animasyonu baştan başlat
+            }
+            
+            // Konfeti
+            var duration = 15 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+            var interval = setInterval(function() {
+              var timeLeft = animationEnd - Date.now();
+              if (timeLeft <= 0) { return clearInterval(interval); }
+              var particleCount = 50 * (timeLeft / duration);
+              confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+              confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
             }, 250);
-
-            // 7. MADDE: Sinematik Kızak Animasyonunu Tetikle
-            playSleighAnimation();
         }
 
-        // --- 3D SAHNE & ANIMASYONLAR ---
-        let scene, camera, renderer;
-        let sleighGroup, cookieMan; // Kızak ve Kurabiye Adam referansları
-        let sleighPath; // Kızağın izleyeceği yol
-        let isSleighMoving = false;
-        let sleighProgress = 0;
-
-        // Yükleme Takibi
+        // --- 3D SAHNE ---
+        let scene, camera, renderer, sleighGroup, treeGroup, snowmanModel, snowmanHatModel, lanternModel;
+        let ambientLight, dirLight;
+        let clock = new THREE.Clock();
+        let entryPath, exitPath;
+        let pathDuration = 20; 
+        let animationStartTime = 0;
+        let animationState = 0; 
+        let waitStartTime = 0;
         let itemsLoaded = 0;
-        const totalItemsToLoad = 9; // Ağaç + Kardan Adam + Fener + 6 Hediye
-        const loadingScreen = document.getElementById('loading-screen');
 
         function forceOpen() {
-            loadingScreen.style.opacity = 0;
-            setTimeout(() => loadingScreen.style.display = 'none', 500);
+            if (loadingScreen.style.display !== 'none') {
+                loadingScreen.style.opacity = 0;
+                setTimeout(() => loadingScreen.style.display = 'none', 500);
+            }
         }
+        
+        window.addEventListener('load', function() { 
+            initThreeJS(); 
+            setTimeout(forceOpen, 3000); 
+        });
+
+        // 3 Ana Model (Ağaç, Kardan Adam, Fener) + 6 Hediye = Toplam 9 öğe
+        const totalItemsToLoad = 9; 
 
         function checkLoading() {
             itemsLoaded++;
-            if (itemsLoaded >= totalItemsToLoad) { forceOpen(); }
+            if(itemsLoaded >= totalItemsToLoad) { forceOpen(); }
         }
-
+        
         function initThreeJS() {
             const container = document.getElementById('canvas-container');
-            
             scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x1a0b2e, 0.002);
+            scene.fog = new THREE.FogExp2(0x1a0b2e, 0.002); 
 
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
-            updateCamera(); // Responsive Kamera Ayarı
-
+            camera.position.set(0, 0, 62.3); 
+            
             renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Performans için
+            renderer.shadowMap.enabled = true;
+            renderer.toneMapping = THREE.ReinhardToneMapping;
             container.appendChild(renderer.domElement);
 
-            // Işıklar
-            const ambientLight = new THREE.AmbientLight(0xffffff, 2.0);
+            ambientLight = new THREE.AmbientLight(0xffffff, 2.5); 
             scene.add(ambientLight);
-            const dirLight = new THREE.DirectionalLight(0xffd700, 3.0);
+            
+            dirLight = new THREE.DirectionalLight(0xffd700, 3.0); 
             dirLight.position.set(20, 50, 20);
             scene.add(dirLight);
 
-            // Yıldızlar
             const starGeo = new THREE.BufferGeometry();
-            const starPos = new Float32Array(2000 * 3);
-            for(let i=0; i<2000*3; i++) starPos[i] = (Math.random() - 0.5) * 400;
+            const starPos = new Float32Array(3000);
+            for(let i=0; i<3000; i++) starPos[i] = (Math.random() - 0.5) * 400;
             starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-            scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({color: 0xffffff, size: 0.3})));
+            scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({color: 0xffffff, size: 0.5})));
 
             const loader = new THREE.GLTFLoader();
 
-            // 1. Ağaç
-            loader.load('tree-decorated-snow.glb', (gltf) => {
+            // 1. AĞAÇ (SOL)
+            loader.load('tree-decorated-snow.glb', function (gltf) {
                 const model = gltf.scene;
-                model.scale.set(12, 12, 12);
-                model.position.set(-15, -14, 20); // Biraz sola aldık
+                model.scale.set(12.054, 12.054, 12.054); 
+                model.position.set(-20.9, -14.08, 34); 
+                treeGroup = model; 
+                scene.add(model);
+                loadGifts(model.position);
+                checkLoading(); 
+            }, undefined, function() { checkLoading(); });
+
+            // 2. KARDAN ADAM (SAĞ)
+            loader.load('snowman.glb', function (gltf) {
+                snowmanModel = gltf.scene;
+                snowmanModel.scale.set(6.615, 6.615, 6.615); 
+                snowmanModel.position.set(14, -9.68, 43.9); 
+                snowmanModel.rotation.y = -0.8; 
+                scene.add(snowmanModel);
+                checkLoading();
+            }, undefined, function() { checkLoading(); });
+
+            // 3. FENER
+            loader.load('lantern.glb', function (gltf) {
+                const model = gltf.scene;
+                model.scale.set(8.322, 8.322, 8.322);
+                model.position.set(20.5, -10, 41.4); 
                 scene.add(model);
                 checkLoading();
-                loadGifts(model.position); // Hediyeleri ağaca göre yükle
-            }, undefined, checkLoading);
+            }, undefined, function() { checkLoading(); });
 
-            // 2. Kardan Adam
-            loader.load('snowman.glb', (gltf) => {
-                const model = gltf.scene;
-                model.scale.set(6, 6, 6);
-                model.position.set(15, -10, 25);
-                model.rotation.y = -0.5;
-                scene.add(model);
-                checkLoading();
-            }, undefined, checkLoading);
-
-            // 3. Fener
-            loader.load('lantern.glb', (gltf) => {
-                const model = gltf.scene;
-                model.scale.set(8, 8, 8);
-                model.position.set(20, -10, 22);
-                scene.add(model);
-                checkLoading();
-            }, undefined, checkLoading);
-
-            // --- KIZAK GRUBU (Gizli Yüklenir) ---
+            // KIZAK (GİZLİ)
             sleighGroup = new THREE.Group();
-            sleighGroup.visible = false; // Başlangıçta görünmez
+            sleighGroup.visible = false; 
             scene.add(sleighGroup);
-
-            // Kızak Modeli
-            loader.load('sled.glb', (gltf) => {
-                const model = gltf.scene;
-                model.scale.set(10, 10, 10);
+            loader.load('sled.glb', function (gltf) {
+                const model = gltf.scene; model.scale.set(12, 12, 12); sleighGroup.add(model);
+            });
+            loader.load('gingerbread-man.glb', function (gltf) {
+                const model = gltf.scene; 
+                model.scale.set(36, 36, 36); 
+                model.position.set(0, 6, 2.0); 
+                // ÖNEMLİ: Kurabiye adam bize baksın diye 180 derece (Math.PI) döndürdük
+                model.rotation.y = Math.PI; 
                 sleighGroup.add(model);
             });
-            // Geyikler
-            loader.load('reindeer.glb', (gltf) => {
-                const deer1 = gltf.scene.clone(); deer1.scale.set(10, 10, 10); deer1.position.set(-3, 0, 12);
-                const deer2 = gltf.scene.clone(); deer2.scale.set(10, 10, 10); deer2.position.set(3, 0, 12);
-                sleighGroup.add(deer1); sleighGroup.add(deer2);
-            });
-            // Kurabiye Adam (Bize Dönük)
-            loader.load('gingerbread-man.glb', (gltf) => {
-                cookieMan = gltf.scene;
-                cookieMan.scale.set(30, 30, 30);
-                cookieMan.position.set(0, 5, 2); 
-                // ÖNEMLİ: Math.PI ile 180 derece döndürüyoruz, bize bakıyor.
-                cookieMan.rotation.y = Math.PI; 
-                sleighGroup.add(cookieMan);
+            loader.load('reindeer.glb', function (gltf) {
+                const deer1 = gltf.scene.clone(); deer1.scale.set(12, 12, 12); deer1.position.set(-3, 0, 15); sleighGroup.add(deer1);
+                const deer2 = gltf.scene.clone(); deer2.scale.set(12, 12, 12); deer2.position.set(3, 0, 15); sleighGroup.add(deer2);
             });
 
-            // --- KIZAK ROTASI (7. Madde) ---
-            // Uzaktan başlar, kavisli gelir, yukarıdan çıkar
-            const pathPoints = [
-                new THREE.Vector3(200, 50, -400), // Başlangıç (Uzak Sağ)
-                new THREE.Vector3(50, 20, -100),  // Yaklaşma
-                new THREE.Vector3(0, 5, 40),      // Sahne Önü (En Yakın)
-                new THREE.Vector3(-150, 80, -100) // Çıkış (Sol Üst Arka)
-            ];
-            sleighPath = new THREE.CatmullRomCurve3(pathPoints);
-
-            animate();
+            const entryPoints = [new THREE.Vector3(300, 40, -500), new THREE.Vector3(100, 20, -100), new THREE.Vector3(0, 5, 0)];
+            entryPath = new THREE.CatmullRomCurve3(entryPoints);
+            const exitPoints = [new THREE.Vector3(0, 5, 0), new THREE.Vector3(-100, 20, -100), new THREE.Vector3(-300, 50, -500)];
+            exitPath = new THREE.CatmullRomCurve3(exitPoints);
+            
+            updateCameraByScreenSize();
+            animate3D();
         }
 
+        // HEDİYE YÜKLEME
         function loadGifts(treePos) {
             const loader = new THREE.GLTFLoader();
             const giftFiles = ['present-a-cube.glb', 'present-a-rectangle.glb', 'present-b-round.glb'];
-            
-            for(let i=0; i < 6; i++) {
-                const file = giftFiles[Math.floor(Math.random() * giftFiles.length)];
-                loader.load(file, (gltf) => {
+            const numGifts = 6; 
+
+            for(let i=0; i < numGifts; i++) {
+                const randomFile = giftFiles[Math.floor(Math.random() * giftFiles.length)];
+                loader.load(randomFile, function(gltf) {
                     const gift = gltf.scene;
                     gift.scale.set(4, 4, 4);
-                    // Ağacın etrafına rastgele dağıt
+
+                    const radius = Math.random() * 4 + 3; 
                     const angle = Math.random() * Math.PI * 2;
-                    const radius = 4 + Math.random() * 4;
-                    gift.position.set(
-                        treePos.x + Math.cos(angle) * radius,
-                        -11.5, // Zemin seviyesi
-                        treePos.z + Math.sin(angle) * radius
-                    );
-                    gift.rotation.y = Math.random();
+                    const posX = treePos.x + radius * Math.cos(angle);
+                    const posY = -11.5; 
+                    const posZ = treePos.z + radius * Math.sin(angle);
+
+                    gift.position.set(posX, posY, posZ);
+                    gift.rotation.y = Math.random() * Math.PI * 2;
+                    
                     scene.add(gift);
-                    checkLoading(); // Hediye yüklendi, sayacı artır
-                }, undefined, checkLoading);
+                    checkLoading(); 
+                }, undefined, function() { 
+                    checkLoading();
+                });
             }
         }
 
-        function playSleighAnimation() {
-            if (sleighGroup) {
-                sleighGroup.visible = true;
-                isSleighMoving = true;
-                sleighProgress = 0;
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            const currentTime = performance.now();
+            const time = currentTime * 0.001; 
+
+            if(treeGroup) { 
+                const scaleBase = 12.054;
+                const scale = scaleBase + Math.sin(time) * 0.1; 
+                treeGroup.scale.set(scale, scale, scale); 
             }
-        }
+            if(snowmanModel) { 
+                snowmanModel.rotation.y = -0.8 + Math.sin(time * 2) * 0.05; 
+            }
 
-        function animate() {
-            requestAnimationFrame(animate);
-            
-            // Kızak Hareketi (Tek Seferlik)
-            if (isSleighMoving && sleighGroup) {
-                sleighProgress += 0.003; // Hız Ayarı
-                if (sleighProgress >= 1) {
-                    sleighProgress = 1;
-                    isSleighMoving = false;
-                    sleighGroup.visible = false; // Sahneden çıkar
-                }
-
-                const position = sleighPath.getPoint(sleighProgress);
-                sleighGroup.position.copy(position);
-
-                // Kızağın burnu yola baksın
-                const tangent = sleighPath.getTangent(sleighProgress).normalize();
-                const lookAtPos = position.clone().add(tangent);
-                sleighGroup.lookAt(lookAtPos);
+            if (sleighGroup && sleighGroup.visible) {
+                if (animationState === 3) { renderer.render(scene, camera); return; }
                 
-                // Kurabiye adam zaten gruba ters ekli olduğu için, grup dönünce o da bize bakmaya devam eder (veya el sallar gibi görünür)
+                if (animationState === 0) { 
+                    const elapsed = (currentTime - animationStartTime) / 1000;
+                    let t = elapsed / 20; 
+                    if (t >= 1) { t = 1; animationState = 1; waitStartTime = currentTime; }
+                    t = t * t * (3 - 2 * t);
+                    const pos = entryPath.getPoint(t);
+                    sleighGroup.position.copy(pos);
+                    if (t < 0.99) {
+                        const tangent = entryPath.getTangent(t).normalize();
+                        sleighGroup.lookAt(sleighGroup.position.clone().add(tangent));
+                    }
+                } else if (animationState === 1) { 
+                    if (currentTime - waitStartTime > 5000) { animationState = 2; animationStartTime = currentTime; }
+                } else if (animationState === 2) { 
+                    const elapsed = (currentTime - animationStartTime) / 1000;
+                    let t = elapsed / 8; 
+                    if (t >= 1) { t = 1; animationState = 3; sleighGroup.visible = false; }
+                    t = t * t;
+                    const pos = exitPath.getPoint(t);
+                    sleighGroup.position.copy(pos);
+                    if (t < 0.99) {
+                        const tangent = exitPath.getTangent(t).normalize();
+                        sleighGroup.lookAt(sleighGroup.position.clone().add(tangent));
+                    }
+                }
             }
-
             renderer.render(scene, camera);
         }
 
-        // --- RESPONSIVE KAMERA ---
-        function updateCamera() {
+        function updateCameraByScreenSize() {
             if (!camera || !renderer) return;
-            const w = window.innerWidth;
-            const h = window.innerHeight;
-            
-            renderer.setSize(w, h);
-            camera.aspect = w / h;
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            camera.aspect = width / height;
             camera.updateProjectionMatrix();
-
-            // Mobilde kamerayı biraz geri çekelim ki her şey sığsın
-            if (w < 768) {
-                camera.position.set(0, 5, 90);
-            } else {
-                camera.position.set(0, 0, 60);
+            renderer.setSize(width, height);
+            
+            if (width < 768) { 
+                camera.position.set(0, 10, 110); 
+            } else { 
+                camera.position.set(0, 0, 62.3); 
             }
         }
-
-        window.addEventListener('resize', updateCamera);
-        window.addEventListener('load', initThreeJS);
-
+        window.addEventListener('resize', updateCameraByScreenSize);
     </script>
 </body>
 </html>
