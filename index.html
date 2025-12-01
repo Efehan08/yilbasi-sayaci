@@ -153,7 +153,7 @@
 
     <script>
         // --- SAYAÇ AYARLARI ---
-        const targetDate = new Date("Dec 1, 2025 19:56:30").getTime();
+        const targetDate = new Date("Jan 1, 2026 00:00:00").getTime();
         const elDays = document.getElementById('days'); const elHours = document.getElementById('hours');
         const elMinutes = document.getElementById('minutes'); const elSeconds = document.getElementById('seconds');
         const elContainer = document.getElementById('countdown');
@@ -318,8 +318,8 @@
         let sleighPath; 
         let sleighProgress = 0; 
         
-        // DEĞİŞİKLİK: Yükleme sayacı arttırıldı (17 -> 18)
-        const totalItemsToLoad = 18; 
+        // YÜKLEME SAYACI (Her şey dahil: 13)
+        const totalItemsToLoad = 13; 
         let itemsLoaded = 0;
 
         function forceOpen() {
@@ -362,43 +362,20 @@
 
             const loader = new THREE.GLTFLoader();
 
-            // --- YENİ: ZEMİN KARLARI (Tümsekler + Düz Zemin) ---
-            // 1. Ana Büyük Kar (Ağacın altı - MEVCUT)
+            // --- DEVASA ZEMİN (Tüm boşlukları kapatır) ---
             loader.load('snow-flat-large.glb', function (gltf) {
-                const model = gltf.scene; model.scale.set(20, 1, 20); model.position.set(-15, -14.5, 30); scene.add(model); checkLoading();
-            }, undefined, function() { checkLoading(); });
-
-            // 2. Küçük Kar (Fenerin altı - MEVCUT)
-            loader.load('snow-flat.glb', function (gltf) {
-                const model = gltf.scene; model.scale.set(10, 1, 10); model.position.set(20, -14.5, 40); scene.add(model); checkLoading();
-            }, undefined, function() { checkLoading(); });
-
-            // 3. Kardan Adamın Arkası (MEVCUT)
-            loader.load('snow-flat.glb', function (gltf) {
-                const model = gltf.scene; model.scale.set(15, 1, 15); model.position.set(28, -14.5, 20); scene.add(model); checkLoading();
-            }, undefined, function() { checkLoading(); });
-
-            // 4. Fenerin Arkası (MEVCUT)
-            loader.load('snow-flat.glb', function (gltf) {
-                const model = gltf.scene; model.scale.set(12, 1, 12); model.position.set(35, -14.5, 35); scene.add(model); checkLoading();
-            }, undefined, function() { checkLoading(); });
-
-            // 5. YENİ EKLEME: Kardan Adamın Sol Arkasındaki Boşluk
-            loader.load('snow-flat.glb', function (gltf) {
                 const model = gltf.scene;
-                model.scale.set(15, 1, 15); 
-                model.position.set(0, -14.5, 50); 
+                // ÖNEMLİ: Zemin ölçeğini inanılmaz büyüttük, böylece arkası asla boş kalmayacak.
+                model.scale.set(80, 1, 50); 
+                model.position.set(0, -15, 10); 
                 scene.add(model);
                 checkLoading();
             }, undefined, function() { checkLoading(); });
 
-            // --- KAR TÜMSEKLERİ (MEVCUT) ---
+            // --- EKSTRA DETAY KARLARI ---
+            // Küçük Tümsekler (Görsel zenginlik için tuttuk)
             loader.load('snow-pile.glb', function (gltf) { const model = gltf.scene; model.scale.set(4, 4, 4); model.position.set(-22, -14.5, 40); scene.add(model); checkLoading(); });
-            loader.load('snow-pile.glb', function (gltf) { const model = gltf.scene; model.scale.set(3, 3, 3); model.position.set(-26, -14.5, 25); scene.add(model); checkLoading(); });
-            loader.load('snow-pile.glb', function (gltf) { const model = gltf.scene; model.scale.set(2, 2, 2); model.position.set(-10, -14.5, 48); scene.add(model); checkLoading(); });
             loader.load('snow-pile.glb', function (gltf) { const model = gltf.scene; model.scale.set(3, 3, 3); model.position.set(22, -14.5, 38); scene.add(model); checkLoading(); });
-            loader.load('snow-pile.glb', function (gltf) { const model = gltf.scene; model.scale.set(2, 2, 2); model.position.set(28, -14.5, 42); scene.add(model); checkLoading(); });
-            loader.load('snow-pile.glb', function (gltf) { const model = gltf.scene; model.scale.set(4, 4, 4); model.position.set(12, -14.5, 50); scene.add(model); checkLoading(); });
             // ---------------------------
 
             loader.load('tree-decorated-snow.glb', function (gltf) {
