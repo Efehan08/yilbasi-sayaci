@@ -153,7 +153,7 @@
 
     <script>
         // --- SAYAÇ AYARLARI ---
-        const targetDate = new Date("Dec 1, 2025 11:46:00").getTime();
+        const targetDate = new Date("Jan 1, 2026 00:00:00").getTime();
         const elDays = document.getElementById('days'); const elHours = document.getElementById('hours');
         const elMinutes = document.getElementById('minutes'); const elSeconds = document.getElementById('seconds');
         const elContainer = document.getElementById('countdown');
@@ -163,7 +163,6 @@
         const audioBtn = document.getElementById('enableAudioBtn');
         const loadingScreen = document.getElementById('loading-screen');
         
-        // Kutu Elementleri (Gizlemek için)
         const boxDays = document.getElementById('box-days');
         const boxHours = document.getElementById('box-hours');
         const boxMinutes = document.getElementById('box-minutes');
@@ -216,18 +215,15 @@
             const now = new Date().getTime();
             let distance = targetDate - now;
 
-            // Müzik: Son 1 saniye kala
             if (distance <= 1000 && distance > 0 && !musicStarted && audioEnabled) {
                 audio.play().catch(e => {});
                 musicStarted = true;
             }
 
-            // Süre bittiğinde
             if (distance < 0) {
                 distance = 0;
                 clearInterval(timer);
                 startCelebration();
-                // Sayacı son kez 0 yap
                 elDays.innerText = "00"; elHours.innerText = "00";
                 elMinutes.innerText = "00"; elSeconds.innerText = "00";
                 return;
@@ -244,7 +240,6 @@
             elMinutes.innerText = minutes < 10 ? '0' + minutes : minutes;
             elSeconds.innerText = seconds < 10 ? '0' + seconds : seconds;
 
-            // KUTU GİZLEME MANTIĞI
             boxDays.style.display = days <= 0 ? 'none' : 'flex';
             boxHours.style.display = (days <= 0 && hours <= 0) ? 'none' : 'flex';
             boxMinutes.style.display = (days <= 0 && hours <= 0 && minutes <= 0) ? 'none' : 'flex';
@@ -295,13 +290,11 @@
             document.querySelector('.icicle-lights-container').style.display = 'none';
             document.getElementById('spotlight-overlay').style.display = 'none';
             
-            // Animasyonu Başlat
             if(sleighGroup) {
                 sleighGroup.visible = true;
-                sleighProgress = 0; // İlerlemeyi sıfırla
+                sleighProgress = 0; 
             }
             
-            // Konfeti
             var duration = 15 * 1000;
             var animationEnd = Date.now() + duration;
             var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
@@ -318,8 +311,8 @@
         // --- 3D SAHNE ---
         let scene, camera, renderer, sleighGroup, treeGroup, snowmanModel, snowmanHatModel, lanternModel;
         let ambientLight, dirLight;
-        let sleighPath; // Yeni tekil yol
-        let sleighProgress = 0; // Hareket ilerlemesi (0.0 - 1.0)
+        let sleighPath; 
+        let sleighProgress = 0; 
         let itemsLoaded = 0;
 
         function forceOpen() {
@@ -370,7 +363,6 @@
 
             const loader = new THREE.GLTFLoader();
 
-            // 1. AĞAÇ
             loader.load('tree-decorated-snow.glb', function (gltf) {
                 const model = gltf.scene;
                 model.scale.set(12.054, 12.054, 12.054); 
@@ -381,7 +373,6 @@
                 checkLoading(); 
             }, undefined, function() { checkLoading(); });
 
-            // 2. KARDAN ADAM
             loader.load('snowman.glb', function (gltf) {
                 snowmanModel = gltf.scene;
                 snowmanModel.scale.set(6.615, 6.615, 6.615); 
@@ -391,7 +382,6 @@
                 checkLoading();
             }, undefined, function() { checkLoading(); });
 
-            // 3. FENER
             loader.load('lantern.glb', function (gltf) {
                 const model = gltf.scene;
                 model.scale.set(8.322, 8.322, 8.322);
@@ -400,7 +390,6 @@
                 checkLoading();
             }, undefined, function() { checkLoading(); });
 
-            // KIZAK
             sleighGroup = new THREE.Group();
             sleighGroup.visible = false; 
             scene.add(sleighGroup);
@@ -409,7 +398,7 @@
             });
             loader.load('gingerbread-man.glb', function (gltf) {
                 const model = gltf.scene; model.scale.set(36, 36, 36); model.position.set(0, 6, 2.0); 
-                model.rotation.y = Math.PI; // Bize bakıyor
+                // ÖNEMLİ DEĞİŞİKLİK: Kurabiye adamın dönüşünü kaldırdık, artık öne bakıyor
                 sleighGroup.add(model);
             });
             loader.load('reindeer.glb', function (gltf) {
@@ -417,12 +406,11 @@
                 const deer2 = gltf.scene.clone(); deer2.scale.set(12, 12, 12); deer2.position.set(3, 0, 15); sleighGroup.add(deer2);
             });
 
-            // --- YENİ ROTA (DURMA YOK) ---
             const points = [
-                new THREE.Vector3(300, 50, -400),  // Başlangıç: Uzak sağ arka
-                new THREE.Vector3(100, 20, -100),  // Yaklaşma
-                new THREE.Vector3(0, 5, 20),       // En yakın (Merkez)
-                new THREE.Vector3(-200, 120, 60)   // Çıkış: Sol üst, kamerayı geçince
+                new THREE.Vector3(300, 50, -400),
+                new THREE.Vector3(100, 20, -100),
+                new THREE.Vector3(0, 5, 20),
+                new THREE.Vector3(-200, 120, 60)
             ];
             sleighPath = new THREE.CatmullRomCurve3(points);
             
@@ -467,25 +455,23 @@
                 snowmanModel.rotation.y = -0.8 + Math.sin(time * 2) * 0.05; 
             }
 
-            // --- GÜNCELLENMİŞ KIZAK HAREKETİ ---
             if (sleighGroup && sleighGroup.visible) {
-                // Temel Hız
-                let speed = 0.0025; 
+                // ÖNEMLİ DEĞİŞİKLİK: Hız %10 azaltıldı (0.0025 -> 0.00225)
+                let speed = 0.00225; 
                 
-                // Final Frenlemesi (Yolun son %20'sinde yavaşla)
+                // Yavaşlama hızı da orantılı düşürüldü (0.0008 -> 0.00072)
                 if (sleighProgress > 0.8) {
-                    speed = 0.0008; // Çok daha yavaş
+                    speed = 0.00072; 
                 }
 
                 sleighProgress += speed;
 
                 if (sleighProgress >= 1) {
-                    sleighGroup.visible = false; // Bitti
+                    sleighGroup.visible = false; 
                 } else {
                     const pos = sleighPath.getPoint(sleighProgress);
                     sleighGroup.position.copy(pos);
                     
-                    // Kızağın yönünü yola çevir
                     const tangent = sleighPath.getTangent(sleighProgress).normalize();
                     sleighGroup.lookAt(sleighGroup.position.clone().add(tangent));
                 }
@@ -512,4 +498,3 @@
     </script>
 </body>
 </html>
-
