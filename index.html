@@ -153,7 +153,7 @@
 
     <script>
         // --- SAYAÇ AYARLARI ---
-        const targetDate = new Date("Dec 1, 2025 12:09:00").getTime();
+        const targetDate = new Date("Dec 1, 2025 12:14:00").getTime();
         const elDays = document.getElementById('days'); const elHours = document.getElementById('hours');
         const elMinutes = document.getElementById('minutes'); const elSeconds = document.getElementById('seconds');
         const elContainer = document.getElementById('countdown');
@@ -171,7 +171,6 @@
         let musicStarted = false; 
         let audioCtx;
         
-        // YENİ: Kardan adam zıplaması için flag
         let isCelebrationActive = false;
 
         function enableAudio() {
@@ -293,7 +292,6 @@
             document.querySelector('.icicle-lights-container').style.display = 'none';
             document.getElementById('spotlight-overlay').style.display = 'none';
             
-            // YENİ: Kutlama başladığını bildir
             isCelebrationActive = true;
 
             if(sleighGroup) {
@@ -453,25 +451,30 @@
             const time = currentTime * 0.001; 
 
             if(treeGroup) { 
-                const scaleBase = 12.054;
-                const scale = scaleBase + Math.sin(time) * 0.1; 
-                treeGroup.scale.set(scale, scale, scale); 
+                // YENİ: Ağaç Hareketi
+                if(isCelebrationActive) {
+                    // Kutlama modu: Sadece zıpla (Dönme YOK), Kardan adamla senkronize
+                    // -14.08: Orijinal zemin yüksekliği
+                    treeGroup.position.y = -14.08 + Math.abs(Math.sin(time * 10)) * 4;
+                    treeGroup.scale.set(12.054, 12.054, 12.054); // Ölçeği sabitle
+                } else {
+                    // Normal mod: "Nefes alma" efekti
+                    const scaleBase = 12.054;
+                    const scale = scaleBase + Math.sin(time) * 0.1; 
+                    treeGroup.scale.set(scale, scale, scale); 
+                    treeGroup.position.y = -14.08; // Pozisyonu sabitle
+                }
             }
             if(snowmanModel) { 
-                // YENİ: Kardan Adam Hareketi
                 if(isCelebrationActive) {
-                    // Kutlama modu: Zıpla ve dön
-                    // -9.68: Orijinal zemin yüksekliği
                     snowmanModel.position.y = -9.68 + Math.abs(Math.sin(time * 10)) * 3;
-                    snowmanModel.rotation.y += 0.1; // Hızlı dönme
+                    snowmanModel.rotation.y += 0.1; 
                 } else {
-                    // Normal mod: Yavaş sallanma
                     snowmanModel.rotation.y = -0.8 + Math.sin(time * 2) * 0.05; 
                 }
             }
 
             if (sleighGroup && sleighGroup.visible) {
-                // Hız: 0.00218 (%3 daha yavaş)
                 let speed = 0.0013; 
                 
                 if (sleighProgress > 0.8) {
