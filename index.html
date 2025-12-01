@@ -324,8 +324,7 @@
 
         function checkLoading() {
             itemsLoaded++;
-            // DÜZELTME: Şapka geri geldiği için beklenen öğe sayısı tekrar 4 oldu.
-            if(itemsLoaded >= 4) { forceOpen(); }
+            if(itemsLoaded >= 3) { forceOpen(); }
         }
         
         function initThreeJS() {
@@ -368,7 +367,7 @@
                 checkLoading(); 
             }, undefined, function() { checkLoading(); });
 
-            // 2. KARDAN ADAM (SAĞ) - Şapka geri eklendi
+            // 2. KARDAN ADAM (SAĞ) - Şapka düzeltildi
             loader.load('snowman.glb', function (gltf) {
                 snowmanModel = gltf.scene;
                 snowmanModel.scale.set(6.615, 6.615, 6.615); 
@@ -376,18 +375,7 @@
                 snowmanModel.rotation.y = -0.8; 
                 scene.add(snowmanModel);
                 checkLoading();
-                
-                // Şapka yüklemesi geri eklendi
-                loader.load('snowman-hat.glb', function (hatGltf) {
-                    const hat = hatGltf.scene;
-                    snowmanHatModel = hat;
-                    hat.scale.set(6.615, 6.615, 6.615);
-                    hat.position.set(14, -9.68 + (7 * 6.615 / 10), 43.9); 
-                    hat.rotation.y = -0.8;
-                    scene.add(hat);
-                    checkLoading();
-                }, undefined, function() { checkLoading(); });
-
+                // Not: Fazladan şapka yüklemesi kaldırıldı.
             }, undefined, function() { checkLoading(); });
 
             // 3. FENER
@@ -423,7 +411,7 @@
             animate3D();
         }
 
-        // GÜNCELLENMİŞ HEDİYE YÜKLEME FONKSİYONU
+        // GÜNCELLENMİŞ DAİRESEL HEDİYE YÜKLEME FONKSİYONU
         function loadGifts(treePos) {
             const loader = new THREE.GLTFLoader();
             const giftFiles = ['present-a-cube.glb', 'present-a-rectangle.glb', 'present-b-round.glb'];
@@ -435,12 +423,10 @@
                     const gift = gltf.scene;
                     gift.scale.set(4, 4, 4);
 
-                    // Yarıçap artırıldı: Ağaçtan daha uzağa (X ve Z'de dışa doğru)
-                    const radius = Math.random() * 3 + 5; 
+                    const radius = Math.random() * 4 + 3; 
                     const angle = Math.random() * Math.PI * 2;
                     const posX = treePos.x + radius * Math.cos(angle);
-                    // Y konumu güncellendi: Zemine tam oturması için
-                    const posY = -10.8; 
+                    const posY = -11.5; // Zemin hizalaması güncellendi
                     const posZ = treePos.z + radius * Math.sin(angle);
 
                     gift.position.set(posX, posY, posZ);
@@ -464,8 +450,6 @@
             }
             if(snowmanModel) { 
                 snowmanModel.rotation.y = -0.8 + Math.sin(time * 2) * 0.05; 
-                // Şapka animasyonu geri eklendi
-                if(snowmanHatModel) snowmanHatModel.rotation.y = -0.8 + Math.sin(time * 2) * 0.05;
             }
 
             if (sleighGroup && sleighGroup.visible) {
