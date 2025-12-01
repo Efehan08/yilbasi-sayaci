@@ -318,8 +318,8 @@
         let sleighPath; 
         let sleighProgress = 0; 
         
-        // YÜKLEME SAYACI (Her şey dahil: 13)
-        const totalItemsToLoad = 13; 
+        // YÜKLEME SAYACI GÜNCELLENDİ (13 + 5 yeni obje = 18)
+        const totalItemsToLoad = 18; 
         let itemsLoaded = 0;
 
         function forceOpen() {
@@ -362,20 +362,38 @@
 
             const loader = new THREE.GLTFLoader();
 
-            // --- DEVASA ZEMİN (Tüm boşlukları kapatır) ---
+            // --- ZEMİN KARLARI (MEVCUT) ---
             loader.load('snow-flat-large.glb', function (gltf) {
-                const model = gltf.scene;
-                // ÖNEMLİ: Zemin ölçeğini inanılmaz büyüttük, böylece arkası asla boş kalmayacak.
-                model.scale.set(80, 1, 50); 
-                model.position.set(0, -15, 10); 
-                scene.add(model);
-                checkLoading();
+                const model = gltf.scene; model.scale.set(80, 1, 50); model.position.set(0, -15, 10); scene.add(model); checkLoading();
             }, undefined, function() { checkLoading(); });
-
-            // --- EKSTRA DETAY KARLARI ---
-            // Küçük Tümsekler (Görsel zenginlik için tuttuk)
             loader.load('snow-pile.glb', function (gltf) { const model = gltf.scene; model.scale.set(4, 4, 4); model.position.set(-22, -14.5, 40); scene.add(model); checkLoading(); });
             loader.load('snow-pile.glb', function (gltf) { const model = gltf.scene; model.scale.set(3, 3, 3); model.position.set(22, -14.5, 38); scene.add(model); checkLoading(); });
+            
+            // --- YENİ: ARKA PLAN OBJELERİ ---
+            // 1. Sol Arka Ağaç
+            loader.load('tree-snow-a.glb', function (gltf) {
+                const model = gltf.scene; model.scale.set(8, 8, 8); model.position.set(-40, -15, -20); scene.add(model); checkLoading();
+            }, undefined, function() { checkLoading(); });
+            
+            // 2. Sağ Arka Ağaç
+            loader.load('tree-snow-b.glb', function (gltf) {
+                const model = gltf.scene; model.scale.set(9, 9, 9); model.position.set(50, -15, -30); scene.add(model); checkLoading();
+            }, undefined, function() { checkLoading(); });
+            
+            // 3. Orta Arka Ağaç
+            loader.load('tree-snow-c.glb', function (gltf) {
+                const model = gltf.scene; model.scale.set(7, 7, 7); model.position.set(10, -15, -50); scene.add(model); checkLoading();
+            }, undefined, function() { checkLoading(); });
+            
+            // 4. Sol Arka Kar Yığını (Siper)
+            loader.load('snow-bunker.glb', function (gltf) {
+                const model = gltf.scene; model.scale.set(5, 5, 5); model.position.set(-30, -15, -10); model.rotation.y = Math.PI / 4; scene.add(model); checkLoading();
+            }, undefined, function() { checkLoading(); });
+            
+            // 5. Sağ Arka Kar Yığını (Siper)
+            loader.load('snow-bunker.glb', function (gltf) {
+                const model = gltf.scene; model.scale.set(6, 6, 6); model.position.set(40, -15, -20); model.rotation.y = -Math.PI / 3; scene.add(model); checkLoading();
+            }, undefined, function() { checkLoading(); });
             // ---------------------------
 
             loader.load('tree-decorated-snow.glb', function (gltf) {
