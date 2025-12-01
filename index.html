@@ -464,7 +464,7 @@
                 const randomFile = giftFiles[Math.floor(Math.random() * giftFiles.length)];
                 loader.load(randomFile, function(gltf) {
                     const gift = gltf.scene;
-                    gift.scale.set(4, 4, 4);
+                    gift.scale.set(7, 7, 7);
                     const radius = Math.random() * 4 + 3; 
                     const angle = Math.random() * Math.PI * 2;
                     const posX = treePos.x + radius * Math.cos(angle);
@@ -544,3 +544,4 @@
     </script>
 </body>
 </html>
+
