@@ -153,7 +153,7 @@
 
     <script>
         // --- SAYAÇ AYARLARI ---
-        const targetDate = new Date("Dec 1, 2025 11:59:").getTime();
+        const targetDate = new Date("Dec 1, 2025 12:01:00").getTime();
         const elDays = document.getElementById('days'); const elHours = document.getElementById('hours');
         const elMinutes = document.getElementById('minutes'); const elSeconds = document.getElementById('seconds');
         const elContainer = document.getElementById('countdown');
@@ -457,11 +457,11 @@
 
             if (sleighGroup && sleighGroup.visible) {
                 // ÖNEMLİ DEĞİŞİKLİK: Hız %10 azaltıldı (0.0025 -> 0.00225)
-                let speed = 0.00180; 
+                let speed = 0.0015; 
                 
                 // Yavaşlama hızı da orantılı düşürüldü (0.0008 -> 0.00072)
                 if (sleighProgress > 0.8) {
-                    speed = 0.00100; 
+                    speed = 0.0006; 
                 }
 
                 sleighProgress += speed;
@@ -498,6 +498,7 @@
     </script>
 </body>
 </html>
+
 
 
 
