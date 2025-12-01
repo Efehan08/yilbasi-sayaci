@@ -153,7 +153,7 @@
 
     <script>
         // --- SAYAÇ AYARLARI ---
-        const targetDate = new Date("Dec 1, 2025 10:48:30").getTime();
+        const targetDate = new Date("Jan 1, 2026 00:00:00").getTime();
         const elDays = document.getElementById('days'); const elHours = document.getElementById('hours');
         const elMinutes = document.getElementById('minutes'); const elSeconds = document.getElementById('seconds');
         const elContainer = document.getElementById('countdown');
@@ -324,7 +324,6 @@
 
         function checkLoading() {
             itemsLoaded++;
-            // DÜZELTME: Şapkayı sildiğimiz için beklenen öğe sayısı 3'e düştü (Ağaç, Kardan Adam, Fener)
             if(itemsLoaded >= 3) { forceOpen(); }
         }
         
@@ -364,11 +363,11 @@
                 model.position.set(-20.9, -14.08, 34); 
                 treeGroup = model; 
                 scene.add(model);
-                loadGifts(model.position);
+                loadGifts(model.position); // Hediyeleri ağaç pozisyonuna göre yükle
                 checkLoading(); 
             }, undefined, function() { checkLoading(); });
 
-            // 2. KARDAN ADAM (SAĞ) - Şapka yüklemesi kaldırıldı
+            // 2. KARDAN ADAM (SAĞ)
             loader.load('snowman.glb', function (gltf) {
                 snowmanModel = gltf.scene;
                 snowmanModel.scale.set(6.615, 6.615, 6.615); 
@@ -411,30 +410,31 @@
             animate3D();
         }
 
-        // GÜNCELLENMİŞ HEDİYE YÜKLEME FONKSİYONU
+        // --- GÜNCELLENMİŞ HEDİYE YÜKLEME FONKSİYONU (MANUEL KONUMLANDIRMA) ---
         function loadGifts(treePos) {
             const loader = new THREE.GLTFLoader();
-            const giftFiles = ['present-a-cube.glb', 'present-a-rectangle.glb', 'present-b-round.glb'];
-            const numGifts = 6; 
+            // Hediyelerin karda durması için ağaç tabanından biraz yukarıda bir Y koordinatı
+            const groundY = -13.5; 
 
-            for(let i=0; i < numGifts; i++) {
-                const randomFile = giftFiles[Math.floor(Math.random() * giftFiles.length)];
-                loader.load(randomFile, function(gltf) {
-                    const gift = gltf.scene;
-                    gift.scale.set(4, 4, 4);
+            // Hediye 1: Küp (Ağacın sol ön tarafında)
+            loader.load('present-a-cube.glb', function(gltf) {
+                const gift1 = gltf.scene;
+                gift1.scale.set(3.5, 3.5, 3.5); // Görsele göre boyut ayarı
+                // Ağaç merkezine göre konum: Sola (-X) ve Öne (+Z) git
+                gift1.position.set(treePos.x - 5, groundY, treePos.z + 6);
+                gift1.rotation.y = Math.PI / 4; // Hafif açılı duruş
+                scene.add(gift1);
+            });
 
-                    const radius = Math.random() * 4 + 3; 
-                    const angle = Math.random() * Math.PI * 2;
-                    const posX = treePos.x + radius * Math.cos(angle);
-                    const posY = -11.5; 
-                    const posZ = treePos.z + radius * Math.sin(angle);
-
-                    gift.position.set(posX, posY, posZ);
-                    gift.rotation.y = Math.random() * Math.PI * 2;
-                    
-                    scene.add(gift);
-                });
-            }
+            // Hediye 2: Dikdörtgen (Küpün hemen sağında)
+            loader.load('present-a-rectangle.glb', function(gltf) {
+                const gift2 = gltf.scene;
+                gift2.scale.set(4, 4, 4);
+                // Ağaç merkezine göre konum: Küpün biraz sağında (-X azalır), benzer derinlikte
+                gift2.position.set(treePos.x - 1, groundY, treePos.z + 5);
+                gift2.rotation.y = -Math.PI / 6; // Diğer yöne hafif açılı duruş
+                scene.add(gift2);
+            });
         }
 
         function animate3D() {
@@ -450,7 +450,6 @@
             }
             if(snowmanModel) { 
                 snowmanModel.rotation.y = -0.8 + Math.sin(time * 2) * 0.05; 
-                // Hat animasyonu kaldırıldı
             }
 
             if (sleighGroup && sleighGroup.visible) {
@@ -503,4 +502,3 @@
     </script>
 </body>
 </html>
-
